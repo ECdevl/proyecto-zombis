@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="ContainerResource" format=3 uid="uid://byxugjqoxthnx"]
+
+[ext_resource type="Script" uid="uid://c781c2o56v7st" path="res://scripts/components/item_inventory.gd" id="1_uptie"]
+[ext_resource type="Script" uid="uid://ckortgl5i83k5" path="res://scripts/components/container_script.gd" id="2_1njko"]
+
+[resource]
+script = ExtResource("2_1njko")
+metadata/_custom_type_script = "uid://ckortgl5i83k5"

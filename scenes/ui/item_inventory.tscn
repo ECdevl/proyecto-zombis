@@ -1,0 +1,42 @@
+[gd_scene format=3 uid="uid://emtrk8exj7f"]
+
+[ext_resource type="Script" uid="uid://cd21uu7xcdfks" path="res://scripts/ui/item_slot.gd" id="1_37fdr"]
+[ext_resource type="Texture2D" uid="uid://02e6wui6yeon" path="res://icon.svg" id="2_608lq"]
+
+[node name="Item" type="Button" unique_id=1770350760]
+custom_minimum_size = Vector2(0, 40)
+offset_right = 301.0
+offset_bottom = 40.0
+size_flags_horizontal = 3
+offset_transform_position = Vector2(8.825, 0)
+toggle_mode = true
+script = ExtResource("1_37fdr")
+
+[node name="Panel" type="HBoxContainer" parent="." unique_id=813818453]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="logo" type="TextureRect" parent="Panel" unique_id=1693391551]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(40, 0)
+layout_mode = 2
+texture = ExtResource("2_608lq")
+expand_mode = 1
+
+[node name="name_label" type="Label" parent="Panel" unique_id=451513426]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Nombre"
+
+[node name="___" type="Control" parent="Panel" unique_id=723930675]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="quantity" type="Label" parent="Panel" unique_id=1577793477]
+unique_name_in_owner = true
+layout_mode = 2

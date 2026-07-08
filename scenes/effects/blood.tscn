@@ -1,0 +1,46 @@
+[gd_scene format=3 uid="uid://t3pfbgv7i028"]
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_ua7yo"]
+initial_velocity_min = 1.0
+initial_velocity_max = 5.0
+scale_min = 0.14999999
+scale_max = 0.25
+scale_over_velocity_min = 0.14999999
+scale_over_velocity_max = 1.0
+hue_variation_min = -2.2351742e-08
+hue_variation_max = 0.99999994
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_m17ul"]
+albedo_color = Color(1, 0, 0, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_44gn3"]
+material = SubResource("StandardMaterial3D_m17ul")
+radius = 0.063
+height = 0.125
+
+[sub_resource type="GDScript" id="GDScript_bmcx5"]
+resource_name = "splatt"
+script/source = "extends GPUParticles3D
+var particle_direction : Vector3
+
+func _ready() -> void:
+	var amterial : ParticleProcessMaterial = process_material
+	amterial.direction = particle_direction
+	restart()
+
+
+
+func _on_finished() -> void:
+	queue_free()
+"
+
+[node name="blood_splatter" type="GPUParticles3D" unique_id=276824077 groups=["BLOOD"]]
+emitting = false
+amount = 25
+one_shot = true
+explosiveness = 1.0
+process_material = SubResource("ParticleProcessMaterial_ua7yo")
+draw_pass_1 = SubResource("SphereMesh_44gn3")
+script = SubResource("GDScript_bmcx5")
+
+[connection signal="finished" from="." to="." method="_on_finished"]

@@ -2,17 +2,20 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://02e6wui6yeon"
-path.s3tc="res://.godot/imported/icon.svg-218a8f2b3041327d8a5756f3a245f83b.s3tc.ctex"
+uid="uid://brbt2v8mgukla"
+path.s3tc="res://.godot/imported/armsy_texture of the arms 2.png-c9d57e761a95b48ebabfe66d71c8ef29.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
 }
+generator_parameters={
+"md5": "7d4e463d9416e91ff1df53be5e75d8de"
+}
 
 [deps]
 
-source_file="res://icon.svg"
-dest_files=["res://.godot/imported/icon.svg-218a8f2b3041327d8a5756f3a245f83b.s3tc.ctex"]
+source_file="res://Assets/armsy_texture of the arms 2.png"
+dest_files=["res://.godot/imported/armsy_texture of the arms 2.png-c9d57e761a95b48ebabfe66d71c8ef29.s3tc.ctex"]
 
 [params]
 
@@ -39,6 +42,3 @@ process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
 detect_3d/compress_to=0
-svg/scale=1.0
-editor/scale_with_editor_scale=false
-editor/convert_colors_with_editor_theme=false

@@ -1,0 +1,46 @@
+[gd_scene format=3 uid="uid://dp6d004dbnqh6"]
+
+[ext_resource type="PackedScene" uid="uid://dftxseqmmjo35" path="res://scenes/zombies/zombie.tscn" id="1_q2pm7"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_q2pm7"]
+sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+ground_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+
+[sub_resource type="Sky" id="Sky_ihcbt"]
+sky_material = SubResource("ProceduralSkyMaterial_q2pm7")
+
+[sub_resource type="Environment" id="Environment_e20df"]
+background_mode = 2
+sky = SubResource("Sky_ihcbt")
+glow_enabled = true
+
+[sub_resource type="QuadMesh" id="QuadMesh_8njf7"]
+size = Vector2(9, 9)
+
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_ihcbt"]
+data = PackedVector3Array(4.5, -4.5, 0, -4.5, -4.5, 0, 4.5, 4.5, 0, -4.5, -4.5, 0, -4.5, 4.5, 0, 4.5, 4.5, 0)
+
+[node name="Node3D" type="Node3D" unique_id=1281767799]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=424556754]
+environment = SubResource("Environment_e20df")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=112431302]
+transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, 0, 0, 0)
+shadow_enabled = true
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=671723636]
+transform = Transform3D(0.61213005, -0.3080917, 0.7282694, -1.4901161e-08, 0.92097735, 0.3896161, -0.7907571, -0.23849572, 0.5637579, 1.8794116, 2.0717535, 1.3747778)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=328227477]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, 0)
+mesh = SubResource("QuadMesh_8njf7")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="MeshInstance3D" unique_id=903967350]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MeshInstance3D/StaticBody3D" unique_id=1128366653]
+shape = SubResource("ConcavePolygonShape3D_ihcbt")
+
+[node name="zombie" parent="." unique_id=495252481 instance=ExtResource("1_q2pm7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.09445286, 0.16787592, 0.0441765)
+ragdoll_text = true

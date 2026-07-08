@@ -1,0 +1,297 @@
+[gd_scene format=3 uid="uid://01e8m6xuuak5"]
+
+[ext_resource type="Script" uid="uid://nbf8mh53g4mq" path="res://scripts/ui/ui.gd" id="1_nt7q6"]
+[ext_resource type="Script" uid="uid://c781c2o56v7st" path="res://scripts/components/item_inventory.gd" id="2_gdt2y"]
+[ext_resource type="Texture2D" uid="uid://02e6wui6yeon" path="res://icon.svg" id="2_x4jx1"]
+[ext_resource type="Script" uid="uid://ckortgl5i83k5" path="res://scripts/components/container_script.gd" id="3_wm3ai"]
+
+[sub_resource type="Resource" id="Resource_x4jx1"]
+script = ExtResource("3_wm3ai")
+metadata/_custom_type_script = "uid://ckortgl5i83k5"
+
+[sub_resource type="Gradient" id="Gradient_d2wvv"]
+interpolation_mode = 1
+offsets = PackedFloat32Array(0.26610646, 0.6162465)
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_ua7yo"]
+gradient = SubResource("Gradient_d2wvv")
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5811966, 0.44017094)
+
+[sub_resource type="LabelSettings" id="LabelSettings_8njf7"]
+font_size = 40
+
+[sub_resource type="LabelSettings" id="LabelSettings_x4jx1"]
+font_size = 20
+
+[sub_resource type="Gradient" id="Gradient_nt7q6"]
+interpolation_mode = 1
+offsets = PackedFloat32Array(0, 0.6566265)
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_8njf7"]
+gradient = SubResource("Gradient_nt7q6")
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+
+[node name="UI" type="Control" unique_id=1877997638]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_nt7q6")
+current_container = SubResource("Resource_x4jx1")
+
+[node name="Crosshair" type="TextureRect" parent="." unique_id=2081639646]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -32.0
+offset_top = -32.0
+offset_right = 32.0
+offset_bottom = 32.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = SubResource("GradientTexture2D_ua7yo")
+
+[node name="inventory" type="Panel" parent="." unique_id=1177332104]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -259.0
+offset_top = -259.0
+offset_right = 259.0
+offset_bottom = 259.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="capacity" type="Label" parent="inventory" unique_id=1327078446]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 209.0
+offset_right = 280.0
+offset_bottom = 23.0
+text = "Capacity:"
+
+[node name="interaction" type="VBoxContainer" parent="inventory" unique_id=1485842396]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 518.0
+offset_right = 719.0
+offset_bottom = 96.0
+
+[node name="Label" type="Label" parent="inventory" unique_id=779404611]
+layout_mode = 0
+offset_left = -254.0
+offset_top = -58.0
+offset_right = -68.0
+offset_bottom = -3.0
+text = "Inventory"
+label_settings = SubResource("LabelSettings_8njf7")
+
+[node name="ScrollContainer" type="ScrollContainer" parent="inventory" unique_id=321608735]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 2
+
+[node name="slots" type="VBoxContainer" parent="inventory/ScrollContainer" unique_id=103732534]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="clothes_panel" type="Panel" parent="inventory" unique_id=319006341]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = -293.0
+offset_top = 39.0
+offset_right = -15.0
+offset_bottom = 317.0
+
+[node name="head_equipment" type="Button" parent="inventory/clothes_panel" unique_id=39789892]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -33.0
+offset_top = -123.0
+offset_right = 23.0
+offset_bottom = -69.0
+grow_horizontal = 2
+grow_vertical = 2
+icon = ExtResource("2_x4jx1")
+expand_icon = true
+
+[node name="back_equipment" type="Button" parent="inventory/clothes_panel" unique_id=1659802485]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -113.0
+offset_top = -123.0
+offset_right = -57.0
+offset_bottom = -69.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="torso_equipment" type="Button" parent="inventory/clothes_panel" unique_id=1484613008]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -28.0
+offset_top = -27.0
+offset_right = 28.0
+offset_bottom = 27.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="legs_equipment" type="Button" parent="inventory/clothes_panel" unique_id=2264015]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -28.0
+offset_top = 62.0
+offset_right = 28.0
+offset_bottom = 116.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="foot_equipment" type="Button" parent="inventory/clothes_panel" unique_id=1012811180]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -113.0
+offset_top = 62.0
+offset_right = -57.0
+offset_bottom = 116.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="slot_indication" type="Panel" parent="inventory" unique_id=1966513725]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_top = 173.0
+offset_right = 518.0
+offset_bottom = 301.0
+
+[node name="Label" type="Label" parent="inventory/slot_indication" unique_id=531877828]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Press the slot you want this item to be attached 
+(0-9)"
+label_settings = SubResource("LabelSettings_x4jx1")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="inventory_tab" type="TabBar" parent="inventory" unique_id=264136838]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 3.0
+offset_top = -31.0
+offset_right = 516.0
+current_tab = 0
+tab_count = 1
+tab_0/title = "Pockets"
+
+[node name="progress" type="TextureProgressBar" parent="." unique_id=1089592638]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -50.0
+offset_top = -50.0
+offset_right = 50.0
+offset_bottom = 50.0
+grow_horizontal = 2
+grow_vertical = 2
+step = 0.1
+value = 15.0
+fill_mode = 4
+nine_patch_stretch = true
+texture_progress = SubResource("GradientTexture2D_8njf7")
+
+[node name="needs" type="Control" parent="." unique_id=765634995]
+anchors_preset = 0
+offset_top = 500.0
+offset_right = 341.0
+offset_bottom = 635.0
+
+[node name="health" type="ProgressBar" parent="needs" unique_id=666705226]
+unique_name_in_owner = true
+layout_mode = 0
+offset_right = 341.0
+offset_bottom = 27.0
+
+[node name="stamina" type="ProgressBar" parent="needs" unique_id=1362797232]
+unique_name_in_owner = true
+layout_mode = 0
+offset_top = 27.0
+offset_right = 341.0
+offset_bottom = 54.0
+
+[node name="hunger" type="ProgressBar" parent="needs" unique_id=576758050]
+unique_name_in_owner = true
+layout_mode = 0
+offset_top = 54.0
+offset_right = 341.0
+offset_bottom = 81.0
+
+[node name="thirst" type="ProgressBar" parent="needs" unique_id=1136447717]
+unique_name_in_owner = true
+layout_mode = 0
+offset_top = 81.0
+offset_right = 341.0
+offset_bottom = 108.0
+
+[node name="sleep" type="ProgressBar" parent="needs" unique_id=421831399]
+unique_name_in_owner = true
+layout_mode = 0
+offset_top = 108.0
+offset_right = 341.0
+offset_bottom = 135.0
+
+[connection signal="key_slot_pressed" from="." to="." method="_on_key_slot_pressed"]
+[connection signal="tab_changed" from="inventory/inventory_tab" to="." method="_on_inventory_tab_tab_changed"]
