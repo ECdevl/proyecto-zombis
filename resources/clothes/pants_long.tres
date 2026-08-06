@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemCloth" format=3 uid="uid://ylmwt0hicpnu"]
+
+[ext_resource type="Texture2D" uid="uid://02e6wui6yeon" path="res://icon.svg" id="1_kenn7"]
+[ext_resource type="ArrayMesh" uid="uid://bmebk31ynjijs" path="res://Assets/models/clothes/pantalonlargo-blanca.glb" id="2_stmih"]
+[ext_resource type="Script" uid="uid://db5i3qiu13y8" path="res://scripts/components/clothe_resource.gd" id="2_vqe3n"]
+
+[resource]
+script = ExtResource("2_vqe3n")
+can_carry = false
+carry_addition = 3.0
+temperature_resistance = 3.0
+place = 3
+item_name = "long pants"
+weight = 0.5
+item_mesh = ExtResource("2_stmih")
+metadata/_custom_type_script = "uid://db5i3qiu13y8"

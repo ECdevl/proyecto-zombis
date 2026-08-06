@@ -1,6 +1,9 @@
 extends State
-var consuming_item : ItemConsumable
+class_name ConsumeState
+var consuming_item : Item
 @onready var timer: Timer = %Timer
+signal proceed(canceled:bool)
+
 
 func enter(previous_state_path: String, data := {}) -> void:
 	player.ui.progress.show()
@@ -8,19 +11,27 @@ func enter(previous_state_path: String, data := {}) -> void:
 	timer.start(consuming_item.time_consume)
 	await timer.timeout
 	if get_parent().state == self:
-		for stat in consuming_item.stats_affected.keys():
-			player.player_needs.heal(stat,consuming_item.stats_affected.get(stat))
-			player.ui.remove_item(consuming_item,1)
-			consuming_item = null
-			finished.emit("idle")
+		match consuming_item:
+			ItemConsumable:
+				emit_signal("proceed",false)
+				
+				finished.emit("normal")
+			ItemCloth:
+				emit_signal("proceed",false)
+				finished.emit("normal")
+			_:
+				emit_signal("proceed",false)
+				finished.emit("normal")
+		
 	
 
 func update(_delta: float) -> void:
 	player.ui.progress.value = timer.time_left
 
 func handle_input(_event: InputEvent) -> void:
-	if _event.is_action_pressed("M1"):
-		finished.emit("idle")
+	if _event.is_action_pressed("cancel"):
+		emit_signal("proceed",true)
+		finished.emit("normal")
 
 func exit(next_state_path:String) -> void:
 	player.ui.progress.hide()
@@ -28,4 +39,4 @@ func exit(next_state_path:String) -> void:
 
 func _on_ui_item_consumed(item: ItemConsumable) -> void:
 	if item == consuming_item:
-		finished.emit("idle")
+		finished.emit("normal")

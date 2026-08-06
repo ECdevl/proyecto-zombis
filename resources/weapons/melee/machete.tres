@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="Weapon" format=3 uid="uid://djhf1p03bo78d"]
+
+[ext_resource type="Texture2D" uid="uid://b5cpqjxqyv1xv" path="res://Assets/Ashtons dev textures/dev_blue (copia 1).png" id="1_fu6wg"]
+[ext_resource type="PackedScene" uid="uid://c6mxffsu2wexr" path="res://Assets/models/weapons/melee/Bate.obj" id="2_1ujgm"]
+[ext_resource type="Script" uid="uid://dbklk7rcbx4yy" path="res://scripts/components/weapon_resource.gd" id="2_en5fd"]
+[ext_resource type="PackedScene" uid="uid://cw1fcacgppqha" path="res://scenes/weapons/melee/machete.tscn" id="4_1ujgm"]
+
+[resource]
+script = ExtResource("2_en5fd")
+weapon_viewmodel = ExtResource("4_1ujgm")
+weapon_handle = 1
+weapon_damage = 15.0
+fire_rate = 0.35
+item_mesh = ExtResource("2_1ujgm")
+metadata/_custom_type_script = "uid://dbklk7rcbx4yy"

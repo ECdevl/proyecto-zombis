@@ -24,7 +24,7 @@ func enter(previous_state_path: String, data := {}) -> void:
 	player.weapon_grip.show()
 	
 
-	finished.emit("idle")
+	finished.emit("normal")
 
 func exit(next_state_path:String) -> void:
 	player.armsy.show()

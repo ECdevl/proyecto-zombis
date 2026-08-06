@@ -3,13 +3,12 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://6euples0qn1s"
-path="res://.godot/imported/male_casual.fbx-8b6bfaa29dfe76a971bb3cf37f07bb20.scn"
+uid="uid://cpkclykycfskx"
+valid=false
 
 [deps]
 
 source_file="res://Assets/models/zombies/male_casual/male_casual.fbx"
-dest_files=["res://.godot/imported/male_casual.fbx-8b6bfaa29dfe76a971bb3cf37f07bb20.scn"]
 
 [params]
 
@@ -40,7 +39,7 @@ materials/extract=0
 materials/extract_format=0
 materials/extract_path=""
 _subresources={}
-fbx/importer=0
+fbx/importer=1
 fbx/allow_geometry_helper_nodes=false
 fbx/embedded_image_handling=1
 fbx/naming_version=2

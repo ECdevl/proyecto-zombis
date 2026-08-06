@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemCloth" format=3 uid="uid://b6prd8e4qvpe2"]
+
+[ext_resource type="Texture2D" path="res://icon.svg" id="1_tl31w"]
+[ext_resource type="PackedScene" uid="uid://cv6o5yuwaub5u" path="res://Assets/models/clothes/mochila-blanca.glb" id="2_8ssip"]
+[ext_resource type="Script" uid="uid://db5i3qiu13y8" path="res://scripts/components/clothe_resource.gd" id="2_welbw"]
+
+[resource]
+script = ExtResource("2_welbw")
+can_carry = false
+carry_addition = 2.0
+temperature_resistance = 1.0
+place = 2
+item_name = "shirt"
+weight = 0.15
+item_mesh = ExtResource("2_8ssip")
+metadata/_custom_type_script = "uid://db5i3qiu13y8"

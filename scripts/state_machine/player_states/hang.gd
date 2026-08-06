@@ -28,7 +28,7 @@ func physics_update(_delta: float) -> void:
 
 	
 	if !check_ledge_l.is_colliding() and !check_ledge_r.is_colliding() or check_ledge_2.is_colliding():
-		finished.emit("idle")
+		finished.emit("normal")
 		
 	if Input.is_action_just_pressed(player.jump):
 		if check_climb.is_colliding():
@@ -37,10 +37,10 @@ func physics_update(_delta: float) -> void:
 		else:
 			print_debug("no puedo subir!!!")
 	if Input.is_action_just_pressed(player.crouch):
-		finished.emit("idle")
+		finished.emit("normal")
 
 func exit(next_state_path:String) -> void:
 	if next_state_path != "Climb":
 		player.weapon_grip.show()
-		player.playback.travel("Idle")
+		player.playback.travel("normal")
 		player.arms_mesh.top_level = false

@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="ItemCloth" format=3 uid="uid://bkm6eykxsujmf"]
+
+[ext_resource type="Texture2D" uid="uid://02e6wui6yeon" path="res://icon.svg" id="1_66n2e"]
+[ext_resource type="Script" uid="uid://c781c2o56v7st" path="res://scripts/components/item_inventory.gd" id="1_mrakw"]
+[ext_resource type="Script" uid="uid://ckortgl5i83k5" path="res://scripts/components/container_script.gd" id="2_e13nl"]
+[ext_resource type="Script" uid="uid://db5i3qiu13y8" path="res://scripts/components/clothe_resource.gd" id="3_mrakw"]
+[ext_resource type="ArrayMesh" uid="uid://dgbvrpdge05c3" path="res://Assets/models/clothes/mochila-blanca.glb" id="4_43p28"]
+
+[sub_resource type="Resource" id="Resource_mrakw"]
+script = ExtResource("2_e13nl")
+metadata/_custom_type_script = "uid://ckortgl5i83k5"
+
+[resource]
+script = ExtResource("3_mrakw")
+carry_addition = 0.0
+temperature_resistance = 0.0
+container = SubResource("Resource_mrakw")
+item_name = "school backpack"
+weight = 1.0
+item_mesh = ExtResource("4_43p28")
+metadata/_custom_type_script = "uid://db5i3qiu13y8"

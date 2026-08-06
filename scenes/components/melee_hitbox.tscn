@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://csov4x4dub6dc"]
+
+[ext_resource type="Script" uid="uid://g6hl5pat321k" path="res://scripts/components/melee_hitbox.gd" id="1_bt5ga"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_pbiw8"]
+height = 1.0
+
+[node name="MeleeHitbox" type="ShapeCast3D" unique_id=1261697367]
+shape = SubResource("CapsuleShape3D_pbiw8")
+target_position = Vector3(0, 0.5, 0)
+script = ExtResource("1_bt5ga")

@@ -1,5 +1,7 @@
 class_name State extends Node
 
+@export var can_transition : bool = true
+
 
 
 signal finished(next_state_path: String, data: Dictionary)## Emitted when the state finishes and wants to transition to another state.

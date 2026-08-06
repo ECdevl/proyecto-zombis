@@ -36,11 +36,13 @@ func _transition_to_next_state(target_state_path: String, data: Dictionary = {})
 	if owner.can_debug:
 		print_debug("Changing from: ",state.name," to ",target_state_path)
 	#we save the current state name
+	if !state.can_transition:
+		return
 	var previous_state_path := state.name
 	
-	await state.exit(target_state_path)
+	state.exit(target_state_path)
 
 	state = get_node(target_state_path)
 
-	await state.enter(previous_state_path, data)
+	state.enter(previous_state_path, data)
 	
