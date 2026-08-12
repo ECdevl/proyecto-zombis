@@ -25,17 +25,25 @@ func _ready() -> void:
 	player = owner
 	player.weapon_changed.connect(_on_weapon_changed)
 
-var playback : AnimationNodeStateMachinePlayback
+
 
 func _on_weapon_changed(gun: Weapon) -> void:
 	current_weapon = gun
-
+	for container in player.inventory_manager.containers_available.values():
+		if container is ContainerResource:
+			for ammo in container.items_inside:
+				if ammo is ItemAmmo:
+					if ammo.ammo_type == gun.weapon_ammo_type:
+						gun.weapon_current_bullets += ammo.ammo_contains
+						gun.ammo_items.append(ammo)
 	if player.viewmodel:
+		player.viewmodel_ap.playback_default_blend_time = 0.25
 		player.viewmodel_ap.play("draw")
 		player.viewmodel_ap.queue("idle")
 		if !current_weapon:
 			return
 		if current_weapon.weapon_type == current_weapon.Type.MELEE:
+			melee_swings.clear()
 			for i in player.viewmodel_ap.get_animation_list():
 				if i.begins_with("swing"):
 					melee_swings.append(i)
@@ -96,6 +104,8 @@ func shoot() -> bool:
 	await get_tree().process_frame
 	current_weapon.weapon_current_ammo -= 1
 	fire_rate.start(current_weapon.fire_rate)
+	player.viewmodel_ap.stop()
+	player.viewmodel.get_node("muzzle_flash_bone").get_child(0).start_effect()
 	if %ArmsFSM.state.name == "aim":
 		player.viewmodel_ap.play("aim_shoot")
 	else:
@@ -152,7 +162,13 @@ func reload() -> void:
 	reloading = false
 	player.viewmodel_ap.play("idle")
 	var wasted_ammo = current_weapon.weapon_mag_size - current_weapon.weapon_current_ammo
-	var boolets = current_weapon.weapon_current_bullets
+	var boolets : int = 0
+	for ammo in current_weapon.ammo_items:
+		if ammo.ammo_contains > 0:
+			boolets = ammo.ammo_contains
+			break
+		else:
+			player.inventory_manager.remove_item(ammo,1)
 	var final_bullets = boolets - wasted_ammo
 
 	if final_bullets < 0:

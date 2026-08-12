@@ -1,7 +1,9 @@
 extends State
+@onready var viewmodel_sway: Node = %ViewmodelSway
 
 @export var stamina_cost : float = 1.5
 func enter(previous_state_path: String, data := {}) -> void:
+	viewmodel_sway.bob_speed = 10.0
 	if player.viewmodel:
 		if player.viewmodel_ap:
 			if player.viewmodel_ap.current_animation not in ["reload","aim","shoot","aim_shoot"]:
@@ -25,6 +27,7 @@ func physics_update(_delta: float) -> void:
 		finished.emit("jump")
 
 func exit(next_state_path:String) -> void:
+	viewmodel_sway.bob_speed = 5.0
 	if player.viewmodel:
 		if player.viewmodel_ap:
 			if player.viewmodel_ap.current_animation not in ["reload","aim","shoot","aim_shoot"]:

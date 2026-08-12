@@ -1,18 +1,21 @@
 [gd_resource type="Resource" script_class="Weapon" format=3 uid="uid://dy3nx17clcfwc"]
 
+[ext_resource type="Script" uid="uid://orlxlnvacg2d" path="res://scripts/components/item_ammo.gd" id="1_7a0yu"]
 [ext_resource type="Texture2D" uid="uid://b5cpqjxqyv1xv" path="res://Assets/Ashtons dev textures/dev_blue (copia 1).png" id="1_c18m2"]
 [ext_resource type="PackedScene" uid="uid://cqmgufy1mebah" path="res://Assets/models/weapons/firearm/Glock 17.obj" id="2_0ojjd"]
 [ext_resource type="Script" uid="uid://dbklk7rcbx4yy" path="res://scripts/components/weapon_resource.gd" id="2_473yl"]
-[ext_resource type="PackedScene" uid="uid://dm2n7ua2yp5t" path="res://Assets/models/weapons/firearm/viewmodels/pistols/DE.glb" id="4_0ojjd"]
+[ext_resource type="PackedScene" uid="uid://ct1mr0fvgd7qc" path="res://scenes/weapons/firearm/desert_eagle.tscn" id="5_yq1gt"]
 
 [resource]
 script = ExtResource("2_473yl")
 weapon_type = 1
-weapon_viewmodel = ExtResource("4_0ojjd")
+weapon_viewmodel = ExtResource("5_yq1gt")
 weapon_handle = 1
 weapon_damage = 50.0
 fire_rate = 0.24
 weapon_mag_size = 8
+weapon_current_ammo = 8
+weapon_ammo_type = 1
 headshot_multiplier = 99.0
 recoil_kick = Vector2(8, 0.5)
 item_name = "Desert Eagle"

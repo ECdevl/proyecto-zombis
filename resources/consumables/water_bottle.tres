@@ -1,8 +1,10 @@
 [gd_resource type="Resource" script_class="ItemConsumable" format=3 uid="uid://b47bkrx4om57u"]
 
-[ext_resource type="ArrayMesh" uid="uid://dp0rhkjw56v6p" path="res://Assets/models/consumables/drinks/Botella de agua.obj" id="1_75r1c"]
+[ext_resource type="PackedScene" uid="uid://dp0rhkjw56v6p" path="res://Assets/models/consumables/drinks/Botella de agua.obj" id="1_75r1c"]
 [ext_resource type="Script" uid="uid://cc1oin8bis8s2" path="res://scripts/components/item_consumable.gd" id="1_bqfi7"]
-[ext_resource type="Texture2D" uid="uid://02e6wui6yeon" path="res://icon.svg" id="1_r4pmf"]
+
+[sub_resource type="Resource" id="Resource_75r1c"]
+metadata/__load_path__ = "res://icon.svg"
 
 [resource]
 script = ExtResource("1_bqfi7")
@@ -10,7 +12,7 @@ stats_affected = Dictionary[int, float]({
 3: 50.0
 })
 item_name = "Agua"
-icon = ExtResource("1_r4pmf")
+icon = SubResource("Resource_75r1c")
 weight = 0.5
 stack_max = 5
 item_mesh = ExtResource("1_75r1c")

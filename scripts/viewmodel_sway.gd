@@ -3,7 +3,7 @@ extends Node
 @export var sway_amount := 0.001
 @export var sway_speed := 8.0
 @export var bob_amount := 0.02
-@export var bob_speed := 10.0
+@export var bob_speed := 5.0
 @onready var state_machine: StateMachine = %StateMachine
 
 var mouse_delta := Vector2.ZERO

@@ -27,7 +27,6 @@ func _process(delta: float) -> void:
 		texture_progress_bar.value = timer_tied.time_left
 	else:
 		disabled = false
-		timer_tied = null
 		texture_progress_bar.value = 0
 
 func _ready() -> void:

@@ -14,7 +14,8 @@ enum Handle {TWO=2,ONE=1}
 @export var weapon_current_ammo : int = 0
 @export var weapon_current_bullets : int = 0
 @export var weapon_range : float = 1200.0
-
+@export var weapon_ammo_type : GameManager.AmmoType
+@export var ammo_items : Array[ItemAmmo]
 @export var headshot_multiplier : float = 1.5
 @export_category("recoil")
 @export var recoil_kick : Vector2 = Vector2(2.0, 0.5)   # x = vertical, y = dispersión horizontal

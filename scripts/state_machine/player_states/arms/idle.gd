@@ -7,9 +7,7 @@ var weapon_swing_direction : Vector3 = Vector3.LEFT
 @onready var check_ledge_2: RayCast3D = %CheckLedge2
 @onready var fire_rate: Timer = %FireRate
 
-var recoil_current: Vector2 = Vector2.ZERO  # x = vertical (pitch), y = horizontal (yaw)
-@export var recoil_kick: Vector2 = Vector2(2.0, 0.5)   # grados por disparo
-@export var recoil_recovery_speed: float = 8.0
+
 
 
 func enter(previous_state_path: String, data := {}) -> void:
@@ -44,7 +42,7 @@ func handle_input(_event: InputEvent) -> void:
 		player.weapon_controller.reload()
 	if _event.is_action_pressed("drop"):
 		if player.weapon_controller.current_weapon:
-			player.ui.remove_item(player.weapon_controller.current_weapon,1,true)
+			player.ui.inventory_manager.remove_item(player.weapon_controller.current_weapon,1,true)
 			player.weapon_controller.current_weapon = null
 
 func physics_update(delta: float) -> void:

@@ -5,6 +5,7 @@
 [ext_resource type="Texture2D" uid="uid://b5cpqjxqyv1xv" path="res://Assets/Ashtons dev textures/dev_blue (copia 1).png" id="2_x4jx1"]
 [ext_resource type="Script" uid="uid://ckortgl5i83k5" path="res://scripts/components/container_script.gd" id="3_wm3ai"]
 [ext_resource type="Script" uid="uid://cf5brmibk0a7h" path="res://scripts/ui/slots.gd" id="5_wm3ai"]
+[ext_resource type="Script" uid="uid://ttlmp085lnqj" path="res://scripts/ui/inventory_manager.gd" id="6_8dubc"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_8njf7"]
 font_size = 40
@@ -37,6 +38,10 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_nt7q6")
+
+[node name="InventoryManager" type="Node" parent="." unique_id=241944537]
+unique_name_in_owner = true
+script = ExtResource("6_8dubc")
 
 [node name="inventory" type="Panel" parent="." unique_id=1177332104]
 unique_name_in_owner = true
@@ -320,5 +325,5 @@ grow_vertical = 2
 text = "15  /90"
 label_settings = SubResource("LabelSettings_wm3ai")
 
-[connection signal="key_slot_pressed" from="." to="." method="_on_key_slot_pressed"]
-[connection signal="tab_changed" from="inventory/inventory_tab" to="." method="_on_inventory_tab_tab_changed"]
+[connection signal="key_slot_pressed" from="InventoryManager" to="InventoryManager" method="_on_key_slot_pressed"]
+[connection signal="tab_changed" from="inventory/inventory_tab" to="InventoryManager" method="_on_inventory_tab_tab_changed"]

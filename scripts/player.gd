@@ -6,6 +6,7 @@ const CAM_HEIGHT_CROUCH : float = 0.75
 const CAM_HEIGHT_PRONE : float = 0.2
 @export var player_needs : PlayerNeeds
 @export var player_stats : PlayerStats
+@export var health_component : HealthComponent
 @export var can_swing : bool = true
 @export var can_debug : bool = false
 @export_category("To Assign")
@@ -59,15 +60,17 @@ var weapon_AP : AnimationPlayer
 @onready var pitch  : Node3D   = %Pitch
 @onready var camera : Camera3D = %Camera3D
 
+var inventory_manager : Inventory
 
 @onready var collision_crouched   : CollisionShape3D = %CrouchedCollisionShape
 @onready var collision_standing   : CollisionShape3D = %StandingCollisionShape
 @onready var collision_prone : CollisionShape3D = %ProneCollisionShape
 @onready var armsy: Node3D = %armsy
-@onready var arms_ap: AnimationPlayer 
+
 @onready var ui: UI = %UI
 @onready var weapon_controller: WeaponController = %WeaponController
 
+var arms_ap: AnimationPlayer 
 
 
 @onready var animation_tree: AnimationTree = %AnimationTree
@@ -96,7 +99,8 @@ var speed : float = 3.0
 
 
 func _ready() -> void:
-	ui.connect("equip_weapon",Callable(self,"equip_weapon"))
+	health_component = health_component.duplicate()
+	ui.inventory_manager.connect("equip_weapon",Callable(self,"equip_weapon"))
 	arms_ap = armsy.get_node("AnimationPlayer")
 	arms_mesh = armsy.get_child(0).get_child(0).get_node("arms")
 	playback = animation_tree.get("parameters/playback")
@@ -109,18 +113,22 @@ func _ready() -> void:
 	yaw.position.y = CAM_HEIGHT_STAND
 	speed = walk_speed
 	arms_ap.play("idle")
+	inventory_manager = ui.inventory_manager
 	
 @onready var look_at_component: RayCast3D = %LookAtComponent
 
 signal weapon_changed(gun:Weapon)
 
 func _unhandled_input(event: InputEvent) -> void:
+	
 	if event.is_action_pressed("use"):
+		var object
 		if look_at_component.is_colliding():
-			if look_at_component.get_collider() is PickableItem:
-				var objeto : PickableItem = look_at_component.get_collider()
-				grab_object(objeto)
-			elif look_at_component.get_collider() is DoorComponent:
+			if look_at_component.get_collider() is Area3D:
+				object = look_at_component.get_collider().owner
+			if object is PickableItem:
+				grab_object(object)
+			elif object is DoorComponent:
 				var door : DoorComponent = look_at_component.get_collider()
 				door.check_door(self)
 
@@ -132,7 +140,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	__camera_input(event)
 
 func grab_object(grab_target: PickableItem) -> void:
-	ui.add_item(grab_target.item_resource)
+	ui.inventory_manager.add_item(grab_target.item_resource)
 	grab_target.queue_free()
 
 func _physics_process(delta: float) -> void:
@@ -142,7 +150,10 @@ func _physics_process(delta: float) -> void:
 func _process(_delta: float) -> void:
 
 	if look_at_component.is_colliding():
+
 		var obj : Node3D = look_at_component.get_collider()
+		if obj is Area3D:
+			obj = obj.owner
 		looking_at_obj = obj
 
 
@@ -166,7 +177,7 @@ func _gravity(delta: float) -> void:
 
 func __player_movement(delta:float) -> void:
 	_input_direction = Input.get_vector(left, right, forward, backward)
-	if !%StateMachine.state.name == "hang":
+	if %StateMachine.state.name != "hang":
 		direction = (yaw.transform.basis * Vector3(_input_direction.x  , 0, _input_direction.y  )).normalized()
 	else:
 		direction = (yaw.transform.basis * Vector3(_input_direction.x  , 0, 0  )).normalized()

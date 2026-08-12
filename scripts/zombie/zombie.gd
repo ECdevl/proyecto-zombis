@@ -9,7 +9,7 @@ var bone_hit : Node3D
 func _ready() -> void:
 	if ragdoll_text:
 		await get_tree().create_timer(1).timeout
-		zombie_ap.stop()
+
 		ragdoll.physical_bones_start_simulation()
 	if health_component:
 		health_component = health_component.duplicate()

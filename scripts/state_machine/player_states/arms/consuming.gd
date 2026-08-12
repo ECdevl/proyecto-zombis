@@ -11,17 +11,15 @@ func enter(previous_state_path: String, data := {}) -> void:
 	timer.start(consuming_item.time_consume)
 	await timer.timeout
 	if get_parent().state == self:
-		match consuming_item:
-			ItemConsumable:
-				emit_signal("proceed",false)
-				
-				finished.emit("normal")
-			ItemCloth:
-				emit_signal("proceed",false)
-				finished.emit("normal")
-			_:
-				emit_signal("proceed",false)
-				finished.emit("normal")
+		if consuming_item is ItemConsumable:
+			emit_signal("proceed",false)
+			finished.emit("normal")
+		elif consuming_item is ItemCloth:
+			emit_signal("proceed",false)
+			finished.emit("normal")
+		else:
+			emit_signal("proceed",false)
+			finished.emit("normal")
 		
 	
 
