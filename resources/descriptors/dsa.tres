@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="ItemDescriptor" format=3 uid="uid://clnwli1re4ggg"]
+
+[ext_resource type="Texture2D" uid="uid://b5cpqjxqyv1xv" path="res://Assets/Ashtons dev textures/dev_blue (copia 1).png" id="1_gddp2"]
+[ext_resource type="Script" uid="uid://cg2alhn207kxn" path="res://scripts/inventory/descriptors/item_descriptor.gd" id="2_vjs0v"]
+
+[resource]
+script = ExtResource("2_vjs0v")
+item_name = "Testss"
+icon = ExtResource("1_gddp2")
+weight = 3.0
+grid_size = Vector2i(1, 6)
+metadata/_custom_type_script = "uid://cg2alhn207kxn"

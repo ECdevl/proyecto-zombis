@@ -1,0 +1,17 @@
+[gd_scene format=3 uid="uid://cnpyo1vrq877x"]
+
+[ext_resource type="Script" uid="uid://bfidcaj8ys38w" path="res://scripts/inventory/view/item_inventory_visual.gd" id="1_d2ix5"]
+[ext_resource type="Texture2D" uid="uid://csnjpx6ohqe73" path="res://Assets/sprites/grid.png" id="1_dwetb"]
+
+[node name="ItemInventoryVisual" type="TextureRect" unique_id=1301383503]
+top_level = true
+offset_right = 50.0
+offset_bottom = 50.0
+size_flags_horizontal = 0
+texture = ExtResource("1_dwetb")
+expand_mode = 1
+stretch_mode = 6
+script = ExtResource("1_d2ix5")
+
+[connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
+[connection signal="mouse_exited" from="." to="." method="_on_mouse_exited"]

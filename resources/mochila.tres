@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="WearableItemDescriptor" format=3 uid="uid://b1b4eh1gc17on"]
+
+[ext_resource type="Script" uid="uid://cw2gxg62gx4of" path="res://scripts/inventory/model/inventory_model.gd" id="1_5x37o"]
+[ext_resource type="Script" uid="uid://cg2alhn207kxn" path="res://scripts/inventory/descriptors/item_descriptor.gd" id="2_vq4om"]
+[ext_resource type="PackedScene" uid="uid://cn6mu6fulsff2" path="res://Assets/models/clothing/mochila-blanca.glb" id="3_5tjkr"]
+[ext_resource type="Script" uid="uid://bevkhgemyn38" path="res://scripts/inventory/descriptors/wearable_item_descriptor.gd" id="4_oolga"]
+
+[sub_resource type="Resource" id="Resource_5tkv4"]
+script = ExtResource("1_5x37o")
+metadata/_custom_type_script = "uid://cw2gxg62gx4of"
+
+[resource]
+script = ExtResource("4_oolga")
+equip_slot = 4
+container_model = SubResource("Resource_5tkv4")
+item_name = "Mochila escolar"
+dimensions = Vector2i(2, 2)
+item_mesh = ExtResource("3_5tjkr")
+metadata/_custom_type_script = "uid://bevkhgemyn38"

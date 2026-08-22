@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://ctoelcfhcmm8g"]
 
-[ext_resource type="Script" uid="uid://bdgqbos7hsmpb" path="res://scripts/effects/muzzle_flash.gd" id="1_u6mxp"]
+[ext_resource type="Script" uid="uid://bdgqbos7hsmpb" path="res://scripts/weapons/muzzle_flash.gd" id="1_u6mxp"]
 
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_h8ppg"]
 angle_min = -74.99999

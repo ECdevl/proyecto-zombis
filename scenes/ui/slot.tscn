@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://t0si10ufqqi6"]
+
+[ext_resource type="Texture2D" uid="uid://csnjpx6ohqe73" path="res://Assets/sprites/grid.png" id="1_jkamp"]
+
+[node name="Slot" type="TextureRect" unique_id=717450968]
+custom_minimum_size = Vector2(50, 50)
+offset_right = 32.0
+offset_bottom = 32.0
+texture = ExtResource("1_jkamp")
+expand_mode = 1

@@ -1,0 +1,23 @@
+[gd_scene format=3 uid="uid://ciydg2iod5xvi"]
+
+[ext_resource type="Script" uid="uid://d0l6p3whayfpx" path="res://scripts/inventory/ui/tool_tip.gd" id="1_cpbve"]
+
+[node name="ToolTip" type="PanelContainer" unique_id=1390931580]
+top_level = true
+offset_right = 290.0
+offset_bottom = 204.0
+mouse_filter = 2
+script = ExtResource("1_cpbve")
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1625495759]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 30
+
+[node name="rich_label" type="RichTextLabel" parent="MarginContainer" unique_id=903267167]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_font_sizes/normal_font_size = 24
+theme_override_font_sizes/bold_font_size = 24
+bbcode_enabled = true

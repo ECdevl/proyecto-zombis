@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ItemDescriptor" format=3 uid="uid://bvi7u1ue1ghw4"]
+
+[ext_resource type="Texture2D" uid="uid://cfhftavhvkk4x" path="res://Assets/Ashtons dev textures/dev_yellow (1).png" id="1_2lv3y"]
+[ext_resource type="Script" uid="uid://cg2alhn207kxn" path="res://scripts/inventory/descriptors/item_descriptor.gd" id="1_hm7mp"]
+[ext_resource type="Script" uid="uid://rf155dfvswd1" path="res://scripts/inventory/descriptors/container_capability.gd" id="1_uo0q7"]
+
+[sub_resource type="Resource" id="Resource_yev5y"]
+script = ExtResource("1_uo0q7")
+metadata/_custom_type_script = "uid://rf155dfvswd1"
+
+[resource]
+script = ExtResource("1_hm7mp")
+item_name = "mochila"
+icon = ExtResource("1_2lv3y")
+weight = 2.0
+grid_size = Vector2i(3, 1)
+container_capability = SubResource("Resource_yev5y")
+metadata/_custom_type_script = "uid://cg2alhn207kxn"

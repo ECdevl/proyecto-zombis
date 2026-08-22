@@ -1,0 +1,393 @@
+[gd_scene format=3 uid="uid://01e8m6xuuak5"]
+
+[ext_resource type="Script" uid="uid://nbf8mh53g4mq" path="res://scripts/inventory/ui/ui.gd" id="1_nt7q6"]
+[ext_resource type="Script" uid="uid://cg2alhn207kxn" path="res://scripts/inventory/descriptors/item_descriptor.gd" id="3_8dubc"]
+[ext_resource type="Script" uid="uid://bsopu1qttaw0" path="res://scripts/inventory/controller/inventory_ui_controller.gd" id="4_gdt2y"]
+[ext_resource type="Script" uid="uid://cw2gxg62gx4of" path="res://scripts/inventory/model/inventory_model.gd" id="4_p7vwb"]
+[ext_resource type="Script" uid="uid://b82qc25arbofl" path="res://scripts/inventory/ui/player_carried_inventories.gd" id="5_wm3ai"]
+[ext_resource type="PackedScene" uid="uid://5v7bcrkk5m62" path="res://scenes/ui/inventory_view.tscn" id="6_8dubc"]
+[ext_resource type="Script" uid="uid://dalhqhdgs4pkw" path="res://scripts/inventory/ui/equip_view.gd" id="6_p7vwb"]
+[ext_resource type="Script" uid="uid://d4duou0lvvuqo" path="res://scripts/components/equipment_model.gd" id="7_ktti3"]
+
+[sub_resource type="Resource" id="Resource_gdt2y"]
+script = ExtResource("4_p7vwb")
+dimensions = Vector2i(7, 1)
+metadata/_custom_type_script = "uid://cw2gxg62gx4of"
+
+[sub_resource type="Resource" id="Resource_ktti3"]
+script = ExtResource("7_ktti3")
+metadata/_custom_type_script = "uid://d4duou0lvvuqo"
+
+[sub_resource type="Gradient" id="Gradient_nt7q6"]
+interpolation_mode = 1
+offsets = PackedFloat32Array(0, 0.6566265)
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_8njf7"]
+gradient = SubResource("Gradient_nt7q6")
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+
+[sub_resource type="LabelSettings" id="LabelSettings_wm3ai"]
+font_size = 25
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8njf7"]
+bg_color = Color(0.6, 0.6, 0.6, 0.44705883)
+
+[node name="UI" type="Control" unique_id=1877997638]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_nt7q6")
+player_inventory_model = SubResource("Resource_gdt2y")
+equipment_model = SubResource("Resource_ktti3")
+
+[node name="progress" type="TextureProgressBar" parent="." unique_id=1089592638]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -50.0
+offset_top = -50.0
+offset_right = 50.0
+offset_bottom = 50.0
+grow_horizontal = 2
+grow_vertical = 2
+step = 0.1
+value = 15.0
+fill_mode = 4
+nine_patch_stretch = true
+texture_progress = SubResource("GradientTexture2D_8njf7")
+
+[node name="needs" type="Control" parent="." unique_id=765634995]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -135.0
+offset_right = 341.0
+grow_vertical = 0
+
+[node name="health" type="ProgressBar" parent="needs" unique_id=666705226]
+unique_name_in_owner = true
+layout_mode = 0
+offset_right = 341.0
+offset_bottom = 27.0
+
+[node name="stamina" type="ProgressBar" parent="needs" unique_id=1362797232]
+unique_name_in_owner = true
+layout_mode = 0
+offset_top = 27.0
+offset_right = 341.0
+offset_bottom = 54.0
+
+[node name="hunger" type="ProgressBar" parent="needs" unique_id=576758050]
+unique_name_in_owner = true
+layout_mode = 0
+offset_top = 54.0
+offset_right = 341.0
+offset_bottom = 81.0
+
+[node name="thirst" type="ProgressBar" parent="needs" unique_id=1136447717]
+unique_name_in_owner = true
+layout_mode = 0
+offset_top = 81.0
+offset_right = 341.0
+offset_bottom = 108.0
+
+[node name="sleep" type="ProgressBar" parent="needs" unique_id=421831399]
+unique_name_in_owner = true
+layout_mode = 0
+offset_top = 108.0
+offset_right = 341.0
+offset_bottom = 135.0
+
+[node name="GenericTimer" type="Timer" parent="." unique_id=792603429]
+unique_name_in_owner = true
+one_shot = true
+
+[node name="text_hint" type="RichTextLabel" parent="." unique_id=21348665]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -576.0
+offset_top = 20.0
+offset_right = 576.0
+offset_bottom = 182.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Press nigga to"
+horizontal_alignment = 1
+
+[node name="Combat" type="Control" parent="." unique_id=1253725278]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -215.0
+offset_top = -148.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="ammo_count" type="Label" parent="Combat" unique_id=1861556122]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -26.0
+offset_top = -11.5
+offset_right = 26.0
+offset_bottom = 11.5
+grow_horizontal = 2
+grow_vertical = 2
+text = "15  /90"
+label_settings = SubResource("LabelSettings_wm3ai")
+
+[node name="InventoryUIController" type="Control" parent="." unique_id=2048383916 node_paths=PackedStringArray("panels_container")]
+unique_name_in_owner = true
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("4_gdt2y")
+inventory_panel_scene = ExtResource("6_8dubc")
+panels_container = NodePath("../Inventory/MarginContainer2/InventoryViewContainer")
+metadata/_custom_type_script = "uid://bsopu1qttaw0"
+
+[node name="Inventory" type="Control" parent="." unique_id=1757663430]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Inventory" unique_id=1505109118]
+layout_mode = 1
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_left = 1271.0
+offset_right = 1920.0
+grow_vertical = 2
+theme_override_constants/margin_left = 15
+theme_override_constants/margin_right = 15
+
+[node name="LootViewContainer" type="VBoxContainer" parent="Inventory/MarginContainer" unique_id=1848962644]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="MarginContainer2" type="MarginContainer" parent="Inventory" unique_id=2059508491]
+layout_mode = 1
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -1536.0
+offset_top = 8.0
+offset_right = -619.0
+offset_bottom = -188.0
+grow_horizontal = 0
+grow_vertical = 2
+theme_override_constants/margin_left = 15
+theme_override_constants/margin_right = 15
+
+[node name="InventoryViewContainer" type="VBoxContainer" parent="Inventory/MarginContainer2" unique_id=1322752733]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Clothes" type="Panel" parent="Inventory" unique_id=2064146961]
+unique_name_in_owner = true
+layout_mode = 0
+offset_right = 384.0
+offset_bottom = 932.0
+mouse_filter = 2
+
+[node name="head" type="Panel" parent="Inventory/Clothes" unique_id=1071633324 node_paths=PackedStringArray("icon_rect")]
+custom_minimum_size = Vector2(100, 100)
+custom_maximum_size = Vector2(100, 100)
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -50.0
+offset_top = 40.0
+offset_right = 50.0
+offset_bottom = 140.0
+grow_horizontal = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_8njf7")
+script = ExtResource("6_p7vwb")
+equipment_model = SubResource("Resource_ktti3")
+icon_rect = NodePath("TextureRect")
+
+[node name="TextureRect" type="TextureRect" parent="Inventory/Clothes/head" unique_id=1721297238]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+
+[node name="torso" type="Panel" parent="Inventory/Clothes" unique_id=1460668302 node_paths=PackedStringArray("icon_rect")]
+custom_minimum_size = Vector2(100, 100)
+custom_maximum_size = Vector2(100, 100)
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.36979166
+anchor_top = 0.26287553
+anchor_right = 0.6302083
+anchor_bottom = 0.37017167
+offset_top = 1.5258789e-05
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_8njf7")
+script = ExtResource("6_p7vwb")
+equip_slot = 1
+equipment_model = SubResource("Resource_ktti3")
+icon_rect = NodePath("TextureRect2")
+metadata/_edit_use_anchors_ = true
+
+[node name="TextureRect2" type="TextureRect" parent="Inventory/Clothes/torso" unique_id=357847456]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+
+[node name="legs" type="Panel" parent="Inventory/Clothes" unique_id=503755858 node_paths=PackedStringArray("icon_rect")]
+custom_minimum_size = Vector2(100, 100)
+custom_maximum_size = Vector2(100, 100)
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.36979166
+anchor_top = 0.55364805
+anchor_right = 0.6302083
+anchor_bottom = 0.6609442
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_8njf7")
+script = ExtResource("6_p7vwb")
+equip_slot = 2
+equipment_model = SubResource("Resource_ktti3")
+icon_rect = NodePath("TextureRect3")
+metadata/_edit_use_anchors_ = true
+
+[node name="TextureRect3" type="TextureRect" parent="Inventory/Clothes/legs" unique_id=1035118361]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+
+[node name="feet" type="Panel" parent="Inventory/Clothes" unique_id=1647237631 node_paths=PackedStringArray("icon_rect")]
+custom_minimum_size = Vector2(100, 100)
+custom_maximum_size = Vector2(100, 100)
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.36979166
+anchor_top = 0.8079399
+anchor_right = 0.6302083
+anchor_bottom = 0.91523606
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_8njf7")
+script = ExtResource("6_p7vwb")
+equip_slot = 3
+equipment_model = SubResource("Resource_ktti3")
+icon_rect = NodePath("TextureRect4")
+metadata/_edit_use_anchors_ = true
+
+[node name="TextureRect4" type="TextureRect" parent="Inventory/Clothes/feet" unique_id=1382415687]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+
+[node name="back" type="Panel" parent="Inventory/Clothes" unique_id=983874172 node_paths=PackedStringArray("icon_rect")]
+custom_minimum_size = Vector2(100, 100)
+custom_maximum_size = Vector2(100, 100)
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.26287553
+anchor_right = 0.26041666
+anchor_bottom = 0.37017167
+offset_top = 1.5258789e-05
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_8njf7")
+script = ExtResource("6_p7vwb")
+equip_slot = 4
+equipment_model = SubResource("Resource_ktti3")
+icon_rect = NodePath("TextureRect5")
+metadata/_edit_use_anchors_ = true
+
+[node name="TextureRect5" type="TextureRect" parent="Inventory/Clothes/back" unique_id=1497795323]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+
+[node name="shoulders" type="Panel" parent="Inventory/Clothes" unique_id=901714971 node_paths=PackedStringArray("icon_rect")]
+custom_minimum_size = Vector2(100, 100)
+custom_maximum_size = Vector2(100, 100)
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.7395833
+anchor_top = 0.26287553
+anchor_right = 1.0
+anchor_bottom = 0.37017167
+offset_top = 1.5258789e-05
+grow_horizontal = 0
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_8njf7")
+script = ExtResource("6_p7vwb")
+equip_slot = 5
+equipment_model = SubResource("Resource_ktti3")
+icon_rect = NodePath("TextureRect6")
+metadata/_edit_use_anchors_ = true
+
+[node name="TextureRect6" type="TextureRect" parent="Inventory/Clothes/shoulders" unique_id=1540871649]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+
+[node name="PlayerContainers" type="Node" parent="." unique_id=331795773]
+unique_name_in_owner = true
+script = ExtResource("5_wm3ai")
+metadata/_custom_type_script = "uid://b82qc25arbofl"
+
+[connection signal="inventory_close" from="." to="InventoryUIController" method="_on_ui_inventory_close"]
+[connection signal="add_container" from="PlayerContainers" to="InventoryUIController" method="open_container"]
+[connection signal="remove_container" from="PlayerContainers" to="InventoryUIController" method="close_player_container"]
+[connection signal="remove_container" from="PlayerContainers" to="PlayerContainers" method="_on_remove_container"]

@@ -1,0 +1,99 @@
+[gd_scene format=3 uid="uid://dpmetpkjbanja"]
+
+[ext_resource type="PackedScene" uid="uid://3gnsls7jtuxo" path="res://scenes/player.tscn" id="1_37kl0"]
+[ext_resource type="PackedScene" uid="uid://dftxseqmmjo35" path="res://scenes/zombies/zombie.tscn" id="4_ppyta"]
+[ext_resource type="Script" uid="uid://cw2gxg62gx4of" path="res://scripts/inventory/model/inventory_model.gd" id="4_vbegm"]
+[ext_resource type="Script" uid="uid://cg2alhn207kxn" path="res://scripts/inventory/descriptors/item_descriptor.gd" id="5_ehkex"]
+[ext_resource type="Script" uid="uid://cky1fu523t4i0" path="res://scripts/components/interact_resource.gd" id="5_g14j6"]
+[ext_resource type="PackedScene" uid="uid://dnwmecb1siwnm" path="res://scenes/components/pickable_object.tscn" id="5_ykrsh"]
+[ext_resource type="Resource" uid="uid://daw3newp1nym0" path="res://resources/consumables/agua.tres" id="6_vbegm"]
+[ext_resource type="PackedScene" uid="uid://clr1eqn4p5a0o" path="res://scenes/components/container_interactable.tscn" id="7_vbegm"]
+[ext_resource type="Resource" uid="uid://b1b4eh1gc17on" path="res://resources/mochila.tres" id="9_xersf"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_37kl0"]
+sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+ground_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+
+[sub_resource type="Sky" id="Sky_8uh7m"]
+sky_material = SubResource("ProceduralSkyMaterial_37kl0")
+
+[sub_resource type="Environment" id="Environment_6uqi0"]
+background_mode = 2
+sky = SubResource("Sky_8uh7m")
+glow_enabled = true
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_8njf7"]
+size = Vector2(20, 20)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_uujet"]
+size = Vector3(20.21, 4.75354, 20.27)
+
+[sub_resource type="Resource" id="Resource_ehkex"]
+script = ExtResource("4_vbegm")
+dimensions = Vector2i(20, 20)
+metadata/_custom_type_script = "uid://cw2gxg62gx4of"
+
+[sub_resource type="BoxMesh" id="BoxMesh_8njf7"]
+
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_ehkex"]
+data = PackedVector3Array(-0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, -0.5, 0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, 0.5, 0.5, -0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, -0.5, -0.5)
+
+[sub_resource type="Resource" id="Resource_ppyta"]
+script = ExtResource("5_g14j6")
+metadata/_custom_type_script = "uid://cky1fu523t4i0"
+
+[node name="test" type="Node3D" unique_id=1207918251]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1629053163]
+environment = SubResource("Environment_6uqi0")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=554950048]
+transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, 0, 0, 0)
+shadow_enabled = true
+
+[node name="floor" type="MeshInstance3D" parent="." unique_id=1722483494]
+mesh = SubResource("PlaneMesh_8njf7")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="floor" unique_id=1923795581]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="floor/StaticBody3D" unique_id=2080010155]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.192566, 0)
+shape = SubResource("BoxShape3D_uujet")
+
+[node name="player" parent="." unique_id=583847357 instance=ExtResource("1_37kl0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.38241863, 0, -1.2323695)
+
+[node name="zombie" parent="." unique_id=495252481 instance=ExtResource("4_ppyta")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.165186, 0.22633222, -3.2953906)
+
+[node name="zombie2" parent="." unique_id=708213754 instance=ExtResource("4_ppyta")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.4372244, 0.22633222, -3.2953906)
+
+[node name="zombie3" parent="." unique_id=770537522 instance=ExtResource("4_ppyta")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.8879786, 0.22633222, -3.2953906)
+
+[node name="zombie4" parent="." unique_id=857784700 instance=ExtResource("4_ppyta")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.2923503, 0.22633222, -3.2953906)
+
+[node name="zombie5" parent="." unique_id=1306830294 instance=ExtResource("4_ppyta")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.42178726, 0.22633222, -3.2953906)
+
+[node name="StaticBody3D" parent="." unique_id=1385807799 instance=ExtResource("7_vbegm")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5977674, 0.684204, 0.1138196)
+inventory_model = SubResource("Resource_ehkex")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="StaticBody3D" unique_id=976734263]
+mesh = SubResource("BoxMesh_8njf7")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" unique_id=51605478]
+shape = SubResource("ConcavePolygonShape3D_ehkex")
+
+[node name="pickable_object" parent="." unique_id=747042647 instance=ExtResource("5_ykrsh")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.96772164, 0.1842041, 1.8581853)
+interact_resource = SubResource("Resource_ppyta")
+item_descriptor = ExtResource("6_vbegm")
+
+[node name="mochila" parent="." unique_id=1066621881 instance=ExtResource("5_ykrsh")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.96772164, 0.1842041, 4.409007)
+interact_resource = SubResource("Resource_ppyta")
+item_descriptor = ExtResource("9_xersf")

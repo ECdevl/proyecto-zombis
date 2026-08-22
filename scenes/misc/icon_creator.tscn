@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://w8pon5lrn51x"]
+
+[ext_resource type="Script" uid="uid://cqbyk8peirpxy" path="res://scripts/misc/icon_creator.gd" id="1_go1vf"]
+
+[node name="SubViewport" type="SubViewport" unique_id=1891180170]
+own_world_3d = true
+transparent_bg = true
+sdf_scale = 0
+script = ExtResource("1_go1vf")
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=1399801673]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -1, 0.15, 0)
+projection = 1
+
+[node name="OmniLight3D" type="OmniLight3D" parent="." unique_id=1634696905]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.4023164, 0.41364545, 0.40169424)

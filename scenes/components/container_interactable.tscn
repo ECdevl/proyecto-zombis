@@ -1,0 +1,13 @@
+[gd_scene format=3 uid="uid://clr1eqn4p5a0o"]
+
+[ext_resource type="Script" uid="uid://pk081nahvfxn" path="res://scripts/world/container_interactable.gd" id="1_nbqf0"]
+[ext_resource type="Script" uid="uid://cw2gxg62gx4of" path="res://scripts/inventory/model/inventory_model.gd" id="2_3bkui"]
+
+[sub_resource type="Resource" id="Resource_nbqf0"]
+script = ExtResource("2_3bkui")
+dimensions = Vector2i(12, 7)
+metadata/_custom_type_script = "uid://cw2gxg62gx4of"
+
+[node name="StaticBody3D" type="StaticBody3D" unique_id=1385807799]
+script = ExtResource("1_nbqf0")
+inventory_model = SubResource("Resource_nbqf0")

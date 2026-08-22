@@ -1,0 +1,36 @@
+[gd_scene format=3 uid="uid://5v7bcrkk5m62"]
+
+[ext_resource type="Script" uid="uid://b5anov2cvrako" path="res://scripts/inventory/ui/view_parent.gd" id="1_axnqj"]
+[ext_resource type="Script" uid="uid://bfnwssabrev20" path="res://scripts/inventory/view/inventory_view.gd" id="1_l3jcr"]
+
+[node name="ScrollContainer" type="ScrollContainer" unique_id=1664087874]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+scroll_horizontal_custom_step = 50.0
+scroll_vertical_custom_step = 50.0
+script = ExtResource("1_axnqj")
+
+[node name="Inventory" type="FoldableContainer" parent="." unique_id=1731144245]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 32
+title = "Bolsillos"
+title_alignment = 1
+
+[node name="ItemLayer" type="Control" parent="Inventory" unique_id=750116615]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="InventoryView" type="GridContainer" parent="Inventory" unique_id=1782994895 node_paths=PackedStringArray("item_layer")]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 6
+size_flags_vertical = 3
+columns = 7
+script = ExtResource("1_l3jcr")
+item_layer = NodePath("../ItemLayer")
