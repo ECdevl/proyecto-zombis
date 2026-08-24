@@ -16,6 +16,6 @@ func create_texture(mesh: PackedScene) -> ImageTexture:
 	var texture := ImageTexture.create_from_image(image)
 
 	display_mesh.queue_free()
-	queue_free()  # esta instancia ya cumplió su función
+	queue_free() 
 
 	return texture

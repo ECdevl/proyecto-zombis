@@ -11,7 +11,7 @@
 
 [sub_resource type="Resource" id="Resource_gdt2y"]
 script = ExtResource("4_p7vwb")
-dimensions = Vector2i(7, 1)
+dimensions = Vector2i(7, 2)
 metadata/_custom_type_script = "uid://cw2gxg62gx4of"
 
 [sub_resource type="Resource" id="Resource_ktti3"]
@@ -389,5 +389,7 @@ metadata/_custom_type_script = "uid://b82qc25arbofl"
 
 [connection signal="inventory_close" from="." to="InventoryUIController" method="_on_ui_inventory_close"]
 [connection signal="add_container" from="PlayerContainers" to="InventoryUIController" method="open_container"]
+[connection signal="item_lost" from="PlayerContainers" to="." method="_on_player_containers_item_lost"]
+[connection signal="item_received" from="PlayerContainers" to="." method="_on_player_containers_item_received"]
 [connection signal="remove_container" from="PlayerContainers" to="InventoryUIController" method="close_player_container"]
 [connection signal="remove_container" from="PlayerContainers" to="PlayerContainers" method="_on_remove_container"]

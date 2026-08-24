@@ -37,14 +37,17 @@ signal drop_item(item: ItemDescriptor)
 
 func _ready() -> void:
 
-	player_containers.register_container(player_inventory_model)
+	player_containers.register_container(player_inventory_model,0,"Bolsillos")
 	player = get_parent().owner
 	inventory.hide.call_deferred()
+	player_inventory_model.connect("item_added",Callable(self,"model_item_added"))
 	equipment_model.item_equipped.connect(_on_equipment_item_equipped)
 	equipment_model.item_unequipped.connect(_on_equipment_item_unequipped)
 
 
 
+func model_item_added(descriptor: ItemDescriptor) -> void:
+	print_debug("added ",descriptor.item_name)
 
 
 func set_text_hint(text:String) -> void:
@@ -103,20 +106,30 @@ func _on_player_grabbed_object(obj: ItemDescriptor, world_obj: PickableItem) -> 
 			if not equipment_model.equip(obj.equip_slot,obj):
 				return
 			else:
-				player_containers.register_container(obj.container_model)
+				if obj.container_model:
+					player_containers.register_container(obj.container_model)
 	world_obj.queue_free()
 
 
 func _on_equipment_item_equipped(_slot: WearableItemDescriptor.EquipSlot, wearable: WearableItemDescriptor) -> void:
-	if wearable.container_model == null:
-		return
-	print_debug("EQUIPPED: ",wearable, " IN ",_slot)
+	if wearable.container_model:
+		player_containers.register_container(wearable.container_model,0,wearable.item_name)
 
 
 func _on_equipment_item_unequipped(_slot: WearableItemDescriptor.EquipSlot, wearable: WearableItemDescriptor) -> void:
-	if wearable.container_model == null:
-		return 
 	if not player_containers.try_add_anywhere(wearable):
 		player_containers.unregister_container(wearable.container_model)
 		emit_signal("drop_item",wearable)
 		
+
+
+func _on_player_containers_item_received(descriptor: ItemDescriptor, container: InventoryModel) -> void:
+	if descriptor is WearableItemDescriptor:
+		if descriptor.container_model:
+			player_containers.register_container(descriptor.container_model,0,descriptor.item_name)
+
+
+func _on_player_containers_item_lost(descriptor: ItemDescriptor) -> void:
+	if descriptor is WearableItemDescriptor:
+		if descriptor.container_model:
+			player_containers.unregister_container(descriptor.container_model)

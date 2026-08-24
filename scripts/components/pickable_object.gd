@@ -26,7 +26,7 @@ func _ready() -> void:
 	var item_scene : Node3D = item_descriptor.item_mesh.instantiate()
 	var mesh : MeshInstance3D
 	for i in item_scene.get_children():
-		if i.name.contains("mesh") and i is MeshInstance3D:
+		if i is MeshInstance3D:
 			mesh = i
 			break
 	collision.shape = mesh.mesh.create_convex_shape()

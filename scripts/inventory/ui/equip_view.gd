@@ -11,6 +11,7 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	equipment_model.item_equipped.connect(_on_equipped)
 	equipment_model.item_unequipped.connect(_on_unequipped)
+	icon_rect = get_child(0)
 
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
@@ -28,6 +29,7 @@ func try_place(item: ItemVisual, _world_pos: Vector2) -> bool:
 func _on_equipped(slot: WearableItemDescriptor.EquipSlot, descriptor: ItemDescriptor) -> void:
 	if slot == equip_slot and icon_rect:
 		icon_rect.texture = descriptor.icon
+		print_debug(icon_rect.texture)
 
 func _on_unequipped(slot: WearableItemDescriptor.EquipSlot, _descriptor: ItemDescriptor) -> void:
 	if slot == equip_slot and icon_rect:

@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="WearableItemDescriptor" format=3 uid="uid://phei6jhid0ue"]
+
+[ext_resource type="Script" uid="uid://bevkhgemyn38" path="res://scripts/inventory/descriptors/wearable_item_descriptor.gd" id="1_30a2k"]
+[ext_resource type="PackedScene" uid="uid://dt7j5mqdicdse" path="res://Assets/models/clothing/pantalon_largo.tscn" id="1_dyp55"]
+
+[resource]
+script = ExtResource("1_30a2k")
+equip_slot = 2
+item_name = "Pantalon Largo"
+dimensions = Vector2i(2, 2)
+item_mesh = ExtResource("1_dyp55")
+metadata/_custom_type_script = "uid://bevkhgemyn38"

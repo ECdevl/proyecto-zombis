@@ -4,11 +4,14 @@ signal item_placed(descriptor: ItemDescriptor, row: int, col: int, rotated: bool
 signal item_removed(descriptor: ItemDescriptor)
 signal item_used(descriptor: ItemDescriptor)
 
+signal item_added(descriptor: ItemDescriptor)
 
 var grid: Array = []  # Array[Array[ItemDescriptor]] -- solo datos, sin nodos
 @export var dimensions: Vector2i = Vector2i(10, 7)
 
 @export var starting_items : Array[ItemDescriptor]
+
+
 
 func init_grid() -> void:
 	if not grid.is_empty():
@@ -29,7 +32,6 @@ func _size_for(descriptor: ItemDescriptor, rotated: bool) -> Vector2i:
 	return descriptor.dimensions
 
 
-# models/inventory/inventory_model.gd
 
 func can_place(descriptor: ItemDescriptor, row: int, col: int, rotated: bool = false) -> bool:
 	if _contains_model(descriptor):
@@ -46,9 +48,7 @@ func can_place(descriptor: ItemDescriptor, row: int, col: int, rotated: bool = f
 	return true
 
 
-# ¿Yo (self) ya estoy en algún lugar dentro del árbol de contenedores de `descriptor`?
-# Cubre el caso directo (metértela a sí misma) y el anidado (mochila A dentro de mochila B
-# que ya está dentro de mochila A).
+
 func _contains_model(descriptor: ItemDescriptor) -> bool:
 	if descriptor is not WearableItemDescriptor:
 		return false

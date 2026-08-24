@@ -18,6 +18,14 @@ var _hover_view : Control = null
 
 const TOOL_TIP = preload("uid://ciydg2iod5xvi")
 
+const ICON_CREATOR = preload("uid://w8pon5lrn51x")
+
+func _generate_icon(mesh: PackedScene) -> ImageTexture:
+	var creator: SubViewport = ICON_CREATOR.instantiate()
+	add_child(creator)  # necesita estar en el árbol para renderizar
+	var image: ImageTexture = await creator.create_texture(mesh)
+	
+	return image
 
 func _ready() -> void:
 	item_w = descriptor.dimensions.x
@@ -25,7 +33,7 @@ func _ready() -> void:
 	texture = descriptor.icon
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	clip_contents = false
-
+	
 	update_item()
 
 
@@ -45,6 +53,10 @@ func update_item() -> void:
 	position = (size-draw_size)*0.5
 	
 	rotation_degrees = 90 if rotated else 0
+	if texture == null:
+		texture = await _generate_icon(descriptor.item_mesh)
+		descriptor.icon = texture
+
 
 
 func _gui_input(event: InputEvent) -> void:
@@ -97,9 +109,13 @@ func end_drag() -> void:
 	if placed:
 		if _hover_view is InventoryView:
 			_hover_view.clear_preview()
+
+			if _hover_view.inventory_model != view.inventory_model:
+				_hover_view.inventory_model.item_added.emit(descriptor)
 		else:
 			view.release_visual(descriptor)  # avisar a la view de origen antes de destruirse
 			queue_free()
+			
 	else:
 		rotated = old_rotated
 		update_item()

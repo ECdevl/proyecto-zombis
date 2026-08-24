@@ -39,7 +39,7 @@ func open_container(model: InventoryModel, title: String = "") -> void:
 
 	var panel : Control = inventory_panel_scene.instantiate()
 	panels_container.add_child(panel)
-	#panel.title = title
+	panel.get_child(0).title = title
 
 	var view: InventoryView = panel.inventory_view
 	view.setup(model)
