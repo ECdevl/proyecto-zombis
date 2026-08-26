@@ -1,0 +1,28 @@
+[gd_scene format=3 uid="uid://g74dur30org"]
+
+[ext_resource type="Script" uid="uid://byiividvavc8" path="res://scripts/inventory/view/item_actions.gd" id="1_i41f8"]
+[ext_resource type="Texture2D" uid="uid://02e6wui6yeon" path="res://icon.svg" id="2_emrfu"]
+
+[node name="Panel" type="PanelContainer" unique_id=1723674731]
+top_level = true
+custom_minimum_size = Vector2(400, 0)
+offset_right = 400.0
+offset_bottom = 4.0
+script = ExtResource("1_i41f8")
+
+[node name="ItemActions" type="VBoxContainer" parent="." unique_id=485331065]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="ItemIcon" type="TextureRect" parent="ItemActions" unique_id=1070757456]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 400)
+layout_mode = 2
+size_flags_vertical = 3
+texture = ExtResource("2_emrfu")
+expand_mode = 1
+
+[node name="ButtonsContainer" type="VBoxContainer" parent="ItemActions" unique_id=1789158990]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3

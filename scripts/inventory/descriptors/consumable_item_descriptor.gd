@@ -18,3 +18,8 @@ func get_tooltip_lines() -> Array[String]:
 			consume_name = "Salud"
 	lines.append_array([consume_name+": "+"[color=green]"+str(effect_amount)+"[/color]"])
 	return lines
+
+func get_actions() -> Array[String]:
+	var actions = super.get_actions()
+	actions.append("usar")
+	return actions

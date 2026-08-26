@@ -6,6 +6,8 @@ var item_h : int = 1
 
 @export var descriptor : ItemDescriptor
 
+signal item_selected(who:ItemVisual)
+
 var rotated : bool = false
 var dragging : bool = false
 var view : InventoryView = null
@@ -17,7 +19,7 @@ var old_rotated : bool = false
 var _hover_view : Control = null
 
 const TOOL_TIP = preload("uid://ciydg2iod5xvi")
-
+const ITEM_ACTIONS = preload("uid://g74dur30org")
 const ICON_CREATOR = preload("uid://w8pon5lrn51x")
 
 func _generate_icon(mesh: PackedScene) -> ImageTexture:
@@ -47,7 +49,7 @@ func cur_h() -> int:
 func update_item() -> void:
 	size = Vector2(cur_w(),cur_h()) * view.CELL_STEP - Vector2.ONE * view.CELL_GAP
 
-	pivot_offset = size * 0.5
+	pivot_offset_ratio = Vector2(0.5,0.5)
 	var draw_size : Vector2 = size if not rotated else Vector2(size.y,size.x)
 	size = draw_size
 	position = (size-draw_size)*0.5
@@ -63,8 +65,14 @@ func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 			start_drag()
-		elif dragging and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
-			rotate_item()
+			
+		
+		if event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+			if dragging:
+				rotate_item()
+			else:
+				item_selected.emit(self)
+				
 
 func _input(event: InputEvent) -> void:
 
@@ -112,6 +120,7 @@ func end_drag() -> void:
 
 			if _hover_view.inventory_model != view.inventory_model:
 				_hover_view.inventory_model.item_added.emit(descriptor)
+				print_debug("addedd")
 		else:
 			view.release_visual(descriptor)  # avisar a la view de origen antes de destruirse
 			queue_free()

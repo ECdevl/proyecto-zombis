@@ -14,6 +14,7 @@ const COLOR_INVALID : Color = Color(255,0,0)
 
 const ITEM_VISUAL_SCENE = preload("uid://cnpyo1vrq877x")
 const SLOT = preload("uid://t0si10ufqqi6")
+const ITEM_ACTIONS = preload("uid://g74dur30org")
 
 @export var test_slots : Array[ItemDescriptor]
 @export var item_layer : Control
@@ -84,9 +85,17 @@ func _spawn_visual(descriptor: ItemDescriptor) -> ItemVisual:
 	visual.rotated = inventory_model.is_rotated(descriptor)
 	item_layer.add_child(visual)
 	_visuals[descriptor] = visual
+	visual.item_selected.connect(Callable(self,"visual_pressed"))
 	return visual
 
-
+func visual_pressed(who:ItemVisual) -> void:
+	var buttons_act : ItemActions = ITEM_ACTIONS.instantiate()
+	buttons_act.global_position = get_global_mouse_position()
+	buttons_act.visual = who
+	add_child(buttons_act)
+	buttons_act.add_action(who.descriptor)
+	buttons_act.action_drop.connect(remove_item)
+	
 func close() -> void:
 	for visual in item_layer.get_children():
 		item_layer.remove_child(visual)
@@ -109,9 +118,9 @@ func _on_item_placed(descriptor: ItemDescriptor, row: int, col: int, rotated: bo
 
 
 func _on_item_removed(descriptor: ItemDescriptor) -> void:
-	# El nodo visual sigue vivo (puede estar siendo arrastrado en ese momento).
-	# Destruirlo de verdad es responsabilidad de una futura acción explícita
-	# (usar/tirar item), no de remove_item.
+	if descriptor.to_drop:
+		_visuals.get(descriptor).queue_free()
+		_visuals.erase(descriptor)
 	clear_preview()
 
 
@@ -134,6 +143,7 @@ func try_place(item: ItemVisual, world_pos: Vector2) -> bool:
 
 
 func remove_item(item: ItemVisual) -> void:
+
 	inventory_model.remove_item(item.descriptor)
 
 

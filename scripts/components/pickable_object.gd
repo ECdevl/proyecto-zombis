@@ -3,6 +3,7 @@ class_name PickableItem
 
 
 
+
 const ICON_CREATOR = preload("uid://w8pon5lrn51x")
 
 func _generate_icon(mesh: PackedScene) -> ImageTexture:

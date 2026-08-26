@@ -49,7 +49,6 @@ func open_container(model: InventoryModel, title: String = "") -> void:
 
 func close_player_container(model: InventoryModel) -> void:
 	if not player_panels.has(model):
-		print_debug("no close")
 		return
 	var panel: Node = player_panels[model]
 	var view: InventoryView = panel.inventory_view

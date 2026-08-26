@@ -28,7 +28,7 @@ signal inventory_close
 
 @onready var inventory: Control = %Inventory
 
-@onready var pockets_view: ScrollContainer = %pockets_view
+
 
 @export var equipment_model : EquipmentModel
 @onready var clothes: Panel = %Clothes
@@ -133,3 +133,6 @@ func _on_player_containers_item_lost(descriptor: ItemDescriptor) -> void:
 	if descriptor is WearableItemDescriptor:
 		if descriptor.container_model:
 			player_containers.unregister_container(descriptor.container_model)
+	if descriptor.to_drop:
+		descriptor.to_drop = false
+		drop_item.emit(descriptor)
