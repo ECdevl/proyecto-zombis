@@ -25,6 +25,21 @@ func init_grid() -> void:
 		for item in starting_items:
 			add_item_by_descriptor(item)
 
+func _has_item(item:ItemDescriptor) -> bool:
+	for i in grid:
+		if i is ItemDescriptor:
+			if i == item:
+				return true
+			else:
+				continue
+		elif i is Array:
+			for descript in i:
+				if descript == item:
+					return true
+				else:
+					continue
+	return false
+
 
 func _size_for(descriptor: ItemDescriptor, rotated: bool) -> Vector2i:
 	if rotated:

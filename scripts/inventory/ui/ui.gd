@@ -2,6 +2,7 @@ extends Control
 class_name UI
 
 
+@onready var item_actions: ItemActions = %ItemActions
 
 
 
@@ -90,8 +91,14 @@ func _process(delta: float) -> void:
 	if Input.is_action_just_pressed("toggle_inventory"):
 		toggle_inventory()
 
+func show_actions(visual:ItemVisual) -> void:
 	
-
+	item_actions.visual = visual
+	item_actions.add_action(visual.descriptor)
+	item_actions.show()
+	visual.item_drop.connect(_on_player_containers_drop_item_world)
+	item_actions.global_position = get_global_mouse_position()
+	
 
 func _on_player_loot_opened(model: InventoryModel, display: String) -> void:
 	inventory_ui_controller.open_loot_container(model,display)
@@ -133,6 +140,8 @@ func _on_player_containers_item_lost(descriptor: ItemDescriptor) -> void:
 	if descriptor is WearableItemDescriptor:
 		if descriptor.container_model:
 			player_containers.unregister_container(descriptor.container_model)
-	if descriptor.to_drop:
-		descriptor.to_drop = false
-		drop_item.emit(descriptor)
+			
+
+
+func _on_player_containers_drop_item_world(descriptor: ItemDescriptor) -> void:
+	drop_item.emit(descriptor)

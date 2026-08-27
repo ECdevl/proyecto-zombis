@@ -7,7 +7,7 @@ var item_h : int = 1
 @export var descriptor : ItemDescriptor
 
 signal item_selected(who:ItemVisual)
-
+signal item_drop
 var rotated : bool = false
 var dragging : bool = false
 var view : InventoryView = null
@@ -151,3 +151,7 @@ func _on_mouse_entered() -> void:
 
 func _on_mouse_exited() -> void:
 	get_child(0).queue_free()
+
+
+func _on_item_drop() -> void:
+	view.release_visual(self.descriptor)

@@ -1,6 +1,6 @@
 extends PanelContainer
 class_name ItemActions
-const UI = preload("uid://0krupgkeccyr")
+
 @onready var item_icon: TextureRect = %ItemIcon
 @onready var buttons_container: VBoxContainer = %ButtonsContainer
 @onready var item_actions: VBoxContainer = %ItemActions
@@ -10,6 +10,8 @@ signal action_use(what:ItemConsumable)
 
 var item : ItemDescriptor
 var visual : ItemVisual
+
+
 
 func add_action(descriptor:ItemDescriptor) -> void:
 	item = descriptor
@@ -31,6 +33,5 @@ func _gui_input(event: InputEvent) -> void:
 func _on_action_presss(button:Button) -> void:
 	match button.text:
 		"soltar":
-			item.to_drop = true
 			action_drop.emit(visual)
 	queue_free()

@@ -13,5 +13,6 @@ expand_mode = 1
 stretch_mode = 6
 script = ExtResource("1_d2ix5")
 
+[connection signal="item_drop" from="." to="." method="_on_item_drop"]
 [connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
 [connection signal="mouse_exited" from="." to="." method="_on_mouse_exited"]

@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://5v7bcrkk5m62" path="res://scenes/ui/inventory_view.tscn" id="6_8dubc"]
 [ext_resource type="Script" uid="uid://dalhqhdgs4pkw" path="res://scripts/inventory/ui/equip_view.gd" id="6_p7vwb"]
 [ext_resource type="Script" uid="uid://d4duou0lvvuqo" path="res://scripts/components/equipment_model.gd" id="7_ktti3"]
+[ext_resource type="PackedScene" uid="uid://g74dur30org" path="res://scenes/ui/item_actions.tscn" id="8_uegxj"]
 
 [sub_resource type="Resource" id="Resource_gdt2y"]
 script = ExtResource("4_p7vwb")
@@ -382,13 +383,24 @@ grow_horizontal = 2
 grow_vertical = 2
 expand_mode = 1
 
+[node name="ItemActions" parent="Inventory" unique_id=1723674731 instance=ExtResource("8_uegxj")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = -576.0
+offset_top = 677.0
+offset_right = -176.0
+offset_bottom = 1081.0
+
 [node name="PlayerContainers" type="Node" parent="." unique_id=331795773]
 unique_name_in_owner = true
 script = ExtResource("5_wm3ai")
 metadata/_custom_type_script = "uid://b82qc25arbofl"
 
 [connection signal="inventory_close" from="." to="InventoryUIController" method="_on_ui_inventory_close"]
+[connection signal="action_drop" from="Inventory/ItemActions" to="PlayerContainers" method="_on_item_actions_action_drop"]
 [connection signal="add_container" from="PlayerContainers" to="InventoryUIController" method="open_container"]
+[connection signal="drop_item_world" from="PlayerContainers" to="." method="_on_player_containers_drop_item_world"]
 [connection signal="item_lost" from="PlayerContainers" to="." method="_on_player_containers_item_lost"]
 [connection signal="item_received" from="PlayerContainers" to="." method="_on_player_containers_item_received"]
 [connection signal="remove_container" from="PlayerContainers" to="InventoryUIController" method="close_player_container"]

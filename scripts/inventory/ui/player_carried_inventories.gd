@@ -8,7 +8,9 @@ signal add_container(model:InventoryModel, display:String)
 signal remove_container(model:InventoryModel)
 
 signal item_received(descriptor: ItemDescriptor, container: InventoryModel)
-signal item_lost(descriptor:ItemDescriptor,to_world:bool)
+signal item_lost(descriptor:ItemDescriptor)
+
+signal drop_item_world(descriptor:ItemDescriptor)
 
 func register_container(model: InventoryModel, priority: int = 0, display:String = "") -> void:
 	if _containers.has(model):
@@ -31,6 +33,7 @@ func _on_item_removed(descriptor: ItemDescriptor) -> void:
 	if descriptor is WearableItemDescriptor and descriptor.container_model:
 		unregister_container(descriptor.container_model)
 
+
 func unregister_container(model: InventoryModel) -> void:
 	_containers.erase(model)
 	remove_container.emit(model)
@@ -43,5 +46,9 @@ func try_add_anywhere(item: ItemDescriptor) -> bool:
 	return false
 
 
-func _on_remove_container(model: InventoryModel) -> void:
-	pass # Replace with function body.
+func _on_item_actions_action_drop(what: ItemVisual) -> void:
+	for model in _containers:
+		if model._has_item(what.descriptor):
+			model.remove_item(what.descriptor)
+			what.view.release_visual(what.descriptor)
+	drop_item_world.emit(what.descriptor)

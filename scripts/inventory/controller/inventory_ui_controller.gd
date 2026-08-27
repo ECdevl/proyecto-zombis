@@ -4,6 +4,9 @@ class_name InventoryUIController
 @export var inventory_panel_scene: PackedScene  # la escena "Inventory" completa
 @export var panels_container: Control
 @onready var loot_view_container: VBoxContainer = %LootViewContainer
+@onready var player_containers: PlayerCarriedInventories = %PlayerContainers
+
+@onready var ui: UI = $".."
 
 var open_panels: Dictionary = {}  # InventoryModel -> Node (raíz "Inventory")
 
@@ -27,7 +30,7 @@ func open_loot_container(model: InventoryModel, title: String = "") -> void:
 
 	var view: InventoryView = panel.inventory_view
 	view.setup(model)
-
+	view.visual_press.connect(ui.show_actions)
 	open_panels[model] = panel
 
 
@@ -43,7 +46,7 @@ func open_container(model: InventoryModel, title: String = "") -> void:
 
 	var view: InventoryView = panel.inventory_view
 	view.setup(model)
-	
+	view.visual_press.connect(ui.show_actions)
 	player_panels[model] = panel
 
 
