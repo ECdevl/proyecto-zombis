@@ -23,15 +23,20 @@ func add_action(descriptor:ItemDescriptor) -> void:
 		action_button.connect("pressed",_on_action_presss,CONNECT_APPEND_SOURCE_OBJECT)
 		item_icon.texture = descriptor.icon
 		buttons_container.add_child(action_button)
-		
+
+func _clear_buttons() -> void:
+	for butt in buttons_container.get_children():
+		butt.queue_free()
 
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
-			queue_free()
+			hide()
+			_clear_buttons()
 
 func _on_action_presss(button:Button) -> void:
 	match button.text:
 		"soltar":
 			action_drop.emit(visual)
-	queue_free()
+	hide()
+	_clear_buttons()

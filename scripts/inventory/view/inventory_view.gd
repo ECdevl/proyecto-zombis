@@ -61,10 +61,13 @@ func setup(model: InventoryModel) -> void:
 			inventory_model.add_item_by_descriptor.call_deferred(i)
 
 func reposition_items() -> void:
-	for descriptor in _visuals:
+	for descriptor in _visuals.keys():
 		var pos := inventory_model.get_grid_position(descriptor)
 		if pos.x >= 0:
+			if not _visuals[descriptor]:
+				_visuals[descriptor] = _spawn_visual(descriptor)
 			_visuals[descriptor].global_position = cell_to_world(pos.y, pos.x)
+
 
 func _init_cells() -> void:
 	columns = inventory_model.dimensions.x
@@ -114,6 +117,12 @@ func _on_item_placed(descriptor: ItemDescriptor, row: int, col: int, rotated: bo
 
 
 func _on_item_removed(descriptor: ItemDescriptor) -> void:
+	if _visuals.has(descriptor):
+		var visual: ItemVisual = _visuals[descriptor]
+		if visual.dragging:
+			clear_preview()
+			return
+		release_visual(descriptor)
 	clear_preview()
 
 

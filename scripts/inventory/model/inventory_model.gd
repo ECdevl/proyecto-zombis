@@ -1,9 +1,20 @@
 class_name InventoryModel extends Resource
 
+# Emitted when a descriptor is successfully placed on the grid (try_place succeeds).
+# Listened by: InventoryView (spawns/updates the visual), PlayerCarriedInventories
+# (registers nested container if the descriptor is a WearableItemDescriptor with container_model).
 signal item_placed(descriptor: ItemDescriptor, row: int, col: int, rotated: bool)
+
+# Emitted when a descriptor is removed from the grid (remove_item).
+# Listened by: InventoryView (destroys the visual, unless it's mid-drag),
+# PlayerCarriedInventories (unregisters nested container).
 signal item_removed(descriptor: ItemDescriptor)
+
+# Emitted when a consumable/usable item is used. Not currently connected anywhere — reserved for future use flow.
 signal item_used(descriptor: ItemDescriptor)
 
+# Emitted manually (not by try_place) when an item moves between two InventoryViews
+# of DIFFERENT models, so the destination model's UI is notified. See item_inventory_visual.gd end_drag().
 signal item_added(descriptor: ItemDescriptor)
 
 var grid: Array = []  # Array[Array[ItemDescriptor]] -- solo datos, sin nodos
@@ -25,21 +36,20 @@ func init_grid() -> void:
 		for item in starting_items:
 			add_item_by_descriptor(item)
 
-func _has_item(item:ItemDescriptor) -> bool:
-	for i in grid:
-		if i is ItemDescriptor:
-			if i == item:
-				return true
-			else:
-				continue
-		elif i is Array:
-			for descript in i:
-				if descript == item:
-					return true
-				else:
-					continue
+
+func _has_item(item: ItemDescriptor) -> bool:
+	for row in grid:
+		if item in row:
+			return true
 	return false
 
+func _return_items() -> Array[ItemDescriptor]:
+	var item_list : Array[ItemDescriptor]
+	for row in grid:
+		for item in row:
+			if item is ItemDescriptor:
+				item_list.append(item)
+	return item_list
 
 func _size_for(descriptor: ItemDescriptor, rotated: bool) -> Vector2i:
 	if rotated:

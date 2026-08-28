@@ -8,6 +8,8 @@ class_name InventoryUIController
 
 @onready var ui: UI = $".."
 
+signal drop_item_world(descriptor:ItemDescriptor)
+
 var open_panels: Dictionary = {}  # InventoryModel -> Node (raíz "Inventory")
 
 var player_panels : Dictionary = {}
@@ -58,7 +60,7 @@ func close_player_container(model: InventoryModel) -> void:
 	view.close()
 	panel.queue_free()
 	player_panels.erase(model)
-	print_debug("closed", model)
+
 
 func close_container(model: InventoryModel) -> void:
 	if not open_panels.has(model):
@@ -77,3 +79,13 @@ func close_all() -> void:
 
 func _on_ui_inventory_close() -> void:
 	close_all()
+
+
+func _on_item_actions_action_drop(what: ItemVisual) -> void:
+	for model in open_panels.keys():
+		if model._has_item(what.descriptor):
+			model.remove_item(what.descriptor)
+		else:
+			return
+	drop_item_world.emit(what.descriptor)
+	

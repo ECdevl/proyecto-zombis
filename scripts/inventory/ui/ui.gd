@@ -105,17 +105,22 @@ func _on_player_loot_opened(model: InventoryModel, display: String) -> void:
 	toggle_inventory()
 
 
-func _on_player_grabbed_object(obj: ItemDescriptor, world_obj: PickableItem) -> void:
-	if player_containers.try_add_anywhere(obj):
-		pass
+# Flow: player picks up a world item -> try to slot it in any carried inventory ->
+# if it doesn't fit and it's wearable, try to equip it directly.
+# Container registration for wearables is handled ONLY in _on_equipment_item_equipped,
+# which fires from equipment_model's item_equipped signal — no need to duplicate it here.
+func _on_player_grabbed_object(world_obj: PickableItem) -> void:
+	if player_containers.try_add_anywhere(world_obj.item_descriptor):
+		world_obj.free()
+		
+		return
 	else:
-		if obj is WearableItemDescriptor:
-			if not equipment_model.equip(obj.equip_slot,obj):
-				return
-			else:
-				if obj.container_model:
-					player_containers.register_container(obj.container_model)
-	world_obj.queue_free()
+		if world_obj.item_descriptor is WearableItemDescriptor and equipment_model.equip(world_obj.item_descriptor.equip_slot, world_obj.item_descriptor):
+			world_obj.free()
+			
+			return
+	print_debug("impossible to grab")
+	# else: item couldn't be stored anywhere, stays in the world
 
 
 func _on_equipment_item_equipped(_slot: WearableItemDescriptor.EquipSlot, wearable: WearableItemDescriptor) -> void:
@@ -145,3 +150,7 @@ func _on_player_containers_item_lost(descriptor: ItemDescriptor) -> void:
 
 func _on_player_containers_drop_item_world(descriptor: ItemDescriptor) -> void:
 	drop_item.emit(descriptor)
+
+
+func _on_item_actions_action_drop(what: ItemVisual) -> void:
+	pass # Replace with function body.

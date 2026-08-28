@@ -121,7 +121,7 @@ func _ready() -> void:
 
 signal weapon_changed(gun:Weapon)
 
-signal grabbed_object(obj:ItemDescriptor,world_obj:PickableItem)
+signal grabbed_object(world_obj:PickableItem)
 signal loot_opened(model:InventoryModel,display:String)
 
 func _try_interact(hit_object: Node) -> void:
@@ -132,7 +132,7 @@ func _try_interact(hit_object: Node) -> void:
 	elif hit_object is Area3D:
 		if hit_object.owner is PickableItem:
 			hit_object = hit_object.owner
-			grabbed_object.emit(hit_object.item_descriptor,hit_object)
+			grabbed_object.emit(hit_object)
 	elif hit_object is DoorComponent:
 		var door : DoorComponent = look_at_component.get_collider()
 		door.check_door(self)
@@ -212,6 +212,7 @@ func drop_item(item:ItemDescriptor):
 	object.global_position = camera.global_position
 	object.apply_central_force(-camera.global_transform.basis.z*1000)
 	#emit_signal("weapon_changed",null)
+	print_debug(object)
 
 
 
