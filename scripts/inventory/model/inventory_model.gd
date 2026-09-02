@@ -77,7 +77,7 @@ func can_place(descriptor: ItemDescriptor, row: int, col: int, rotated: bool = f
 func _contains_model(descriptor: ItemDescriptor) -> bool:
 	if descriptor is not WearableItemDescriptor:
 		return false
-	var nested: InventoryModel = (descriptor as WearableItemDescriptor).container_model
+	var nested: InventoryModel = (descriptor as ItemDescriptor).container_capability
 	if nested == null:
 		return false
 	if nested == self:

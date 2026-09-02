@@ -127,6 +127,9 @@ states/two_hand_swing_2/position = Vector2(848, -40)
 transitions = ["Start", "Idle", SubResource("AnimationNodeStateMachineTransition_4r5pv"), "Idle", "two_hand_draw", SubResource("AnimationNodeStateMachineTransition_60mlk"), "two_hand_draw", "two_hand_idle", SubResource("AnimationNodeStateMachineTransition_i4ail"), "two_hand_idle", "two_hand_swing_1", SubResource("AnimationNodeStateMachineTransition_a38lo"), "two_hand_swing_1", "two_hand_swing_2", SubResource("AnimationNodeStateMachineTransition_4ni07"), "two_hand_swing_1", "two_hand_idle", SubResource("AnimationNodeStateMachineTransition_ujl30"), "two_hand_idle", "Idle", SubResource("AnimationNodeStateMachineTransition_31cv2"), "two_hand_swing_2", "two_hand_idle", SubResource("AnimationNodeStateMachineTransition_oprun"), "Idle", "run", SubResource("AnimationNodeStateMachineTransition_l71n6"), "run", "Idle", SubResource("AnimationNodeStateMachineTransition_ke2ow")]
 graph_offset = Vector2(-182, -119)
 
+[sub_resource type="SphereShape3D" id="SphereShape3D_8njf7"]
+radius = 4.0
+
 [node name="player" type="CharacterBody3D" unique_id=583847357 groups=["player"]]
 collision_layer = 8
 script = ExtResource("1_g2els")
@@ -394,11 +397,22 @@ script = ExtResource("20_60mlk")
 [node name="UI" parent="CanvasLayer" unique_id=1877997638 instance=ExtResource("13_jej6c")]
 unique_name_in_owner = true
 
+[node name="ItemInstruct" type="Area3D" parent="." unique_id=1427228613]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ItemInstruct" unique_id=436641924]
+shape = SubResource("SphereShape3D_8njf7")
+
 [connection signal="grabbed_object" from="." to="CanvasLayer/UI" method="_on_player_grabbed_object"]
 [connection signal="loot_opened" from="." to="CanvasLayer/UI" method="_on_player_loot_opened"]
 [connection signal="weapon_changed" from="." to="ArmsFSM/normal" method="_on_player_weapon_changed"]
 [connection signal="animation_finished" from="Yaw/Pitch/armsy/AnimationPlayer" to="ArmsFSM/normal" method="_on_animation_player_animation_finished"]
 [connection signal="animation_finished" from="AnimationTree" to="ArmsFSM/normal" method="_on_animation_tree_animation_finished"]
 [connection signal="drop_item" from="CanvasLayer/UI" to="." method="drop_item"]
+[connection signal="item_success_grab" from="CanvasLayer/UI" to="." method="_on_item_success_grab"]
+[connection signal="body_entered" from="ItemInstruct" to="CanvasLayer/UI" method="_on_item_instruct_body_entered"]
+[connection signal="body_exited" from="ItemInstruct" to="CanvasLayer/UI" method="_on_item_instruct_body_exited"]
 
 [editable path="Yaw/Pitch/armsy"]

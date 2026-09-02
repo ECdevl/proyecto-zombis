@@ -212,7 +212,7 @@ func drop_item(item:ItemDescriptor):
 	object.global_position = camera.global_position
 	object.apply_central_force(-camera.global_transform.basis.z*1000)
 	#emit_signal("weapon_changed",null)
-	print_debug(object)
+	print_debug(get_stack())
 
 
 
@@ -227,3 +227,11 @@ func equip_weapon(resource:Weapon):
 func get_current_weapon() -> Weapon:
 	return weapon_controller.current_weapon
 	
+
+
+func _on_item_success_grab(what: PickableItem) -> void:
+	var tween = create_tween()
+	tween.tween_property(what,"global_position",global_position,0.15)
+	await tween.finished
+	if what:
+		what.queue_free()

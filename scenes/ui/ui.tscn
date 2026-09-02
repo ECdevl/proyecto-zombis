@@ -397,6 +397,16 @@ unique_name_in_owner = true
 script = ExtResource("5_wm3ai")
 metadata/_custom_type_script = "uid://b82qc25arbofl"
 
+[node name="InstructorContainer" type="Control" parent="." unique_id=1910010534]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
 [connection signal="inventory_close" from="." to="InventoryUIController" method="_on_ui_inventory_close"]
 [connection signal="drop_item_world" from="InventoryUIController" to="." method="_on_player_containers_drop_item_world"]
 [connection signal="action_drop" from="Inventory/ItemActions" to="InventoryUIController" method="_on_item_actions_action_drop"]

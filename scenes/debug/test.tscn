@@ -32,15 +32,9 @@ size = Vector2(20, 20)
 [sub_resource type="BoxShape3D" id="BoxShape3D_uujet"]
 size = Vector3(20.21, 4.75354, 20.27)
 
-[sub_resource type="Resource" id="Resource_bbrrq"]
-script = ExtResource("4_vbegm")
-dimensions = Vector2i(5, 7)
-metadata/_custom_type_script = "uid://cw2gxg62gx4of"
-
 [sub_resource type="Resource" id="Resource_smgrx"]
 script = ExtResource("7_2gvaq")
 equip_slot = 4
-container_model = SubResource("Resource_bbrrq")
 item_name = "Mochila escolar"
 dimensions = Vector2i(2, 2)
 item_mesh = ExtResource("6_bbrrq")
@@ -61,7 +55,7 @@ data = PackedVector3Array(-0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0
 script = ExtResource("5_g14j6")
 metadata/_custom_type_script = "uid://cky1fu523t4i0"
 
-[sub_resource type="Resource" id="Resource_2gvaq"]
+[sub_resource type="Resource" id="Resource_bbrrq"]
 script = ExtResource("4_vbegm")
 metadata/_custom_type_script = "uid://cw2gxg62gx4of"
 
@@ -125,10 +119,10 @@ _bundled = {
 [sub_resource type="Resource" id="Resource_q8wwd"]
 script = ExtResource("7_2gvaq")
 equip_slot = 4
-container_model = SubResource("Resource_2gvaq")
 item_name = "Mochila escolar"
 dimensions = Vector2i(2, 2)
 item_mesh = SubResource("PackedScene_i5s65")
+container_capability = SubResource("Resource_bbrrq")
 metadata/_custom_type_script = "uid://bevkhgemyn38"
 
 [node name="test" type="Node3D" unique_id=1207918251]
@@ -167,14 +161,15 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.2923503, 0.22633222, -3.295
 [node name="zombie5" parent="." unique_id=1306830294 instance=ExtResource("4_ppyta")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.42178726, 0.22633222, -3.2953906)
 
-[node name="StaticBody3D" parent="." unique_id=1385807799 instance=ExtResource("7_vbegm")]
+[node name="Caja de madera abierta" parent="." unique_id=1385807799 instance=ExtResource("7_vbegm")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5977674, 0.684204, 0.1138196)
+collision_layer = 3
 inventory_model = SubResource("Resource_ehkex")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="StaticBody3D" unique_id=976734263]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Caja de madera abierta" unique_id=976734263]
 mesh = SubResource("BoxMesh_8njf7")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" unique_id=51605478]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Caja de madera abierta" unique_id=51605478]
 shape = SubResource("ConcavePolygonShape3D_ehkex")
 
 [node name="pickable_object" parent="." unique_id=747042647 instance=ExtResource("5_ykrsh")]

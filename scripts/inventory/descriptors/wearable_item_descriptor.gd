@@ -3,7 +3,7 @@ class_name WearableItemDescriptor extends ItemDescriptor
 
 @export var armor_value: float
 @export var equip_slot: EquipSlot
-@export var container_model: InventoryModel  # null = no es contenedor
+
 @export var random_color : bool = true 
 
 @export var cloth_color : Color = Color(255,10,23)
@@ -16,7 +16,6 @@ func _init() -> void:
 		var packed : PackedScene = PackedScene.new()
 		packed.pack(mesh)
 		item_mesh = packed
-	if container_model:
-		container_model = container_model.duplicate()
+
 		
 enum EquipSlot { HEAD, TORSO, LEGS, FEET, BACK, SHOULDERS }

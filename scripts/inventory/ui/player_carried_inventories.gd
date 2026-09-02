@@ -27,31 +27,26 @@ func register_container(model: InventoryModel, priority: int = 0, display:String
 		model.item_removed.connect(_on_item_removed)
 
 	for item in model._return_items():
-		if item is WearableItemDescriptor:
-			if item.container_model:
-				if not _containers.has(item.container_model):
-					_containers.append(item.container_model)
-					add_container.emit(item.container_model,item.item_name)
-					if not item.container_model.item_placed.is_connected(_on_item_placed):
-						item.container_model.item_placed.connect(_on_item_placed.bind(model))
-					if not item.container_model.item_removed.is_connected(_on_item_removed):
-						item.container_model.item_removed.connect(_on_item_removed)
+		if item.container_capability:
+			if not _containers.has(item.container_capability):
+				_containers.append(item.container_capability)
+				add_container.emit(item.container_capability,item.item_name)
+				if not item.container_capability.item_placed.is_connected(_on_item_placed):
+					item.container_capability.item_placed.connect(_on_item_placed.bind(model))
+				if not item.container_capability.item_removed.is_connected(_on_item_removed):
+					item.container_capability.item_removed.connect(_on_item_removed)
 
 func _on_item_placed(descriptor: ItemDescriptor, row: int, col: int, rotated: bool, model: InventoryModel) -> void:
 	item_received.emit(descriptor, model)
-	if descriptor is WearableItemDescriptor and descriptor.container_model:
-		register_container(descriptor.container_model, 0, descriptor.item_name)
+	if descriptor.container_capability:
+		register_container(descriptor.container_capability, 0, descriptor.item_name)
 
 func _on_item_removed(descriptor: ItemDescriptor) -> void:
 	item_lost.emit(descriptor)
-	if descriptor is WearableItemDescriptor:
-		if descriptor.container_model:
-			for item in descriptor.container_model._return_items():
-				if item is WearableItemDescriptor:
-					if item.container_model:
-						unregister_container(item.container_model)
-		
-			unregister_container(descriptor.container_model)
+	if descriptor.container_capability:
+		for item in descriptor.container_capability._return_items():
+			if item.container_capability:
+				unregister_container(item.container_capability)
 
 
 func unregister_container(model: InventoryModel) -> void:
@@ -69,6 +64,7 @@ func _on_item_actions_action_drop(what: ItemVisual) -> void:
 	for model in _containers:
 		if model._has_item(what.descriptor):
 			model.remove_item(what.descriptor)
+			return
 		else:
 			return
 			

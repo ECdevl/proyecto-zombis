@@ -85,6 +85,7 @@ func _on_item_actions_action_drop(what: ItemVisual) -> void:
 	for model in open_panels.keys():
 		if model._has_item(what.descriptor):
 			model.remove_item(what.descriptor)
+			return
 		else:
 			return
 	drop_item_world.emit(what.descriptor)

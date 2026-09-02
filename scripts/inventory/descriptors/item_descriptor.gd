@@ -12,9 +12,11 @@ var to_drop : bool = false
 
 @export var item_mesh : PackedScene 
 
-@export var container_capability: ContainerCapability  # null = no es contenedor
+@export var container_capability: InventoryModel  # null = no es contenedor
 
-
+func _init() -> void:
+	if container_capability:
+		container_capability = container_capability.duplicate()
 
 func get_tooltip_lines() -> Array[String]:
 	return ["[b]"+item_name.to_upper()+"[/b]", "Tamaño: "+ "[color=yellow]" + "%dx%d" % [dimensions.x,dimensions.y] + "[/color]" ]

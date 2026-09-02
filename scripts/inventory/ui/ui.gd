@@ -4,7 +4,7 @@ class_name UI
 
 @onready var item_actions: ItemActions = %ItemActions
 
-
+signal instruct(what:Node3D,label:String)
 
 var player : Player
 @onready var player_containers: PlayerCarriedInventories = %PlayerContainers
@@ -26,6 +26,7 @@ var player : Player
 
 signal inventory_open
 signal inventory_close
+signal item_success_grab(what:PickableItem)
 
 @onready var inventory: Control = %Inventory
 
@@ -67,6 +68,7 @@ func toggle_inventory() -> void:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 		emit_signal("inventory_close")
 		
+const OUTLINE = preload("uid://4x87d50eon8w")
 
 
 func _process(delta: float) -> void:
@@ -84,6 +86,8 @@ func _process(delta: float) -> void:
 			var text : String = player.looking_at_obj._get_hint()
 			text.replace("USE",InputMap.action_get_events("use")[0].as_text())
 			set_text_hint(player.looking_at_obj._get_hint())
+				
+				
 		else:
 			set_text_hint("")
 	else:
@@ -111,12 +115,13 @@ func _on_player_loot_opened(model: InventoryModel, display: String) -> void:
 # which fires from equipment_model's item_equipped signal — no need to duplicate it here.
 func _on_player_grabbed_object(world_obj: PickableItem) -> void:
 	if player_containers.try_add_anywhere(world_obj.item_descriptor):
-		world_obj.free()
+		emit_signal("item_success_grab",world_obj)
 		
-		return
+		return 
 	else:
 		if world_obj.item_descriptor is WearableItemDescriptor and equipment_model.equip(world_obj.item_descriptor.equip_slot, world_obj.item_descriptor):
-			world_obj.free()
+			emit_signal("item_success_grab",world_obj)
+
 			
 			return
 	print_debug("impossible to grab")
@@ -124,27 +129,27 @@ func _on_player_grabbed_object(world_obj: PickableItem) -> void:
 
 
 func _on_equipment_item_equipped(_slot: WearableItemDescriptor.EquipSlot, wearable: WearableItemDescriptor) -> void:
-	if wearable.container_model:
-		player_containers.register_container(wearable.container_model,0,wearable.item_name)
+	if wearable.container_capability:
+		player_containers.register_container(wearable.container_capability,0,wearable.item_name)
 
 
 func _on_equipment_item_unequipped(_slot: WearableItemDescriptor.EquipSlot, wearable: WearableItemDescriptor) -> void:
 	if not player_containers.try_add_anywhere(wearable):
-		player_containers.unregister_container(wearable.container_model)
+		player_containers.unregister_container(wearable.container_capability)
 		emit_signal("drop_item",wearable)
 		
 
 
 func _on_player_containers_item_received(descriptor: ItemDescriptor, container: InventoryModel) -> void:
 	if descriptor is WearableItemDescriptor:
-		if descriptor.container_model:
-			player_containers.register_container(descriptor.container_model,0,descriptor.item_name)
+		if descriptor.container_capability:
+			player_containers.register_container(descriptor.container_capability,0,descriptor.item_name)
 
 
 func _on_player_containers_item_lost(descriptor: ItemDescriptor) -> void:
 	if descriptor is WearableItemDescriptor:
-		if descriptor.container_model:
-			player_containers.unregister_container(descriptor.container_model)
+		if descriptor.container_capability:
+			player_containers.unregister_container(descriptor.container_capability)
 			
 
 
@@ -154,3 +159,24 @@ func _on_player_containers_drop_item_world(descriptor: ItemDescriptor) -> void:
 
 func _on_item_actions_action_drop(what: ItemVisual) -> void:
 	pass # Replace with function body.
+
+
+
+@onready var instructor_container: Control = %InstructorContainer
+const INSTRUCTOR = preload("uid://b6idlm6tyvtrx")
+
+
+func _on_item_instruct_body_entered(body: Node3D) -> void:
+	var game_instructor : RichTextLabel = INSTRUCTOR.instantiate()
+	if body is PickableItem:
+		game_instructor.set_target(body,body.item_descriptor.item_name)
+	elif body is ContainerInteractable:
+		
+		game_instructor.set_target(body,body.name)
+	instructor_container.add_child(game_instructor)
+
+
+func _on_item_instruct_body_exited(body: Node3D) -> void:
+	for i in instructor_container.get_children():
+		if i.target == body:
+			i.target = null 
