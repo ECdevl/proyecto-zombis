@@ -69,3 +69,9 @@ func _on_item_actions_action_drop(what: ItemVisual) -> void:
 			return
 			
 	drop_item_world.emit(what.descriptor)
+
+func remove_consumed_item(descriptor: ItemDescriptor) -> void:
+	for model in _containers:
+		if model._has_item(descriptor):
+			model.remove_item(descriptor)
+			return

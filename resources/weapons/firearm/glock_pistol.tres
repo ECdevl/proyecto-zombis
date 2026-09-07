@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="Weapon" format=3 uid="uid://d6fl5d3ly44x"]
+
+[ext_resource type="PackedScene" uid="uid://cqmgufy1mebah" path="res://Assets/models/weapons/firearm/Glock 17.obj" id="1_6eb0e"]
+[ext_resource type="Script" uid="uid://dbklk7rcbx4yy" path="res://scripts/components/weapon_resource.gd" id="2_xjnii"]
+
+[resource]
+script = ExtResource("2_xjnii")
+fire_rate = 0.25
+damage = 6.0
+reload_time = 0.25
+curr_bullets = 17
+max_bullets = 200
+mag_size = 17
+item_name = "Glock 17"
+weight = 2.0
+dimensions = Vector2i(2, 2)
+item_mesh = ExtResource("1_6eb0e")
+metadata/_custom_type_script = "uid://dbklk7rcbx4yy"

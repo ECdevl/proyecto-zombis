@@ -4,7 +4,12 @@ class_name UI
 
 @onready var item_actions: ItemActions = %ItemActions
 
+
+
 signal instruct(what:Node3D,label:String)
+
+signal item_used(item:ConsumableItemDescriptor)
+
 
 var player : Player
 @onready var player_containers: PlayerCarriedInventories = %PlayerContainers
@@ -15,6 +20,8 @@ var player : Player
 @onready var sleep: ProgressBar = %sleep
 @onready var thirst: ProgressBar = %thirst
 @onready var text_hint: RichTextLabel = %text_hint
+@onready var progress: TextureProgressBar = %progress
+
 
 @onready var inventory_view_container: Control = %InventoryViewContainer
 @onready var loot_view_container: VBoxContainer = %LootViewContainer
@@ -180,3 +187,20 @@ func _on_item_instruct_body_exited(body: Node3D) -> void:
 	for i in instructor_container.get_children():
 		if i.target == body:
 			i.target = null 
+
+
+func _on_item_actions_action_use(what: ItemVisual) -> void:
+	if what.descriptor is ConsumableItemDescriptor:
+		item_used.emit(what.descriptor)
+
+
+func _on_consuming_tick(duration: float, max: float) -> void:
+	progress.value = duration
+	progress.max_value = max
+	progress.show()
+
+
+func _on_item_consumed(descript: ConsumableItemDescriptor) -> void:
+	if descript:
+		player_containers.remove_consumed_item(descript)
+	progress.hide()

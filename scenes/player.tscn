@@ -21,6 +21,7 @@
 [ext_resource type="Script" uid="uid://bg2qb1w5r2ih6" path="res://scripts/state_machine/arm_states/aim.gd" id="17_fulsm"]
 [ext_resource type="Script" uid="uid://bb42643big4gf" path="res://scripts/weapons/weapon_controller.gd" id="19_4r5pv"]
 [ext_resource type="Script" uid="uid://bhboex2vgcj4d" path="res://scripts/weapons/viewmodel_sway.gd" id="20_60mlk"]
+[ext_resource type="PackedScene" uid="uid://c5qwsjxb4s8pj" path="res://scenes/weapons/firearm/glock_17.tscn" id="22_a38lo"]
 
 [sub_resource type="Resource" id="Resource_oprun"]
 script = ExtResource("2_f1ej7")
@@ -56,6 +57,9 @@ height = 1.1
 
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_jej6c"]
 animation = &"idle"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_a38lo"]
+animation = &"pistol_idle"
 
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_4r5pv"]
 animation = &"run"
@@ -114,6 +118,8 @@ switch_mode = 1
 [sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_ua7yo"]
 states/Idle/node = SubResource("AnimationNodeAnimation_jej6c")
 states/Idle/position = Vector2(345, 24)
+states/pistol_idle/node = SubResource("AnimationNodeAnimation_a38lo")
+states/pistol_idle/position = Vector2(567, 56)
 states/run/node = SubResource("AnimationNodeAnimation_4r5pv")
 states/run/position = Vector2(467, 43)
 states/two_hand_draw/node = SubResource("AnimationNodeAnimation_f1ej7")
@@ -125,7 +131,7 @@ states/two_hand_swing_1/position = Vector2(831, -141)
 states/two_hand_swing_2/node = SubResource("AnimationNodeAnimation_qfm1y")
 states/two_hand_swing_2/position = Vector2(848, -40)
 transitions = ["Start", "Idle", SubResource("AnimationNodeStateMachineTransition_4r5pv"), "Idle", "two_hand_draw", SubResource("AnimationNodeStateMachineTransition_60mlk"), "two_hand_draw", "two_hand_idle", SubResource("AnimationNodeStateMachineTransition_i4ail"), "two_hand_idle", "two_hand_swing_1", SubResource("AnimationNodeStateMachineTransition_a38lo"), "two_hand_swing_1", "two_hand_swing_2", SubResource("AnimationNodeStateMachineTransition_4ni07"), "two_hand_swing_1", "two_hand_idle", SubResource("AnimationNodeStateMachineTransition_ujl30"), "two_hand_idle", "Idle", SubResource("AnimationNodeStateMachineTransition_31cv2"), "two_hand_swing_2", "two_hand_idle", SubResource("AnimationNodeStateMachineTransition_oprun"), "Idle", "run", SubResource("AnimationNodeStateMachineTransition_l71n6"), "run", "Idle", SubResource("AnimationNodeStateMachineTransition_ke2ow")]
-graph_offset = Vector2(-182, -119)
+graph_offset = Vector2(-84, -69)
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_8njf7"]
 radius = 4.0
@@ -196,7 +202,7 @@ unique_name_in_owner = true
 unique_name_in_owner = true
 transform = Transform3D(-1, 0, -1.509958e-07, 0, 1, 0, 1.509958e-07, 0, -1, 0, 0, 0)
 
-[node name="Skeleton3D" parent="Yaw/Pitch/armsy/Arms_Rig" parent_id_path=PackedInt32Array(1586675216, 480450609) index="0" unique_id=200271262]
+[node name="Skeleton3D" parent="Yaw/Pitch/armsy/Arms_Rig" parent_id_path=PackedInt32Array(1586675216, 1586540722) index="0" unique_id=2112743577]
 bones/2/position = Vector3(0.8060729, -1.0587912e-22, 3.7252903e-08)
 bones/3/position = Vector3(-0.8060729, -1.0587912e-22, 3.7252903e-08)
 bones/8/rotation = Quaternion(-0.5089885, -0.49084687, -0.49084693, 0.50898856)
@@ -246,17 +252,17 @@ bones/51/rotation = Quaternion(-9.067144e-16, -2.4667768e-15, -7.450581e-09, 1)
 bones/52/rotation = Quaternion(-1.4056407e-15, 1.1692022e-15, 3.874302e-07, 1)
 bones/53/rotation = Quaternion(1.5511269e-09, -5.0453475e-10, 0.36455438, 0.9311821)
 
-[node name="hand" type="BoneAttachment3D" parent="Yaw/Pitch/armsy/Arms_Rig/Skeleton3D" index="1" unique_id=2019340576]
-unique_name_in_owner = true
-transform = Transform3D(6.7055225e-08, -1.0000001, 6.485493e-08, 2.3610417e-08, 6.265341e-08, 1, -1, -6.7055225e-08, 2.1487358e-08, -0.8060727, 3.5093514e-08, 9.033829e-08)
-bone_name = "hand_R"
-bone_idx = 33
+[node name="BoneAttachment3D" type="BoneAttachment3D" parent="Yaw/Pitch/armsy/Arms_Rig/Skeleton3D" index="1" unique_id=1200046304]
+transform = Transform3D(0, -0.99999994, 0, 0, 0, 1, -1, 0, 0, -0.8060729, -1.0587912e-22, 3.7252903e-08)
+bone_name = "Hand_Ctrl_R"
+bone_idx = 3
 
-[node name="weapon_grip" type="Node3D" parent="Yaw/Pitch/armsy/Arms_Rig/Skeleton3D/hand" unique_id=101610355]
-unique_name_in_owner = true
-transform = Transform3D(8.394059e-08, 2.1487352e-08, 1.0000001, 1, 6.4854916e-08, -8.394058e-08, -6.265341e-08, 0.99999994, -2.3610415e-08, 1.12158645e-07, -0.8060727, -1.5)
+[node name="weapon_grip" type="Node3D" parent="Yaw/Pitch/armsy/Arms_Rig/Skeleton3D/BoneAttachment3D" unique_id=1447814940]
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, -3.395248e-09, 0.07767423, -0.023563782)
 
-[node name="AnimationPlayer" parent="Yaw/Pitch/armsy" index="1" unique_id=684295946]
+[node name="Glock 17" parent="Yaw/Pitch/armsy/Arms_Rig/Skeleton3D/BoneAttachment3D/weapon_grip" unique_id=1983096664 instance=ExtResource("22_a38lo")]
+
+[node name="AnimationPlayer" parent="Yaw/Pitch/armsy" index="1" unique_id=1866611930]
 callback_mode_process = 0
 playback_default_blend_time = 0.3
 
@@ -405,13 +411,19 @@ collision_mask = 2
 [node name="CollisionShape3D" type="CollisionShape3D" parent="ItemInstruct" unique_id=436641924]
 shape = SubResource("SphereShape3D_8njf7")
 
+[node name="pole" type="Marker3D" parent="." unique_id=1143012895]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.42064583, 1.1201322, 0)
+
 [connection signal="grabbed_object" from="." to="CanvasLayer/UI" method="_on_player_grabbed_object"]
 [connection signal="loot_opened" from="." to="CanvasLayer/UI" method="_on_player_loot_opened"]
 [connection signal="weapon_changed" from="." to="ArmsFSM/normal" method="_on_player_weapon_changed"]
 [connection signal="animation_finished" from="Yaw/Pitch/armsy/AnimationPlayer" to="ArmsFSM/normal" method="_on_animation_player_animation_finished"]
+[connection signal="consumed" from="ArmsFSM/consuming" to="CanvasLayer/UI" method="_on_item_consumed"]
+[connection signal="tick_consumed" from="ArmsFSM/consuming" to="CanvasLayer/UI" method="_on_consuming_tick"]
 [connection signal="animation_finished" from="AnimationTree" to="ArmsFSM/normal" method="_on_animation_tree_animation_finished"]
 [connection signal="drop_item" from="CanvasLayer/UI" to="." method="drop_item"]
 [connection signal="item_success_grab" from="CanvasLayer/UI" to="." method="_on_item_success_grab"]
+[connection signal="item_used" from="CanvasLayer/UI" to="ArmsFSM/normal" method="_on_ui_item_used"]
 [connection signal="body_entered" from="ItemInstruct" to="CanvasLayer/UI" method="_on_item_instruct_body_entered"]
 [connection signal="body_exited" from="ItemInstruct" to="CanvasLayer/UI" method="_on_item_instruct_body_exited"]
 

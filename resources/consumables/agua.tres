@@ -53,6 +53,7 @@ _bundled = {
 [resource]
 script = ExtResource("3_ysfui")
 effect_amount = 20.0
+effect_duration = 5.0
 consume_type = 1
 item_name = "agua"
 item_mesh = SubResource("PackedScene_m2217")

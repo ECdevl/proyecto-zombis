@@ -104,4 +104,4 @@ func _on_player_weapon_changed(gun: Weapon) -> void:
 
 func _on_ui_item_used(item: ItemDescriptor) -> void:
 	await get_tree().process_frame
-	finished.emit("consuming",{"objet_to_consume":item})
+	finished.emit("consuming",{"descriptor":item})

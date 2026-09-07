@@ -1,6 +1,9 @@
 extends CharacterBody3D
 class_name Player
 
+
+signal item_consumed(proceed:bool)
+
 const CAM_HEIGHT_STAND  : float = 1.5
 const CAM_HEIGHT_CROUCH : float = 0.75
 const CAM_HEIGHT_PRONE : float = 0.2

@@ -6,7 +6,7 @@ class_name ItemActions
 @onready var item_actions: VBoxContainer = %ItemActions
 
 signal action_drop(what:ItemVisual)
-signal action_use(what:ItemConsumable)
+signal action_use(what:ItemVisual)
 
 var item : ItemDescriptor
 var visual : ItemVisual
@@ -38,5 +38,7 @@ func _on_action_presss(button:Button) -> void:
 	match button.text:
 		"soltar":
 			action_drop.emit(visual)
+		"usar":
+			action_use.emit(visual)
 	hide()
 	_clear_buttons()

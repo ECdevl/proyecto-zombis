@@ -1,40 +1,62 @@
 extends State
 class_name ConsumeState
-var consuming_item : Item
-@onready var timer: Timer = %Timer
-signal proceed(canceled:bool)
 
+signal consumed(descript:ConsumableItemDescriptor)
+signal tick_consumed(duration:float,max:float)
+
+var consuming_descriptor: ConsumableItemDescriptor
+var remaining_duration: float
+var stat_enum: PlayerNeeds.Needs
+var rate_per_second: float
+var fully_consumed: bool = false
+var cancel: bool = false
 
 func enter(previous_state_path: String, data := {}) -> void:
-	player.ui.progress.show()
-	consuming_item = data.values()[0]
-	timer.start(consuming_item.time_consume)
-	await timer.timeout
-	if get_parent().state == self:
-		if consuming_item is ItemConsumable:
-			emit_signal("proceed",false)
-			finished.emit("normal")
-		elif consuming_item is ItemCloth:
-			emit_signal("proceed",false)
-			finished.emit("normal")
-		else:
-			emit_signal("proceed",false)
-			finished.emit("normal")
-		
-	
+	consuming_descriptor = data.get("descriptor")
+	print_debug(consuming_descriptor)
+	if not consuming_descriptor:
+		finished.emit("normal")
+		return
+	cancel = false
+	remaining_duration = consuming_descriptor.effect_duration
+	rate_per_second = consuming_descriptor.effect_amount / consuming_descriptor.effect_duration
+	fully_consumed = false
 
-func update(_delta: float) -> void:
-	player.ui.progress.value = timer.time_left
+	match consuming_descriptor.consume_type:
+		ConsumableItemDescriptor.ConsumeType.EAT:
+			stat_enum = PlayerNeeds.Needs.HUNGER
+		ConsumableItemDescriptor.ConsumeType.DRINK:
+			stat_enum = PlayerNeeds.Needs.THIRST
+		ConsumableItemDescriptor.ConsumeType.HEAL:
+			stat_enum = PlayerNeeds.Needs.HEALTH
+
+	
+	
+	while not fully_consumed and not cancel:
+		var delta = get_process_delta_time()
+		remaining_duration -= delta
+		player.player_needs.heal(stat_enum, rate_per_second * delta)
+		tick_consumed.emit(remaining_duration,consuming_descriptor.effect_duration)
+
+		if remaining_duration <= 0.0:
+			fully_consumed = true
+			finished.emit("normal")
+		await get_tree().process_frame
+			
+
 
 func handle_input(_event: InputEvent) -> void:
 	if _event.is_action_pressed("cancel"):
-		emit_signal("proceed",true)
+		fully_consumed = false
+		cancel = true
 		finished.emit("normal")
 
-func exit(next_state_path:String) -> void:
-	player.ui.progress.hide()
+func exit(next_state_path: String) -> void:
 
+	if fully_consumed:
+		consumed.emit(consuming_descriptor)
+	else:
 
-func _on_ui_item_consumed(item: ItemConsumable) -> void:
-	if item == consuming_item:
-		finished.emit("normal")
+		consuming_descriptor.effect_amount = rate_per_second * remaining_duration
+		consuming_descriptor.effect_duration = remaining_duration
+		consumed.emit(null)
