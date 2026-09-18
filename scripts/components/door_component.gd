@@ -11,7 +11,7 @@ enum forward_dir {X,Y,Z}
 @export var rot_amount : float
 @export var forward_direction : forward_dir
 @export var transition : Tween.TransitionType
-@export var ease : Tween.EaseType
+@export var tween_ease : Tween.EaseType
 @export var door_type : Type = Type.ROTATE
 @export var close_timer : float = 5.0
 var opener : CharacterBody3D
@@ -90,11 +90,11 @@ func open_door():
 	match door_type:
 		Type.ROTATE:
 			var tween = create_tween()
-			tween.tween_property(parent,"rotation",origin_rot + (rotation_axis * rot_adjust * deg_to_rad(rot_amount)),.5).set_trans(transition).set_ease(ease)
+			tween.tween_property(parent,"rotation",origin_rot + (rotation_axis * rot_adjust * deg_to_rad(rot_amount)),.5).set_trans(transition).set_ease(tween_ease)
 			emit_signal("door_opened")
 		Type.MOVE:
 			var tween = create_tween()
-			tween.tween_property(parent,"position", origin_pos + (direction),.5).set_trans(transition).set_ease(ease)
+			tween.tween_property(parent,"position", origin_pos + (direction),.5).set_trans(transition).set_ease(tween_ease)
 
 func close_door():
 
@@ -109,8 +109,8 @@ func close_door():
 				start_rot.y + lerp_angle(0.0, origin_rot.y - start_rot.y, 1.0),
 				origin_rot.z
 			)
-			tween.tween_property(parent, "rotation", target_rot, 0.5).set_trans(transition).set_ease(ease)
+			tween.tween_property(parent, "rotation", target_rot, 0.5).set_trans(transition).set_ease(tween_ease)
 		Type.MOVE:
-			tween.tween_property(parent, "position", origin_pos, .5).set_trans(transition).set_ease(ease)
+			tween.tween_property(parent, "position", origin_pos, .5).set_trans(transition).set_ease(tween_ease)
 	await tween.finished
 	closing = false

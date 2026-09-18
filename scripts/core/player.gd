@@ -55,7 +55,7 @@ const CAM_HEIGHT_PRONE : float = 0.2
 @export_range(0.0, 10.0, 0.1) var camera_sensitivity : float = 5.0
 @export_category("Nodes References")
 @export var ARMS_PISTOL : Node3D
-@onready var weapon_grip: Node3D = %weapon_grip
+
 var weapon_scene : Node3D
 var weapon_AP : AnimationPlayer
 
@@ -122,7 +122,7 @@ func _ready() -> void:
 	
 @onready var look_at_component: RayCast3D = %LookAtComponent
 
-signal weapon_changed(gun:Weapon)
+signal weapon_changed(gun:Resource)
 
 signal grabbed_object(world_obj:PickableItem)
 signal loot_opened(model:InventoryModel,display:String)
@@ -214,20 +214,20 @@ func drop_item(item:ItemDescriptor):
 	get_tree().current_scene.add_child(object)
 	object.global_position = camera.global_position
 	object.apply_central_force(-camera.global_transform.basis.z*1000)
-	#emit_signal("weapon_changed",null)
-	print_debug(get_stack())
+	if get_current_weapon() == item:
+		weapon_changed.emit(null)
 
 
 
+func equip_weapon(resource:ItemDescriptor) -> void:
+	if resource != get_current_weapon():
+		weapon_changed.emit(resource)
+		return
+	weapon_changed.emit(null)
 
-func equip_weapon(resource:Weapon):
-	if weapon_grip.get_child_count() > 0:
-		weapon_grip.get_child(0).queue_free()
-	emit_signal("weapon_changed",resource)
 
 
-
-func get_current_weapon() -> Weapon:
+func get_current_weapon() -> ItemDescriptor:
 	return weapon_controller.current_weapon
 	
 

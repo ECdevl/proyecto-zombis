@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://k0l50lit80ue"
-path="res://.godot/imported/Machete.obj-020021a5e9818797fa6f8b158f845258.scn"
+uid="uid://rwjbtdvie0b7"
+path="res://.godot/imported/DesertEagle.obj-d756d31ea483662ac50a31557b120bac.scn"
 
 [deps]
 
-source_file="res://Assets/models/weapons/melee/one hand/Machete.obj"
-dest_files=["res://.godot/imported/Machete.obj-020021a5e9818797fa6f8b158f845258.scn"]
+source_file="res://Assets/models/weapons/firearm/DesertEagle.obj"
+dest_files=["res://.godot/imported/DesertEagle.obj-d756d31ea483662ac50a31557b120bac.scn"]
 
 [params]
 

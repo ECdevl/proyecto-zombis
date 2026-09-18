@@ -411,6 +411,7 @@ mouse_filter = 2
 [connection signal="drop_item_world" from="InventoryUIController" to="." method="_on_player_containers_drop_item_world"]
 [connection signal="action_drop" from="Inventory/ItemActions" to="InventoryUIController" method="_on_item_actions_action_drop"]
 [connection signal="action_drop" from="Inventory/ItemActions" to="PlayerContainers" method="_on_item_actions_action_drop"]
+[connection signal="action_equip" from="Inventory/ItemActions" to="." method="_on_item_actions_action_equip"]
 [connection signal="action_use" from="Inventory/ItemActions" to="." method="_on_item_actions_action_use"]
 [connection signal="add_container" from="PlayerContainers" to="InventoryUIController" method="open_container"]
 [connection signal="drop_item_world" from="PlayerContainers" to="." method="_on_player_containers_drop_item_world"]

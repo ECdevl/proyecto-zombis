@@ -1,16 +1,16 @@
-[gd_resource type="Resource" script_class="Weapon" format=3 uid="uid://1pliys4sarhg"]
+[gd_resource type="Resource" script_class="Melee" format=3 uid="uid://1pliys4sarhg"]
 
-[ext_resource type="Script" uid="uid://dbklk7rcbx4yy" path="res://scripts/components/weapon_resource.gd" id="1_k15oi"]
-[ext_resource type="Texture2D" uid="uid://02e6wui6yeon" path="res://icon.svg" id="1_txd18"]
-[ext_resource type="PackedScene" uid="uid://c6mxffsu2wexr" path="res://Assets/models/weapons/melee/Bate.obj" id="2_7k08g"]
+[ext_resource type="PackedScene" uid="uid://c6mxffsu2wexr" path="res://Assets/models/weapons/melee/Bate.obj" id="1_txd18"]
+[ext_resource type="Script" uid="uid://c5ccot1xni1sw" path="res://scripts/components/melee_script.gd" id="2_j4gi4"]
+[ext_resource type="PackedScene" uid="uid://ctwcgdftvcavw" path="res://Assets/models/weapons/melee/bate.fbx" id="3_07hgv"]
 
 [resource]
-script = ExtResource("1_k15oi")
-weapon_pos_grip = Vector3(0.9, 1.455, 0.01)
-weapon_rot_grip = Vector3(0, 90, -90)
-weapon_damage = 10.0
-fire_rate = 0.1
+script = ExtResource("2_j4gi4")
+damage = 20.0
+range = 0.75
+hitbox_radius = 0.75
+viewmodel_model = ExtResource("3_07hgv")
 item_name = "Bate de beisbol"
-weight = 3.0
-item_mesh = ExtResource("2_7k08g")
-metadata/_custom_type_script = "uid://dbklk7rcbx4yy"
+dimensions = Vector2i(3, 1)
+item_mesh = ExtResource("1_txd18")
+metadata/_custom_type_script = "uid://c5ccot1xni1sw"

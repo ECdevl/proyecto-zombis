@@ -4,6 +4,8 @@ class_name PlayerCarriedInventories
 var _containers: Array[InventoryModel] = []
 @onready var clothes: Panel = %Clothes
 
+
+
 signal add_container(model:InventoryModel, display:String)
 signal remove_container(model:InventoryModel)
 
@@ -56,6 +58,10 @@ func unregister_container(model: InventoryModel) -> void:
 func try_add_anywhere(item: ItemDescriptor) -> bool:
 	for model in _containers:
 		if model.add_item_by_descriptor(item): # el método que ya tengan en InventoryModel
+			if item is Weapon:
+				get_all_ammo(item)
+				if not item.ammo_requested.is_connected(Callable(self,"get_all_ammo")):
+					item.ammo_requested.connect(Callable(self,"get_all_ammo").bind(item))
 			return true
 	return false
 
@@ -70,8 +76,43 @@ func _on_item_actions_action_drop(what: ItemVisual) -> void:
 			
 	drop_item_world.emit(what.descriptor)
 
+func player_items() -> Array[ItemDescriptor]:
+	var items_in_player : Array[ItemDescriptor]
+	for model in _containers:
+		for item in model._return_items():
+			if item is ItemDescriptor:
+				items_in_player.append(item)
+	return items_in_player
+
+func search_items(search_item: ItemDescriptor) -> Array[ItemDescriptor]:
+	var items_found : Array[ItemDescriptor] = []
+
+	for model in _containers:
+		for item in model._return_items():
+			if item == search_item:
+				items_found.append(item)
+	return items_found
+
+func get_all_ammo(gun: Weapon) -> Array[ItemDescriptor]:
+	var items_found : Array[ItemDescriptor] = []
+	for model in _containers:
+		for item in model._return_items():
+			if item is AmmoDescriptor:
+				if item.type == gun.ammo_type:
+					items_found.append(item)
+	gun.ammo_reserve = items_found
+	return items_found
+
 func remove_consumed_item(descriptor: ItemDescriptor) -> void:
 	for model in _containers:
 		if model._has_item(descriptor):
 			model.remove_item(descriptor)
 			return
+
+func remove_ammo(type: Weapon.AMMO_TYPE) -> void:
+	for model in _containers:
+		for item in model._return_items():
+			if item.ammo_capability and item.ammo_capability == type:
+				model.remove_item(item)
+				return
+			

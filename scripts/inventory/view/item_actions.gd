@@ -7,6 +7,7 @@ class_name ItemActions
 
 signal action_drop(what:ItemVisual)
 signal action_use(what:ItemVisual)
+signal action_equip(what:ItemVisual)
 
 var item : ItemDescriptor
 var visual : ItemVisual
@@ -40,5 +41,7 @@ func _on_action_presss(button:Button) -> void:
 			action_drop.emit(visual)
 		"usar":
 			action_use.emit(visual)
+		"equipar":
+			action_equip.emit(visual)
 	hide()
 	_clear_buttons()

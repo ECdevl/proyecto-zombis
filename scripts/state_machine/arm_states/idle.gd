@@ -6,6 +6,7 @@ var weapon_swing_direction : Vector3 = Vector3.LEFT
 @onready var check_ledge_r: RayCast3D = %CheckLedgeR
 @onready var check_ledge_2: RayCast3D = %CheckLedge2
 @onready var fire_rate: Timer = %FireRate
+@onready var viewmodel_container: Node = %ViewmodelContainer
 
 
 
@@ -16,13 +17,14 @@ func enter(previous_state_path: String, data := {}) -> void:
 
 func check_current_weapon() -> void:
 	if player.weapon_controller.current_weapon:
-		if player.weapon_controller.current_weapon.weapon_type == player.weapon_controller.current_weapon.Type.MELEE:
-			if player.weapon_controller.current_weapon.weapon_handle == player.weapon_controller.current_weapon.Handle.TWO:
-				player.playback.start("two_hand_draw")
-				return
-			else:
-				player.playback.start("one_hand_idle")
-				return
+		pass
+		#if player.weapon_controller.current_weapon.weapon_type == player.weapon_controller.current_weapon.Type.MELEE:
+			#if player.weapon_controller.current_weapon.weapon_handle == player.weapon_controller.current_weapon.Handle.TWO:
+				#player.playback.start("two_hand_draw")
+				#return
+			#else:
+				#player.playback.start("one_hand_idle")
+				#return
 	else:
 		player.playback.travel("Idle")
 
@@ -36,10 +38,11 @@ func handle_input(_event: InputEvent) -> void:
 	if _event.is_action_pressed("M2"):
 
 		if player.get_current_weapon():
-			if player.get_current_weapon().weapon_type == player.get_current_weapon().Type.GUN:
-				finished.emit("aim")
+			finished.emit("aim")
 	if _event.is_action_pressed("reload"):
+		
 		player.weapon_controller.reload()
+		
 	if _event.is_action_pressed("drop"):
 		if player.weapon_controller.current_weapon:
 			#player.ui.inventory_manager.remove_item(player.weapon_controller.current_weapon,1,true)
@@ -58,30 +61,26 @@ func physics_update(_delta: float) -> void:
 
 var combo_index : int = 0
 func attack() -> void:
-	if player.weapon_controller.current_weapon:
-		if player.weapon_controller.current_weapon.weapon_type == player.weapon_controller.current_weapon.Type.MELEE:
-			player.weapon_controller.swing()
-		else:
-			player.weapon_controller.shoot()
+	if player.weapon_controller.current_weapon is Weapon:
+		player.weapon_controller.shoot()
+	else: 
+		player.weapon_controller.swing()
 
 
 
 
 
-func _on_player_weapon_changed(gun: Weapon) -> void:
-
+func _on_player_weapon_changed(gun: ItemDescriptor) -> void:
 	if gun:
 		
-			if !gun.weapon_viewmodel:
+			if !gun.viewmodel_model:
 				push_error("GUN HAS NO VIEWMODEL: CRASHING")
 				return
-			if player.viewmodel:
-				player.viewmodel.queue_free()
+			if viewmodel_container.get_child_count() > 0:
+				viewmodel_container.get_child(0).queue_free()
 			player.armsy.hide()
-			if player.pitch.get_node_or_null("viewmodel"):
-				player.pitch.get_node_or_null("viewmodel").queue_free()
-			var gun_viewmodel : Node3D = gun.weapon_viewmodel.instantiate()
-			player.pitch.add_child(gun_viewmodel)
+			var gun_viewmodel : Node3D = gun.viewmodel_model.instantiate()
+			viewmodel_container.add_child(gun_viewmodel)
 			gun_viewmodel.name = "viewmodel"
 			player.viewmodel = gun_viewmodel
 			
@@ -89,7 +88,10 @@ func _on_player_weapon_changed(gun: Weapon) -> void:
 		player.armsy.show()
 		if player.viewmodel:
 			player.viewmodel_ap.play_backwards("draw")
-			player.viewmodel.queue_free()
+			await player.viewmodel_ap.animation_finished
+			if viewmodel_container.get_child_count() > 0:
+				viewmodel_container.get_child(0).queue_free()
+			player.viewmodel = null
 		player.weapon_scene = null
 		player.weapon_AP = null
 		

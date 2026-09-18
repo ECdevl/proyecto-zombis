@@ -1,7 +1,7 @@
 extends State
 @onready var crosshair: Marker3D = %Crosshair
 var aim_node: Node3D 
-@onready var hand_bone: BoneAttachment3D = %hand
+
 
 var hand_to_aim_offset: Transform3D
 var default_fov: float

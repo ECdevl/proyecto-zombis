@@ -20,6 +20,7 @@ IconCreator="*uid://w8pon5lrn51x"
 
 [debug]
 
+gdscript/warnings/enable=false
 gdscript/warnings/unassigned_variable=0
 gdscript/warnings/unassigned_variable_op_assign=0
 gdscript/warnings/unused_variable=0

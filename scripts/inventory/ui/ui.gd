@@ -10,6 +10,9 @@ signal instruct(what:Node3D,label:String)
 
 signal item_used(item:ConsumableItemDescriptor)
 
+signal remove_item(item:ItemDescriptor)
+
+signal item_equipped(item:ItemDescriptor)
 
 var player : Player
 @onready var player_containers: PlayerCarriedInventories = %PlayerContainers
@@ -85,9 +88,12 @@ func _process(delta: float) -> void:
 	thirst.value = player.player_needs.current_thirst
 	sleep.value = player.player_needs.current_sleep
 	if player.get_current_weapon():
-		if player.get_current_weapon().weapon_type == player.get_current_weapon().Type.GUN:
+		if player.get_current_weapon() is Weapon:
 			ammo_count.show()
-			ammo_count.text = str(player.get_current_weapon().weapon_current_ammo)+"/"+str(player.get_current_weapon().weapon_current_bullets)
+			var ammo_show : int
+			for i in player.get_current_weapon().ammo_reserve:
+				ammo_show += i.amount
+			ammo_count.text = str(player.get_current_weapon().curr_bullets)+"/"+str(ammo_show)
 	if player.looking_at_obj:
 		if player.looking_at_obj.has_method("_get_hint"):
 			var text : String = player.looking_at_obj._get_hint()
@@ -107,7 +113,8 @@ func show_actions(visual:ItemVisual) -> void:
 	item_actions.visual = visual
 	item_actions.add_action(visual.descriptor)
 	item_actions.show()
-	visual.item_drop.connect(_on_player_containers_drop_item_world)
+	if not visual.item_drop.is_connected(_on_player_containers_drop_item_world):
+		visual.item_drop.connect(_on_player_containers_drop_item_world)
 	item_actions.global_position = get_global_mouse_position()
 	
 
@@ -194,13 +201,23 @@ func _on_item_actions_action_use(what: ItemVisual) -> void:
 		item_used.emit(what.descriptor)
 
 
-func _on_consuming_tick(duration: float, max: float) -> void:
+func _on_consuming_tick(duration: float, max_consume: float) -> void:
 	progress.value = duration
-	progress.max_value = max
+	progress.max_value = max_consume
 	progress.show()
 
+func _on_remove_item(item:Variant) -> void:
+	if item is Weapon.AMMO_TYPE:
+		player_containers.remove_ammo(item)
+		return
+	player_containers.remove_consumed_item(item)
 
 func _on_item_consumed(descript: ConsumableItemDescriptor) -> void:
 	if descript:
 		player_containers.remove_consumed_item(descript)
 	progress.hide()
+
+
+
+func _on_item_actions_action_equip(what: ItemVisual) -> void:
+	item_equipped.emit(what.descriptor)

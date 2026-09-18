@@ -13,6 +13,7 @@ var to_drop : bool = false
 @export var item_mesh : PackedScene 
 
 @export var container_capability: InventoryModel  # null = no es contenedor
+@export var ammo_capability : Weapon.AMMO_TYPE = Weapon.AMMO_TYPE.NONE
 
 func _init() -> void:
 	if container_capability:

@@ -1,0 +1,36 @@
+[gd_scene format=3 uid="uid://bypcf76oxvk1a"]
+
+[ext_resource type="PackedScene" uid="uid://bxvs5rsv52gv8" path="res://Assets/models/weapons/firearm/viewmodels/pistols/Glock.fbx" id="1_tb8k6"]
+[ext_resource type="PackedScene" uid="uid://ctoelcfhcmm8g" path="res://scenes/effects/muzzle_flash.tscn" id="2_2whac"]
+
+[node name="Glock" unique_id=936391368 instance=ExtResource("1_tb8k6")]
+
+[node name="cannon" parent="Arms_Rig/Skeleton3D" parent_id_path=PackedInt32Array(547897771) index="0" unique_id=160912826]
+transform = Transform3D(1, 1.5364981e-07, 0, -1.5364981e-07, 1, 0, 0, 0, 1, -0.0023232314, -0.0035172934, -0.0008053288)
+bone_idx = 81
+
+[node name="handle" parent="Arms_Rig/Skeleton3D" parent_id_path=PackedInt32Array(547897771) index="1" unique_id=1240936077]
+transform = Transform3D(1, 1.5364981e-07, 0, -1.5364981e-07, 1, 0, 0, 0, 1, -0.0023232314, -0.0035172934, -0.0008053288)
+bone_idx = 81
+
+[node name="mag" parent="Arms_Rig/Skeleton3D" parent_id_path=PackedInt32Array(547897771) index="2" unique_id=284219]
+transform = Transform3D(-1.0000004, -3.78265e-08, -2.6034536e-07, -2.3576465e-07, -0.31023654, 0.9506595, -1.167288e-07, 0.95065933, 0.31023654, -0.0023301293, -0.0029766972, -0.0016572386)
+bone_idx = 82
+
+[node name="hammer" parent="Arms_Rig/Skeleton3D" parent_id_path=PackedInt32Array(547897771) index="3" unique_id=585865374]
+transform = Transform3D(-1.0000005, -2.4302523e-07, -4.2786039e-07, 2.4107268e-07, -0.99998987, 0.004557697, -4.289637e-07, 0.0045576976, 0.9999896, -0.0023232314, -0.0029742015, -0.00055902)
+bone_idx = 84
+
+[node name="trigger" parent="Arms_Rig/Skeleton3D" parent_id_path=PackedInt32Array(547897771) index="4" unique_id=226751043]
+transform = Transform3D(-1.0000002, -1.1307414e-07, -3.0038757e-07, 3.0464568e-07, -0.62900716, -0.7773996, -1.01042154e-07, -0.7773998, 0.62900704, -0.0023232314, -0.0035773576, -0.00081356615)
+bone_idx = 86
+
+[node name="muzzle_flash_bone" type="BoneAttachment3D" parent="." index="2" unique_id=1416778787]
+transform = Transform3D(100.000046, 9.203095e-06, 4.285486e-05, -4.289637e-05, 0.4557638, 99.99896, 9.0076865e-06, -99.998985, 0.4557578, 0.23232313, -0.055234674, -0.44384181)
+bone_name = "bone_hammer_end"
+bone_idx = 85
+use_external_skeleton = true
+external_skeleton = NodePath("../Arms_Rig/Skeleton3D")
+
+[node name="Muzzle" parent="muzzle_flash_bone" index="0" unique_id=1457191800 instance=ExtResource("2_2whac")]
+transform = Transform3D(1, 0, -1.0871758e-20, 0, 1, 0, -8.583116e-21, 0, 1, -3.7252903e-08, -0.17269808, 0)
