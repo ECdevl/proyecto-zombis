@@ -2,9 +2,10 @@ extends ItemDescriptor
 class_name Weapon
 signal ammo_requested
 
+enum WEAPON_TYPE {MELEE, PISTOL, RIFLE, SHOTGUN}
 enum AMMO_TYPE {NONE,LOW_CALIBER,MID_CALIBER,HIGH_CALIBER,CAL}
 @export var ammo_type : AMMO_TYPE = AMMO_TYPE.NONE
-
+@export var weapon_type : WEAPON_TYPE
 @export var fire_rate : float
 @export var damage : float
 @export var reload_time : float

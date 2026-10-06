@@ -5,10 +5,15 @@ var aim_node: Node3D
 
 var hand_to_aim_offset: Transform3D
 var default_fov: float
-
+var playback : AnimationNodeStateMachinePlayback
 func enter(previous_state_path: String, data := {}) -> void:
-
-	player.viewmodel_ap.play("aim")
+	finished.emit("normal")
+	return
+	if player.viewmodel_at:
+		playback = player.viewmodel_at["parameters/gun_sm/playback"]
+		playback.travel("aim")
+	else:
+		player.viewmodel_ap.play("aim")
 	print_debug(player.viewmodel_ap.current_animation)
 	default_fov = player.camera.fov
 	var tween_fov = create_tween()
@@ -22,7 +27,11 @@ func handle_input(_event: InputEvent) -> void:
 		finished.emit("normal")
 
 func exit(next_state_path:String) -> void:
-	player.viewmodel_ap.play_backwards("aim")
+	return
+	if playback:
+		playback.travel("idle")
+	else:
+		player.viewmodel_ap.play_backwards("aim")
 	default_fov = player.camera.fov
 	var tween_fov = create_tween()
 	tween_fov.tween_property(player.camera, "fov", 75, .15)

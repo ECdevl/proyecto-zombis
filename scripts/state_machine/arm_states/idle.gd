@@ -70,35 +70,6 @@ func attack() -> void:
 
 
 
-func _on_player_weapon_changed(gun: ItemDescriptor) -> void:
-	if gun:
-		
-			if !gun.viewmodel_model:
-				push_error("GUN HAS NO VIEWMODEL: CRASHING")
-				return
-			if viewmodel_container.get_child_count() > 0:
-				viewmodel_container.get_child(0).queue_free()
-			player.armsy.hide()
-			var gun_viewmodel : Node3D = gun.viewmodel_model.instantiate()
-			viewmodel_container.add_child(gun_viewmodel)
-			gun_viewmodel.name = "viewmodel"
-			player.viewmodel = gun_viewmodel
-			
-	else:
-		player.armsy.show()
-		if player.viewmodel:
-			player.viewmodel_ap.play_backwards("draw")
-			await player.viewmodel_ap.animation_finished
-			if viewmodel_container.get_child_count() > 0:
-				viewmodel_container.get_child(0).queue_free()
-			player.viewmodel = null
-		player.weapon_scene = null
-		player.weapon_AP = null
-		
-
-	player.weapon_controller.current_weapon = gun
-	check_current_weapon()
-
 
 
 

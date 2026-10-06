@@ -3,9 +3,110 @@
 [ext_resource type="PackedScene" uid="uid://dm2n7ua2yp5t" path="res://Assets/models/weapons/firearm/viewmodels/pistols/DE.glb" id="1_1ql1q"]
 [ext_resource type="PackedScene" uid="uid://ctoelcfhcmm8g" path="res://scenes/effects/muzzle_flash.tscn" id="2_o86nn"]
 
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_tb8k6"]
+animation = &"player_anims/punch"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_2whac"]
+animation = &"player_anims/grab"
+
+[sub_resource type="AnimationNodeOneShot" id="AnimationNodeOneShot_2whac"]
+filter_enabled = true
+filters = ["Arms_Rig/Skeleton3D:Index_Ctrl_L", "Arms_Rig/Skeleton3D:Little_Ctrl_L", "Arms_Rig/Skeleton3D:MIddle_Ctrl_L", "Arms_Rig/Skeleton3D:Ring_Ctrl_L", "Arms_Rig/Skeleton3D:Thumb_Ctrl_L", "Arms_Rig/Skeleton3D:hand_L", "Arms_Rig/Skeleton3D:index_finger_01_L", "Arms_Rig/Skeleton3D:index_finger_02_L", "Arms_Rig/Skeleton3D:index_finger_03_L", "Arms_Rig/Skeleton3D:little_finger_01_L", "Arms_Rig/Skeleton3D:little_finger_02_L", "Arms_Rig/Skeleton3D:little_finger_03_L", "Arms_Rig/Skeleton3D:lower_arm_L", "Arms_Rig/Skeleton3D:middle_finger_01_L", "Arms_Rig/Skeleton3D:middle_finger_02_L", "Arms_Rig/Skeleton3D:middle_finger_03_L", "Arms_Rig/Skeleton3D:ring_finger_01_L", "Arms_Rig/Skeleton3D:ring_finger_02_L", "Arms_Rig/Skeleton3D:ring_finger_03_L", "Arms_Rig/Skeleton3D:thumb_01_L", "Arms_Rig/Skeleton3D:thumb_02_L", "Arms_Rig/Skeleton3D:thumb_03_L", "Arms_Rig/Skeleton3D:upper_arm_L"]
+fadein_time = 0.2
+fadeout_time = 0.2
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_cjv4j"]
+animation = &"aim"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_1wb7q"]
+animation = &"aim_shoot"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_wqhd8"]
+animation = &"draw"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_1uuyx"]
+animation = &"idle"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_7dj3x"]
+animation = &"reload"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_flvjn"]
+animation = &"shoot"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_m3am6"]
+switch_mode = 1
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_wed3m"]
+switch_mode = 1
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_lni0j"]
+switch_mode = 2
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_ocf5f"]
+switch_mode = 2
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_afogd"]
+switch_mode = 1
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_laao5"]
+switch_mode = 1
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_pj2e0"]
+switch_mode = 2
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_73s0e"]
+switch_mode = 2
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_wil46"]
+switch_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_ly6ug"]
+xfade_time = 0.3
+switch_mode = 1
+
+[sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_mdxwh"]
+states/aim/node = SubResource("AnimationNodeAnimation_cjv4j")
+states/aim/position = Vector2(433, 19)
+states/aim_shoot/node = SubResource("AnimationNodeAnimation_1wb7q")
+states/aim_shoot/position = Vector2(607, 19)
+states/draw/node = SubResource("AnimationNodeAnimation_wqhd8")
+states/draw/position = Vector2(301, 14)
+states/idle/node = SubResource("AnimationNodeAnimation_1uuyx")
+states/idle/position = Vector2(343, 100)
+states/reload/node = SubResource("AnimationNodeAnimation_7dj3x")
+states/reload/position = Vector2(343, 194)
+states/shoot/node = SubResource("AnimationNodeAnimation_flvjn")
+states/shoot/position = Vector2(457, 100)
+transitions = ["idle", "aim", SubResource("AnimationNodeStateMachineTransition_m3am6"), "aim", "aim_shoot", SubResource("AnimationNodeStateMachineTransition_wed3m"), "Start", "draw", SubResource("AnimationNodeStateMachineTransition_lni0j"), "draw", "idle", SubResource("AnimationNodeStateMachineTransition_ocf5f"), "idle", "shoot", SubResource("AnimationNodeStateMachineTransition_afogd"), "idle", "reload", SubResource("AnimationNodeStateMachineTransition_laao5"), "reload", "idle", SubResource("AnimationNodeStateMachineTransition_pj2e0"), "shoot", "idle", SubResource("AnimationNodeStateMachineTransition_73s0e"), "aim_shoot", "aim", SubResource("AnimationNodeStateMachineTransition_wil46"), "aim", "idle", SubResource("AnimationNodeStateMachineTransition_ly6ug")]
+graph_offset = Vector2(-108, -32)
+
+[sub_resource type="AnimationNodeOneShot" id="AnimationNodeOneShot_tb8k6"]
+filter_enabled = true
+filters = ["Arms_Rig/Skeleton3D:Index_Ctrl_L", "Arms_Rig/Skeleton3D:Little_Ctrl_L", "Arms_Rig/Skeleton3D:MIddle_Ctrl_L", "Arms_Rig/Skeleton3D:Ring_Ctrl_L", "Arms_Rig/Skeleton3D:Thumb_Ctrl_L", "Arms_Rig/Skeleton3D:hand_L", "Arms_Rig/Skeleton3D:index_finger_01_L", "Arms_Rig/Skeleton3D:index_finger_02_L", "Arms_Rig/Skeleton3D:index_finger_03_L", "Arms_Rig/Skeleton3D:little_finger_01_L", "Arms_Rig/Skeleton3D:little_finger_02_L", "Arms_Rig/Skeleton3D:little_finger_03_L", "Arms_Rig/Skeleton3D:lower_arm_L", "Arms_Rig/Skeleton3D:middle_finger_01_L", "Arms_Rig/Skeleton3D:middle_finger_02_L", "Arms_Rig/Skeleton3D:middle_finger_03_L", "Arms_Rig/Skeleton3D:ring_finger_01_L", "Arms_Rig/Skeleton3D:ring_finger_02_L", "Arms_Rig/Skeleton3D:ring_finger_03_L", "Arms_Rig/Skeleton3D:thumb_01_L", "Arms_Rig/Skeleton3D:thumb_02_L", "Arms_Rig/Skeleton3D:thumb_03_L", "Arms_Rig/Skeleton3D:upper_arm_L"]
+fadeout_time = 0.2
+
+[sub_resource type="AnimationNodeBlendTree" id="AnimationNodeBlendTree_1ql1q"]
+graph_offset = Vector2(-666.72925, -64.736694)
+nodes/output/position = Vector2(420, 100)
+nodes/gun_sm/node = SubResource("AnimationNodeStateMachine_mdxwh")
+nodes/gun_sm/position = Vector2(-400, 120)
+nodes/grab/node = SubResource("AnimationNodeOneShot_2whac")
+nodes/grab/position = Vector2(-60, 140)
+"nodes/grab 2/node" = SubResource("AnimationNodeAnimation_2whac")
+"nodes/grab 2/position" = Vector2(-380, 340)
+nodes/punch/node = SubResource("AnimationNodeOneShot_tb8k6")
+nodes/punch/position = Vector2(200, 140)
+nodes/Animation/node = SubResource("AnimationNodeAnimation_tb8k6")
+nodes/Animation/position = Vector2(-60, 480)
+node_connections = [&"output", 0, &"punch", &"grab", 0, &"gun_sm", &"grab", 1, &"grab 2", &"punch", 0, &"grab", &"punch", 1, &"Animation"]
+
 [node name="DE" unique_id=1927851584 instance=ExtResource("1_1ql1q")]
 
-[node name="Skeleton3D" parent="Arms_Rig" parent_id_path=PackedInt32Array(1866877071) index="0" unique_id=1497336841]
+[node name="Skeleton3D" parent="Arms_Rig" parent_id_path=PackedInt32Array(122704471) index="0" unique_id=1316696155]
 bones/2/position = Vector3(-0.05937189, -0.15785639, 0.23678288)
 bones/2/rotation = Quaternion(0.50000006, 0.50000006, 0.50000006, 0.5)
 bones/3/position = Vector3(-0.13654745, -0.14046232, 0.25266293)
@@ -33,7 +134,7 @@ bones/27/rotation = Quaternion(-0.027497571, 0.16025059, -0.16686878, 0.97248065
 bones/28/rotation = Quaternion(-0.05619941, 3.1405683e-08, 9.327978e-10, 0.9984196)
 bones/29/rotation = Quaternion(-0.056199383, 4.982997e-09, -3.8868345e-07, 0.9984196)
 bones/30/rotation = Quaternion(-0.027497526, 0.16025057, -0.16686887, 0.9724806)
-bones/31/rotation = Quaternion(-0.37993634, 0.31024373, 0.83024776, 0.2647375)
+bones/31/rotation = Quaternion(-0.37993634, 0.31024376, 0.83024776, 0.26473746)
 bones/32/rotation = Quaternion(1.3638004e-08, 4.956884e-08, 0.8720929, 0.48934042)
 bones/33/rotation = Quaternion(0.41657227, 0.30522045, -0.26257738, 0.8150836)
 bones/34/rotation = Quaternion(-0.48393488, -2.0298808e-15, 9.422557e-08, 0.875104)
@@ -62,6 +163,7 @@ bones/57/position = Vector3(-4.300386e-09, 0.061539724, -0.055990893)
 bones/58/rotation = Quaternion(0.99225605, 0.0017281831, 0.004582261, -0.12411265)
 
 [node name="muzzle_flash_bone" type="BoneAttachment3D" parent="." index="2" unique_id=841529894]
+transform = Transform3D(1, -2.3841855e-07, -1.509958e-07, -1.509958e-07, 0, -1, 2.3841855e-07, 1, -4.5599466e-14, 0.10431083, -0.061609417, -0.37056008)
 bone_name = "Corredera_2"
 bone_idx = 57
 use_external_skeleton = true
@@ -69,3 +171,15 @@ external_skeleton = NodePath("../Arms_Rig/Skeleton3D")
 
 [node name="Muzzle" parent="muzzle_flash_bone" index="0" unique_id=1457191800 instance=ExtResource("2_o86nn")]
 transform = Transform3D(1, 0, -1.0871758e-20, 0, 1, 0, -8.583116e-21, 0, 1, -3.7252903e-08, -0.17269808, 0)
+
+[node name="AT" type="AnimationTree" parent="." index="3" unique_id=165973035]
+unique_name_in_owner = true
+root_node = NodePath("%AT/..")
+tree_root = SubResource("AnimationNodeBlendTree_1ql1q")
+anim_player = NodePath("../AnimationPlayer")
+parameters/grab/active = false
+parameters/grab/internal_active = false
+parameters/grab/request = 0
+parameters/punch/active = false
+parameters/punch/internal_active = false
+parameters/punch/request = 0

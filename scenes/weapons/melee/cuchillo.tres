@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="Melee" format=3 uid="uid://b1ihtv4u6lxt6"]
+
+[ext_resource type="PackedScene" uid="uid://bbrmitlbgp0gf" path="res://Assets/models/weapons/melee/one hand/cuchillodecocina-textu.glb" id="1_nt4gf"]
+[ext_resource type="Script" uid="uid://c5ccot1xni1sw" path="res://scripts/components/melee_script.gd" id="2_2ek2h"]
+[ext_resource type="PackedScene" uid="uid://bgrou52740p2b" path="res://scenes/weapons/melee/cuchillo.tscn" id="3_p04vx"]
+
+[resource]
+script = ExtResource("2_2ek2h")
+viewmodel_model = ExtResource("3_p04vx")
+item_name = "Cuchillo de cocina"
+dimensions = Vector2i(3, 1)
+item_mesh = ExtResource("1_nt4gf")
+metadata/_custom_type_script = "uid://c5ccot1xni1sw"

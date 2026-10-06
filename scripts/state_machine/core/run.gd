@@ -4,12 +4,10 @@ extends State
 @export var stamina_cost : float = 1.5
 func enter(previous_state_path: String, data := {}) -> void:
 	viewmodel_sway.bob_speed = 10.0
-	if player.viewmodel:
-		if player.viewmodel_ap:
-			if player.viewmodel_ap.current_animation not in ["reload","aim","shoot","aim_shoot"]:
-				player.viewmodel_ap.play("run",.25)
+	player.body_at_playback.travel("walk")
+	if player.animation_tree:
+		player.animation_tree["parameters/run/blend_amount"] = 1.0
 	player.speed = player.sprint_speed
-	player.playback.travel("run")
 
 func update(_delta: float) -> void:
 	player._camera_movement()
@@ -28,8 +26,7 @@ func physics_update(_delta: float) -> void:
 
 func exit(next_state_path:String) -> void:
 	viewmodel_sway.bob_speed = 5.0
-	if player.viewmodel:
-		if player.viewmodel_ap:
-			if player.viewmodel_ap.current_animation not in ["reload","aim","shoot","aim_shoot"]:
-				player.viewmodel_ap.play("idle",.25)
-	player.playback.travel("Idle")
+	if player.animation_tree:
+		player.animation_tree["parameters/run/blend_amount"] = 0.0
+	if not player.get_current_weapon():
+		player.playback.travel("idle")

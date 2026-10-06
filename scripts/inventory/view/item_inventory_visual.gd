@@ -1,4 +1,4 @@
-extends TextureRect
+extends Control
 class_name ItemVisual
 
 var item_w : int = 1
@@ -28,11 +28,12 @@ func _generate_icon(mesh: PackedScene) -> ImageTexture:
 	var image: ImageTexture = await creator.create_texture(mesh)
 	
 	return image
+@onready var icon_rect: TextureRect = %icon_rect
 
 func _ready() -> void:
 	item_w = descriptor.dimensions.x
 	item_h = descriptor.dimensions.y
-	texture = descriptor.icon
+	icon_rect.texture = descriptor.icon
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	clip_contents = false
 	
@@ -46,18 +47,17 @@ func cur_w() -> int:
 func cur_h() -> int:
 	return item_w if rotated else item_h
 
-func update_item() -> void:
-	size = Vector2(cur_w(),cur_h()) * view.CELL_STEP - Vector2.ONE * view.CELL_GAP
 
-	pivot_offset_ratio = Vector2(0.5,0.5)
-	var draw_size : Vector2 = size if not rotated else Vector2(size.y,size.x)
-	size = draw_size
-	position = (size-draw_size)*0.5
-	
-	rotation_degrees = 90 if rotated else 0
-	if texture == null:
-		texture = await _generate_icon(descriptor.item_mesh)
-		descriptor.icon = texture
+
+func update_item() -> void:
+	var footprint : Vector2 = Vector2(cur_w(), cur_h()) * view.CELL_STEP - Vector2.ONE * view.CELL_GAP
+	size = footprint  # self: SIEMPRE footprint, nunca rota
+
+	var content_size : Vector2 = Vector2(item_w, item_h) * view.CELL_STEP - Vector2.ONE * view.CELL_GAP
+	icon_rect.size = content_size
+	icon_rect.pivot_offset_ratio = Vector2(0.5, 0.5)
+	icon_rect.position = (footprint - content_size) * 0.5
+	icon_rect.rotation_degrees = 90 if rotated else 0
 
 
 

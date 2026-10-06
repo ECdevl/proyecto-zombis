@@ -1,17 +1,26 @@
 [gd_scene format=3 uid="uid://cnpyo1vrq877x"]
 
 [ext_resource type="Script" uid="uid://bfidcaj8ys38w" path="res://scripts/inventory/view/item_inventory_visual.gd" id="1_d2ix5"]
-[ext_resource type="Texture2D" uid="uid://csnjpx6ohqe73" path="res://Assets/sprites/grid.png" id="1_dwetb"]
 
-[node name="ItemInventoryVisual" type="TextureRect" unique_id=1301383503]
+[node name="ItemInventoryVisual" type="Control" unique_id=153135717]
 top_level = true
+layout_mode = 3
+anchors_preset = 0
 offset_right = 50.0
 offset_bottom = 50.0
 size_flags_horizontal = 0
-texture = ExtResource("1_dwetb")
+script = ExtResource("1_d2ix5")
+
+[node name="icon_rect" type="TextureRect" parent="." unique_id=519910505]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 expand_mode = 1
 stretch_mode = 6
-script = ExtResource("1_d2ix5")
 
 [connection signal="item_drop" from="." to="." method="_on_item_drop"]
 [connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]

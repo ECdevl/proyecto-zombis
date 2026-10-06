@@ -5,6 +5,7 @@ extends State
 
 func enter(previous_state_path: String, data := {}) -> void:
 	player.speed = player.crouch_speed
+	player.body_at_playback.travel("crouch")
 	player.yaw.position = Vector3(0,player.CAM_HEIGHT_CROUCH,0)
 	player.collision_crouched.disabled = false
 	player.collision_standing.disabled = true
@@ -17,10 +18,14 @@ func physics_update(_delta: float) -> void:
 			finished.emit("idle")
 	if Input.is_action_just_pressed(player.prone):
 		finished.emit("prone")
+	if player.velocity == Vector3.ZERO:
+		player.body_at_playback.travel("crouch")
+	else:
+		player.body_at_playback.travel("crouch_walk")
 
 func exit(next_state_path:String) -> void:
 	if next_state_path != "prone" or next_state_path != "crouch":
-		player.yaw.position = Vector3(0.0,1.0,0.0)
+		player.yaw.position = Vector3(0.0,player.CAM_HEIGHT_STAND,0.0)
 		player.collision_standing.disabled = false
 		player.collision_crouched.disabled =true
 		player.collision_prone.disabled = true

@@ -17,7 +17,7 @@
 [ext_resource type="Script" uid="uid://ulcgtdoyhlja" path="res://scripts/components/ammo_resource.gd" id="15_i5s65"]
 [ext_resource type="Resource" uid="uid://dy3nx17clcfwc" path="res://resources/weapons/firearm/desert_eagle.tres" id="15_q8wwd"]
 [ext_resource type="PackedScene" uid="uid://cqmgufy1mebah" path="res://Assets/models/weapons/firearm/Glock 17.obj" id="15_smgrx"]
-[ext_resource type="Resource" uid="uid://1pliys4sarhg" path="res://resources/weapons/melee/Bate.tres" id="18_lu6ae"]
+[ext_resource type="Resource" uid="uid://b1ihtv4u6lxt6" path="res://scenes/weapons/melee/cuchillo.tres" id="18_alye2"]
 [ext_resource type="Resource" uid="uid://djhf1p03bo78d" path="res://resources/weapons/melee/machete.tres" id="19_alye2"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_37kl0"]
@@ -63,7 +63,7 @@ metadata/_custom_type_script = "uid://cky1fu523t4i0"
 
 [sub_resource type="Resource" id="Resource_2gvaq"]
 script = ExtResource("15_i5s65")
-type = 1
+type = 2
 amount = 30
 item_name = "9mm"
 item_mesh = ExtResource("15_smgrx")
@@ -140,7 +140,7 @@ item_descriptor = SubResource("Resource_2gvaq")
 [node name="bats" parent="." unique_id=1923065417 instance=ExtResource("5_ykrsh")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.0928087, 1.1253159, 6.6290817)
 interact_resource = SubResource("Resource_ppyta")
-item_descriptor = ExtResource("18_lu6ae")
+item_descriptor = ExtResource("18_alye2")
 
 [node name="machete" parent="." unique_id=634474347 instance=ExtResource("5_ykrsh")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.0928087, 1.0788383, 8.2066)

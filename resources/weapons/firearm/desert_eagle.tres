@@ -3,11 +3,12 @@
 [ext_resource type="Script" uid="uid://cg2alhn207kxn" path="res://scripts/inventory/descriptors/item_descriptor.gd" id="1_473yl"]
 [ext_resource type="PackedScene" uid="uid://rwjbtdvie0b7" path="res://Assets/models/weapons/firearm/DesertEagle.obj" id="2_0ojjd"]
 [ext_resource type="Script" uid="uid://dbklk7rcbx4yy" path="res://scripts/components/weapon_resource.gd" id="2_473yl"]
-[ext_resource type="PackedScene" uid="uid://ct1mr0fvgd7qc" path="res://scenes/weapons/firearm/desert_eagle.tscn" id="5_yq1gt"]
+[ext_resource type="PackedScene" uid="uid://dm2n7ua2yp5t" path="res://Assets/models/weapons/firearm/viewmodels/pistols/DE.glb" id="4_0ojjd"]
 
 [resource]
 script = ExtResource("2_473yl")
 ammo_type = 2
+weapon_type = 1
 fire_rate = 0.24
 damage = 20.0
 weapon_range = 400.0
@@ -15,7 +16,7 @@ curr_bullets = 8
 max_bullets = 100
 mag_size = 8
 recoil_kick = Vector2(8, 0.5)
-viewmodel_model = ExtResource("5_yq1gt")
+viewmodel_model = ExtResource("4_0ojjd")
 item_name = "Desert Eagle"
 weight = 2.0
 dimensions = Vector2i(2, 2)

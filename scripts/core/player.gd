@@ -75,17 +75,10 @@ var weapon_AP : AnimationPlayer
 
 
 var arms_ap: AnimationPlayer 
-
+@onready var body_at: AnimationTree = %BodyAT
+var body_at_playback : AnimationNodeStateMachinePlayback
 
 @onready var animation_tree: AnimationTree = %AnimationTree
-var viewmodel_ap : AnimationPlayer
-var viewmodel : Node3D : 
-	set(new):
-		viewmodel = new
-		if new != null:
-			viewmodel_ap = viewmodel.get_node("AnimationPlayer")
-		else:
-			viewmodel_ap = null
 
 var arms_mesh: MeshInstance3D 
 var can_move : bool = true
@@ -101,13 +94,14 @@ var speed : float = 3.0
 
 # Engine virtuals
 
+@onready var viewmodel_container: Node3D = %ViewmodelContainer
 
 func _ready() -> void:
 	health_component = health_component.duplicate()
 	#ui.inventory_manager.connect("equip_weapon",Callable(self,"equip_weapon"))
 	arms_ap = armsy.get_node("AnimationPlayer")
 	arms_mesh = armsy.get_child(0).get_child(0).get_node("arms")
-	playback = animation_tree.get("parameters/playback")
+	playback = animation_tree.get("parameters/player_sm/playback")
 	# Redundancy checks to avoid mistakes
 	assert(self is CharacterBody3D, "This script only works within a CharacterBody3D")
 	#assert(camera.get_parent() == pitch, "Camera needs to be a child of pitch")
@@ -117,7 +111,7 @@ func _ready() -> void:
 	yaw.position.y = CAM_HEIGHT_STAND
 	speed = walk_speed
 	arms_ap.play("idle")
-
+	body_at_playback = body_at["parameters/body/playback"]
 
 	
 @onready var look_at_component: RayCast3D = %LookAtComponent
@@ -178,7 +172,7 @@ func __camera_input(event : InputEvent) -> void:
 func _camera_movement(limit_yaw:bool = false, from:float = 0.0) -> void:
 	yaw.rotate_y(-_mouse_delta.x * camera_sensitivity)
 	pitch.rotate_x(-_mouse_delta.y * camera_sensitivity)
-	pitch.rotation.x = clampf(pitch.rotation.x, -PI/3, PI/3)
+	pitch.rotation.x = clampf(pitch.rotation.x, -PI/2, PI/2)
 	if limit_yaw:
 		yaw.rotation.y = clampf(yaw.rotation.y,from - deg_to_rad(45),from + deg_to_rad(45))
 	_mouse_delta = Vector2.ZERO

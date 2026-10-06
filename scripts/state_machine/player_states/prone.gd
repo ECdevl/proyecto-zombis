@@ -3,6 +3,7 @@ extends State
 @onready var stand_shape: ShapeCast3D = %StandShape
 
 func enter(previous_state_path: String, data := {}) -> void:
+	player.body_at_playback.travel("prone")
 	player.speed = player.crouch_speed 
 	player.yaw.position = Vector3(0,player.CAM_HEIGHT_PRONE,0)
 	player.collision_prone.disabled = false

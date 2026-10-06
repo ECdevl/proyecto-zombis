@@ -20,7 +20,7 @@ func _input(event: InputEvent) -> void:
 @onready var arms_fsm: StateMachine = %ArmsFSM
 
 func _process(delta: float) -> void:
-	if not player.viewmodel:
+	if not player.get_current_weapon():
 		return
 	# Sway por mouse
 	sway_target = sway_target.lerp(
@@ -36,4 +36,6 @@ func _process(delta: float) -> void:
 			bob_time += delta * bob_speed
 			bob_offset = Vector3(sin(bob_time) * bob_amount, absf(cos(bob_time)) * bob_amount, 0)
 
-	player.viewmodel.position = sway_target + bob_offset
+	player.armsy.position = sway_target + bob_offset
+	if player.pitch.get_node_or_null("gun"):
+		player.pitch.get_node("gun").position = sway_target + bob_offset

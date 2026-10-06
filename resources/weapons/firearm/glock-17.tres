@@ -3,11 +3,12 @@
 [ext_resource type="Script" uid="uid://cg2alhn207kxn" path="res://scripts/inventory/descriptors/item_descriptor.gd" id="1_0l6i6"]
 [ext_resource type="PackedScene" uid="uid://cqmgufy1mebah" path="res://Assets/models/weapons/firearm/Glock 17.obj" id="2_0l6i6"]
 [ext_resource type="Script" uid="uid://dbklk7rcbx4yy" path="res://scripts/components/weapon_resource.gd" id="2_rpb6p"]
-[ext_resource type="PackedScene" uid="uid://bypcf76oxvk1a" path="res://scenes/weapons/firearm/glock.tscn" id="4_0l6i6"]
+[ext_resource type="PackedScene" uid="uid://gsrsnlbvfpbt" path="res://Assets/models/weapons/firearm/viewmodels/pistols/glock.glb" id="4_0l6i6"]
 
 [resource]
 script = ExtResource("2_rpb6p")
 ammo_type = 1
+weapon_type = 1
 fire_rate = 0.133
 damage = 9.0
 reload_time = 2.0

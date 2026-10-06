@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://cnv1ls8444kj3"
-path="res://.godot/imported/armsy.glb-ca24684096062c92a4b74d9dff227815.scn"
+uid="uid://c7x6dda4n7657"
+path="res://.godot/imported/cuchillo.fbx-587de1bf2e76db223510a82b6afe8ebc.scn"
 
 [deps]
 
-source_file="res://Assets/armsy.glb"
-dest_files=["res://.godot/imported/armsy.glb-ca24684096062c92a4b74d9dff227815.scn"]
+source_file="res://Assets/models/weapons/melee/one hand/cuchillo.fbx"
+dest_files=["res://.godot/imported/cuchillo.fbx-587de1bf2e76db223510a82b6afe8ebc.scn"]
 
 [params]
 
@@ -32,21 +32,21 @@ meshes/force_disable_compression=false
 skins/use_named_skins=true
 animation/import=true
 animation/fps=30
-animation/trimming=false
+animation/trimming=true
 animation/remove_immutable_tracks=true
 animation/import_rest_as_RESET=false
-import_script/path=""
+import_script/path="uid://bqhv02j0c83at"
 materials/extract=0
 materials/extract_format=0
 materials/extract_path=""
 _subresources={
 "animations": {
-"run": {
-"save_to_file/enabled": false,
-"save_to_file/fallback_path": "",
+"swing1": {
+"save_to_file/enabled": true,
+"save_to_file/fallback_path": "res://Assets/models/weapons/melee/one hand/swing1.res",
 "save_to_file/keep_custom_tracks": "",
-"save_to_file/path": "",
-"settings/loop_mode": 1,
+"save_to_file/path": "uid://chvn6lqbo48d5",
+"settings/loop_mode": 0,
 "slice_1/end_frame": 0,
 "slice_1/loop_mode": 0,
 "slice_1/name": "",
@@ -2097,12 +2097,12 @@ _subresources={
 "slice_99/start_frame": 0,
 "slices/amount": 0
 },
-"walk": {
-"save_to_file/enabled": false,
-"save_to_file/fallback_path": "",
+"swing2": {
+"save_to_file/enabled": true,
+"save_to_file/fallback_path": "res://Assets/models/weapons/melee/one hand/swing2.res",
 "save_to_file/keep_custom_tracks": "",
-"save_to_file/path": "",
-"settings/loop_mode": 1,
+"save_to_file/path": "uid://u1v865vh1k24",
+"settings/loop_mode": 0,
 "slice_1/end_frame": 0,
 "slice_1/loop_mode": 0,
 "slice_1/name": "",
@@ -4153,8 +4153,14 @@ _subresources={
 "slice_99/start_frame": 0,
 "slices/amount": 0
 }
+},
+"nodes": {
+"PATH:AnimationPlayer": {
+"node/script": null
 }
 }
-gltf/naming_version=2
-gltf/embedded_image_handling=1
-gltf/texture_map_mode=0
+}
+fbx/importer=0
+fbx/allow_geometry_helper_nodes=false
+fbx/embedded_image_handling=1
+fbx/naming_version=2

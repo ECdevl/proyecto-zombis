@@ -15,7 +15,7 @@ var reloading : bool = false
 var melee_swings : PackedStringArray
 
 @onready var fire_rate: Timer = %FireRate
-@onready var melee_hitbox: ShapeCast3D = %melee_hitbox
+
 
 @export var ads_visual_kick_multiplier: float = 0.01 
 var ads_visual_offset: Vector3 = Vector3.ZERO
@@ -30,29 +30,57 @@ func _ready() -> void:
 	player = owner
 	player.weapon_changed.connect(_on_weapon_changed)
 
+var playback : AnimationNodeStateMachinePlayback
 
+var weapon_ap : AnimationPlayer
+
+func _free_weapon():
+	if player.pitch.get_node_or_null("gun"):
+		player.pitch.get_node_or_null("gun").queue_free()
 
 func _on_weapon_changed(gun: ItemDescriptor) -> void:
 	current_weapon = gun
 	if not gun:
+		_free_weapon()
+		player.playback.start("Idle")
 		return
-	if player.viewmodel:
-		player.viewmodel_ap.playback_default_blend_time = 0.05
-		player.viewmodel_ap.play("draw")
-		player.viewmodel_ap.queue("idle")
-		if !current_weapon:
-			return
+	if gun is Weapon:
+		_free_weapon()
+		var weapon_model = gun.viewmodel_model.instantiate()
+		weapon_model.name = "gun"
+		weapon_ap = weapon_model.get_node("AnimationPlayer")
+		player.armsy.add_sibling(weapon_model)
+		weapon_model.global_transform = player.armsy.global_transform
+	if player.animation_tree:
+		playback = player.animation_tree["parameters/player_sm/playback"]
+		match current_weapon.weapon_type:
+			Weapon.WEAPON_TYPE.PISTOL:
+				playback.start("pistol_draw")
+				weapon_ap.play("draw")
+	melee_swings.clear()
+	#for i in player.viewmodel_ap.get_animation_list():
+		#if i.begins_with("swing"):
+			#melee_swings.append(i)
 		#if current_weapon.weapon_type == current_weapon.Type.MELEE:
 			#melee_swings.clear()
-			#for i in player.viewmodel_ap.get_animation_list():
-				#if i.begins_with("swing"):
-					#melee_swings.append(i)
+
 		#else:
 			#melee_swings.clear()
 	if current_weapon is Weapon:
 		current_weapon.ammo_requested.emit()
 @onready var ads_reference: Marker3D = %ADS_Reference
 
+func _input(event: InputEvent) -> void:
+	if event.is_action_pressed("punch"):
+		if push_time.time_left > 0:
+			return
+		if player.animation_tree and current_weapon != null:
+			player.animation_tree["parameters/punch/request"]  = AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE
+		else:
+			player.playback.travel("punch")
+			
+		push()
+		push_time.start()
 func _physics_process(delta: float) -> void:
 	# recoil de cámara (pitch/yaw)
 	if recoil_current != Vector2.ZERO and current_weapon:
@@ -83,12 +111,13 @@ func shoot() -> bool:
 	await get_tree().process_frame
 	current_weapon.curr_bullets -= 1
 	fire_rate.start(current_weapon.fire_rate)
-	player.viewmodel_ap.stop()
-	player.viewmodel.get_node("muzzle_flash_bone").get_child(0).start_effect()
-	if %ArmsFSM.state.name == "aim":
-		player.viewmodel_ap.play("aim_shoot")
-	else:
-		player.viewmodel_ap.play("shoot")
+	#player.viewmodel.get_node("muzzle_flash_bone").get_child(0).start_effect()
+	if player.animation_tree:
+		match Weapon.WEAPON_TYPE.PISTOL:
+			Weapon.WEAPON_TYPE.PISTOL:
+				playback.travel("pistol_shoot")
+				weapon_ap.play("shoot")
+
 	
 	gun_fired.emit(current_weapon.ammo_type)
 	_apply_recoil()
@@ -115,33 +144,29 @@ func _apply_recoil() -> void:
 	# el salto visual escala con lo fuerte que sea el recoil de ESTA arma
 
 var melee_combo : int
-func swing() -> bool:
-	if not current_weapon or not current_weapon: return false
-	if fire_rate.time_left != 0.0: return false
-	var cap := current_weapon
-	if melee_combo >= cap.swing_count: melee_combo = 0
-	var anim_name := "swing%d" % (melee_combo + 1)
-	player.viewmodel_ap.play(anim_name)
+func swing() -> bool: 
+	if not current_weapon or fire_rate.time_left != 0.0:
+		return false
+	if melee_swings.size() <= 0:
+		return false
+	if melee_combo >= melee_swings.size():
+		melee_combo = 0
+	
+	playback.start(melee_swings[melee_combo])
 	melee_combo += 1
-	fire_rate.start(cap.fire_rate)
-
-	var length := player.viewmodel_ap.current_animation_length
-	get_tree().create_timer(length * cap.hit_start_pct).timeout.connect(
-		func(): melee_hitbox.start_attack(cap.damage, cap.hitbox_radius, cap.range)
-	)
-	get_tree().create_timer(length * cap.hit_end_pct).timeout.connect(
-		melee_hitbox.stop_attack
-	)
+	fire_rate.start(current_weapon.fire_rate)
+	await get_tree().create_timer(current_weapon.delay).timeout
+	_raycast_damage()  # igual que shoot()
 	return true
 
-func _on_hitbox_start() -> void:
-	melee_hitbox.start_attack(current_weapon.damage,
-		current_weapon.hitbox_radius,
-		current_weapon.range)
+@onready var push_hitbox: Area3D = %PushHitbox
+@onready var push_time: Timer = %pushTime
 
-func _on_hitbox_stop() -> void:
-	melee_hitbox.stop_attack()
-	ads_visual_offset.y += current_weapon.recoil_kick.x * ads_visual_kick_multiplier
+func push() -> void:
+	for c in push_hitbox.get_overlapping_bodies():
+		if c.owner is Zombie:
+			c.owner.health_component.hurt(0, c)
+			
 
 func _raycast_damage() -> void:
 	await get_tree().physics_frame
@@ -176,11 +201,16 @@ func reload() -> void:
 		return
 		
 	reloading = true
-	player.viewmodel_ap.play("reload")
+	if player.animation_tree:
+		match current_weapon.weapon_type:
+			Weapon.WEAPON_TYPE.PISTOL:
+				playback.travel("pistol_reload")
+				weapon_ap.play("reload")
 	current_weapon.curr_bullets = 0
-	await player.viewmodel_ap.animation_finished
+	if player.animation_tree:
+		await player.animation_tree.animation_finished
+
 	reloading = false
-	player.viewmodel_ap.play("idle")
 	var wasted_ammo = current_weapon.mag_size - current_weapon.curr_bullets
 	var boolets : int = 0
 	var ammo_to_consume : AmmoDescriptor
@@ -202,3 +232,8 @@ func reload() -> void:
 	else:
 		current_weapon.curr_bullets = current_weapon.mag_size
 	
+
+
+func _on_player_grabbed_object(world_obj: PickableItem) -> void:
+	if player.animation_tree:
+		player.animation_tree["parameters/grab/request"] = AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE
