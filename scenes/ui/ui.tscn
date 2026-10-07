@@ -218,7 +218,7 @@ layout_mode = 2
 unique_name_in_owner = true
 layout_mode = 0
 offset_right = 384.0
-offset_bottom = 932.0
+offset_bottom = 722.0
 mouse_filter = 2
 
 [node name="head" type="Panel" parent="Inventory/Clothes" unique_id=1071633324 node_paths=PackedStringArray("icon_rect")]

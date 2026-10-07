@@ -58,6 +58,8 @@ const CAM_HEIGHT_PRONE : float = 0.2
 
 var weapon_scene : Node3D
 var weapon_AP : AnimationPlayer
+@onready var weapon_pivot: Node3D = %WeaponPivot
+@onready var ads_controller: ADSController = %ADSController
 
 @onready var yaw    : Node3D   = %Yaw
 @onready var pitch  : Node3D   = %Pitch

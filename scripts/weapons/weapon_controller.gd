@@ -34,41 +34,49 @@ var playback : AnimationNodeStateMachinePlayback
 
 var weapon_ap : AnimationPlayer
 
-func _free_weapon():
-	if player.pitch.get_node_or_null("gun"):
-		player.pitch.get_node_or_null("gun").queue_free()
+var weapon_node: Node3D  # nuevo: guarda el modelo instanciado
+
+func _free_weapon() -> void:
+	var old := player.weapon_pivot.get_node_or_null("gun")
+	if old:
+		old.name = "gun_old"  # libera el nombre "gun" antes del queue_free (ver nota)
+		old.queue_free()
 
 func _on_weapon_changed(gun: ItemDescriptor) -> void:
 	current_weapon = gun
+	player.ads_controller.aiming = false
 	if not gun:
 		_free_weapon()
 		player.playback.start("Idle")
 		return
 	if gun is Weapon:
 		_free_weapon()
-		var weapon_model = gun.viewmodel_model.instantiate()
-		weapon_model.name = "gun"
-		weapon_ap = weapon_model.get_node("AnimationPlayer")
-		player.armsy.add_sibling(weapon_model)
-		weapon_model.global_transform = player.armsy.global_transform
+		weapon_node = gun.viewmodel_model.instantiate()
+		weapon_node.name = "gun"
+		weapon_ap = weapon_node.get_node("AnimationPlayer")
+		player.armsy.add_sibling(weapon_node)
+		weapon_node.global_rotation = player.armsy.global_rotation
 	if player.animation_tree:
 		playback = player.animation_tree["parameters/player_sm/playback"]
 		match current_weapon.weapon_type:
 			Weapon.WEAPON_TYPE.PISTOL:
 				playback.start("pistol_draw")
 				weapon_ap.play("draw")
+	_register_sight(weapon_node, weapon_ap)  # nuevo
 	melee_swings.clear()
-	#for i in player.viewmodel_ap.get_animation_list():
-		#if i.begins_with("swing"):
-			#melee_swings.append(i)
-		#if current_weapon.weapon_type == current_weapon.Type.MELEE:
-			#melee_swings.clear()
-
-		#else:
-			#melee_swings.clear()
 	if current_weapon is Weapon:
 		current_weapon.ammo_requested.emit()
-@onready var ads_reference: Marker3D = %ADS_Reference
+
+
+## Espera a que termine el "draw" y recién ahí registra la mira.
+func _register_sight(model: Node3D, ap: AnimationPlayer) -> void:
+	if ap and ap.is_playing():
+		await ap.animation_finished
+	if not is_instance_valid(model):
+		return  # El arma se cambió mientras esperábamos
+	var aim_point := model.find_child("aim_point", true, false) as Node3D
+	if aim_point:
+		player.ads_controller.set_sight(aim_point)
 
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("punch"):

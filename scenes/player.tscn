@@ -22,6 +22,7 @@
 [ext_resource type="Script" uid="uid://bb42643big4gf" path="res://scripts/weapons/weapon_controller.gd" id="19_4r5pv"]
 [ext_resource type="Script" uid="uid://bhboex2vgcj4d" path="res://scripts/weapons/viewmodel_sway.gd" id="20_60mlk"]
 [ext_resource type="PackedScene" uid="uid://chqdnuixtuv5j" path="res://Assets/models/player/FPS_BODY.glb" id="22_a38lo"]
+[ext_resource type="Script" uid="uid://cmeo2lkibif4y" path="res://scripts/weapons/ads_controller.gd" id="23_4ni07"]
 
 [sub_resource type="Resource" id="Resource_oprun"]
 script = ExtResource("2_f1ej7")
@@ -159,7 +160,7 @@ filter_enabled = true
 filters = ["", "rig/Skeleton3D:f_middle.01.L.001", "rig/Skeleton3D:f_middle.01.L.002", "rig/Skeleton3D:f_middle.01.L.003", "rig/Skeleton3D:forearm_left", "rig/Skeleton3D:hand_left", "rig/Skeleton3D:thumb.01.L", "rig/Skeleton3D:thumb.02.L", "rig/Skeleton3D:upper_arm_left"]
 
 [sub_resource type="AnimationNodeBlendTree" id="AnimationNodeBlendTree_fql2p"]
-graph_offset = Vector2(-810.8793, 0)
+graph_offset = Vector2(-195.60464, -61.031677)
 nodes/output/position = Vector2(460, 60)
 nodes/player_sm/node = SubResource("AnimationNodeStateMachine_ua7yo")
 nodes/player_sm/position = Vector2(-300, 80)
@@ -356,8 +357,40 @@ collide_with_areas = true
 [node name="Marker3D" type="Marker3D" parent="Yaw/Pitch/Camera3D" unique_id=785207391]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1)
 
-[node name="ViewmodelContainer" type="Node3D" parent="Yaw/Pitch" unique_id=1907190313]
+[node name="WeaponPivot" type="Node3D" parent="Yaw/Pitch" unique_id=1907190313]
 unique_name_in_owner = true
+
+[node name="armsy" parent="Yaw/Pitch/WeaponPivot" unique_id=1586675216 instance=ExtResource("2_d2wvv")]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.08095378)
+
+[node name="Skeleton3D" parent="Yaw/Pitch/WeaponPivot/armsy/rig" parent_id_path=PackedInt32Array(1586675216, 1700957450) index="0" unique_id=747079352]
+bones/0/position = Vector3(-0.35591093, -0.62553966, 0.08021003)
+bones/0/rotation = Quaternion(0.99231, -0.09062596, -0.059445392, -0.059783433)
+bones/1/position = Vector3(0.35591093, -0.6255396, 0.08020996)
+bones/1/rotation = Quaternion(0.9923101, 0.090625964, 0.059445303, -0.05978344)
+bones/2/rotation = Quaternion(0.90356886, -0.06457509, -0.42268384, -0.027051462)
+bones/3/rotation = Quaternion(0.9035689, 0.0645751, 0.42268378, -0.02705145)
+bones/6/rotation = Quaternion(0.94967914, -0.18393087, -0.13747393, 0.21302575)
+bones/7/rotation = Quaternion(0.049540073, 0.8667872, 0.47449633, -0.14518598)
+bones/8/rotation = Quaternion(-0.038827073, 0.9683214, 0.20456006, 0.13784567)
+bones/10/rotation = Quaternion(0.2815145, 0.0026928561, 0.050332397, 0.9582322)
+bones/11/rotation = Quaternion(-0.0012719991, 1.739287e-08, -0.0137703195, 0.9999044)
+bones/12/rotation = Quaternion(1.6194419e-07, -1.4117633e-07, 6.409899e-08, 1)
+bones/13/rotation = Quaternion(0.2015081, 0.9061055, 0.34664643, -0.13492058)
+bones/14/rotation = Quaternion(0.13507728, -0.050468933, -0.044701695, 0.98853874)
+bones/16/rotation = Quaternion(0.9522655, 0.20238945, 0.024510786, 0.2272188)
+bones/17/rotation = Quaternion(-0.051449988, 0.87354094, 0.47486168, 0.09373154)
+bones/18/rotation = Quaternion(0.0077859955, 0.9608909, 0.19806609, -0.19338576)
+bones/19/rotation = Quaternion(-0.14270574, 0.9672494, 0.20108528, -0.060236007)
+bones/20/rotation = Quaternion(0.28051254, -0.020120641, -0.0329509, 0.9590736)
+bones/21/rotation = Quaternion(-0.001272115, -1.1396892e-08, 0.01377032, 0.9999044)
+bones/22/rotation = Quaternion(-1.2354214e-07, 1.9811253e-07, 4.1186811e-07, 1)
+bones/23/rotation = Quaternion(-0.20150816, 0.9061054, 0.34664673, 0.13492045)
+
+[node name="AnimationPlayer" parent="Yaw/Pitch/WeaponPivot/armsy" index="1" unique_id=1030178078]
+callback_mode_process = 0
+playback_default_blend_time = 0.3
 
 [node name="PushHitbox" type="Area3D" parent="Yaw/Pitch" unique_id=1729134914]
 unique_name_in_owner = true
@@ -367,36 +400,6 @@ collision_mask = 65
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Yaw/Pitch/PushHitbox" unique_id=1965184613]
 shape = SubResource("SphereShape3D_6xhy0")
-
-[node name="armsy" parent="Yaw/Pitch" unique_id=1586675216 instance=ExtResource("2_d2wvv")]
-unique_name_in_owner = true
-transform = Transform3D(-1, 0, -1.509958e-07, 0, 1, 0, 1.509958e-07, 0, -1, 0, 0, 0.08095378)
-
-[node name="Skeleton3D" parent="Yaw/Pitch/armsy/rig" parent_id_path=PackedInt32Array(1586675216, 581778128) index="0" unique_id=278993292]
-bones/0/position = Vector3(0.355911, -0.62553966, -0.08020999)
-bones/0/rotation = Quaternion(0.05944535, 0.059783433, 0.9923101, -0.090625964)
-bones/1/position = Vector3(-0.355911, -0.62553966, -0.08020999)
-bones/1/rotation = Quaternion(-0.05944535, 0.059783433, 0.9923101, 0.090625964)
-bones/2/rotation = Quaternion(0.4226838, 0.027051453, 0.90356886, -0.06457511)
-bones/6/rotation = Quaternion(0.13747382, -0.21302544, 0.9496792, -0.18393075)
-bones/7/rotation = Quaternion(0.049539912, 0.8667877, 0.47449565, -0.1451861)
-bones/8/rotation = Quaternion(-0.03882714, 0.96832156, 0.20455956, 0.13784559)
-bones/10/rotation = Quaternion(0.28151459, 0.0026928612, 0.050332397, 0.9582322)
-bones/11/rotation = Quaternion(-0.0012721032, 3.2413762e-08, -0.013770328, 0.9999044)
-bones/12/rotation = Quaternion(-3.4899134e-08, -3.058722e-07, -6.9264345e-08, 1)
-bones/13/rotation = Quaternion(0.2015081, 0.9061056, 0.3466463, -0.13492054)
-bones/14/rotation = Quaternion(0.1350773, -0.050468944, -0.04470172, 0.98853874)
-bones/16/rotation = Quaternion(-0.024510782, -0.2272183, 0.9522656, 0.20238923)
-bones/17/rotation = Quaternion(-0.05144987, 0.8735415, 0.4748606, 0.093731634)
-bones/18/rotation = Quaternion(0.007786066, 0.96089095, 0.19806558, -0.19338572)
-bones/19/rotation = Quaternion(-0.14270572, 0.96724945, 0.2010852, -0.06023601)
-bones/20/rotation = Quaternion(0.28051245, -0.020120658, -0.03295087, 0.9590736)
-bones/21/rotation = Quaternion(-0.0012720712, -2.1217083e-08, 0.0137703335, 0.9999044)
-bones/22/rotation = Quaternion(-3.6493563e-07, 1.598801e-08, 1.1456589e-07, 1)
-
-[node name="AnimationPlayer" parent="Yaw/Pitch/armsy" index="1" unique_id=2138525724]
-callback_mode_process = 0
-playback_default_blend_time = 0.3
 
 [node name="CheckLedgeL" type="RayCast3D" parent="Yaw" unique_id=1550722691]
 unique_name_in_owner = true
@@ -533,7 +536,7 @@ unique_name_in_owner = true
 root_node = NodePath("%armsy")
 callback_mode_process = 0
 tree_root = SubResource("AnimationNodeBlendTree_fql2p")
-anim_player = NodePath("../Yaw/Pitch/armsy/AnimationPlayer")
+anim_player = NodePath("../Yaw/Pitch/WeaponPivot/armsy/AnimationPlayer")
 parameters/grab/active = false
 parameters/grab/internal_active = false
 parameters/grab/request = 0
@@ -574,11 +577,17 @@ tree_root = SubResource("AnimationNodeBlendTree_vyfcd")
 anim_player = NodePath("../Yaw/FPS_BODY/AnimationPlayer")
 parameters/body/walk_dir/blend_position = Vector2(-0.9949875, 0.041095972)
 
+[node name="ADSController" type="Node" parent="." unique_id=963995395 node_paths=PackedStringArray("weapon_pivot", "camera")]
+unique_name_in_owner = true
+script = ExtResource("23_4ni07")
+weapon_pivot = NodePath("../Yaw/Pitch/WeaponPivot")
+camera = NodePath("../Yaw/Pitch/Camera3D")
+
 [connection signal="grabbed_object" from="." to="WeaponController" method="_on_player_grabbed_object"]
 [connection signal="grabbed_object" from="." to="CanvasLayer/UI" method="_on_player_grabbed_object"]
 [connection signal="loot_opened" from="." to="CanvasLayer/UI" method="_on_player_loot_opened"]
 [connection signal="weapon_changed" from="." to="ArmsFSM/normal" method="_on_player_weapon_changed"]
-[connection signal="animation_finished" from="Yaw/Pitch/armsy/AnimationPlayer" to="ArmsFSM/normal" method="_on_animation_player_animation_finished"]
+[connection signal="animation_finished" from="Yaw/Pitch/WeaponPivot/armsy/AnimationPlayer" to="ArmsFSM/normal" method="_on_animation_player_animation_finished"]
 [connection signal="consumed" from="ArmsFSM/consuming" to="CanvasLayer/UI" method="_on_item_consumed"]
 [connection signal="tick_consumed" from="ArmsFSM/consuming" to="CanvasLayer/UI" method="_on_consuming_tick"]
 [connection signal="animation_finished" from="AnimationTree" to="ArmsFSM/normal" method="_on_animation_tree_animation_finished"]
@@ -593,5 +602,5 @@ parameters/body/walk_dir/blend_position = Vector2(-0.9949875, 0.041095972)
 [connection signal="body_entered" from="ItemInstruct" to="CanvasLayer/UI" method="_on_item_instruct_body_entered"]
 [connection signal="body_exited" from="ItemInstruct" to="CanvasLayer/UI" method="_on_item_instruct_body_exited"]
 
-[editable path="Yaw/Pitch/armsy"]
+[editable path="Yaw/Pitch/WeaponPivot/armsy"]
 [editable path="Yaw/FPS_BODY"]

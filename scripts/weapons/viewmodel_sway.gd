@@ -37,5 +37,5 @@ func _process(delta: float) -> void:
 			bob_offset = Vector3(sin(bob_time) * bob_amount, absf(cos(bob_time)) * bob_amount, 0)
 
 	player.armsy.position = sway_target + bob_offset
-	if player.pitch.get_node_or_null("gun"):
-		player.pitch.get_node("gun").position = sway_target + bob_offset
+	if player.weapon_pivot.get_node_or_null("gun"):
+		player.weapon_pivot.get_node("gun").position = sway_target + bob_offset
