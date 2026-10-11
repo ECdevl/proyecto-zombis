@@ -1,4 +1,4 @@
-extends State
+extends PlayerState
 @onready var check_climb: RayCast3D = %CheckClimb
 
 

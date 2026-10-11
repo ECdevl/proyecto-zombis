@@ -5,10 +5,10 @@ class_name State extends Node
 
 
 signal finished(next_state_path: String, data: Dictionary)## Emitted when the state finishes and wants to transition to another state.
-var player : Player
+
 
 func _ready() -> void:
-	player = owner
+	pass
 
 func handle_input(_event: InputEvent) -> void:## Called by the state machine when receiving unhandled input events.
 	pass

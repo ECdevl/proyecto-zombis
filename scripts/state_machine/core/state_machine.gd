@@ -43,6 +43,6 @@ func _transition_to_next_state(target_state_path: String, data: Dictionary = {})
 	state.exit(target_state_path)
 
 	state = get_node(target_state_path)
-
+	if not state:print_debug(owner.name)
 	state.enter(previous_state_path, data)
 	

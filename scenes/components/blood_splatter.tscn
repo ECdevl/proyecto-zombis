@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://df3m4by5dhlst"]
+
+[ext_resource type="Script" uid="uid://6sdfdu46lcbq" path="res://scripts/components/blood_splatter.gd" id="1_nf6yc"]
+[ext_resource type="Texture2D" uid="uid://qxlewrqqn4o8" path="res://Assets/sprites/T_Decal_Blood651aas.png" id="3_4k857"]
+
+[node name="blood_splatter" type="Node3D" unique_id=997668044]
+script = ExtResource("1_nf6yc")
+splat_textures = Array[Texture2D]([ExtResource("3_4k857")])

@@ -18,6 +18,7 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
 		mouse_delta = event.screen_relative
 @onready var arms_fsm: StateMachine = %ArmsFSM
+@onready var weapon_pivot: Node3D = %WeaponPivot
 
 func _process(delta: float) -> void:
 	if not player.get_current_weapon():
@@ -36,6 +37,4 @@ func _process(delta: float) -> void:
 			bob_time += delta * bob_speed
 			bob_offset = Vector3(sin(bob_time) * bob_amount, absf(cos(bob_time)) * bob_amount, 0)
 
-	player.armsy.position = sway_target + bob_offset
-	if player.weapon_pivot.get_node_or_null("gun"):
-		player.weapon_pivot.get_node("gun").position = sway_target + bob_offset
+	weapon_pivot.position = sway_target + bob_offset

@@ -9,7 +9,7 @@ signal gun_fired(ammo:Weapon.AMMO_TYPE)
 signal ammo_consumed(item:AmmoDescriptor)
 
 var player: Player
-var current_weapon: ItemDescriptor
+var current_weapon: Weapon
 var reloading : bool = false
 
 var melee_swings : PackedStringArray
@@ -42,7 +42,7 @@ func _free_weapon() -> void:
 		old.name = "gun_old"  # libera el nombre "gun" antes del queue_free (ver nota)
 		old.queue_free()
 
-func _on_weapon_changed(gun: ItemDescriptor) -> void:
+func _on_weapon_changed(gun: Weapon) -> void:
 	current_weapon = gun
 	player.ads_controller.aiming = false
 	if not gun:
@@ -55,17 +55,19 @@ func _on_weapon_changed(gun: ItemDescriptor) -> void:
 		weapon_node.name = "gun"
 		weapon_ap = weapon_node.get_node("AnimationPlayer")
 		player.armsy.add_sibling(weapon_node)
-		weapon_node.global_rotation = player.armsy.global_rotation
+		weapon_node.global_transform = player.armsy.global_transform
 	if player.animation_tree:
 		playback = player.animation_tree["parameters/player_sm/playback"]
 		match current_weapon.weapon_type:
 			Weapon.WEAPON_TYPE.PISTOL:
 				playback.start("pistol_draw")
 				weapon_ap.play("draw")
-	_register_sight(weapon_node, weapon_ap)  # nuevo
+	
 	melee_swings.clear()
 	if current_weapon is Weapon:
 		current_weapon.ammo_requested.emit()
+	await get_tree().process_frame
+	_register_sight(weapon_node, weapon_ap)  # nuevo
 
 
 ## Espera a que termine el "draw" y recién ahí registra la mira.
@@ -103,6 +105,12 @@ func _physics_process(delta: float) -> void:
 		ads_visual_offset = ads_visual_offset.lerp(Vector3.ZERO, delta * current_weapon.recoil_recovery_speed)
 
 
+const BLOOD_SPLATTER = preload("res://scenes/components/blood_splatter.tscn")
+
+func _spawn_blood(pos: Vector3, normal: Vector3, shot_dir: Vector3) -> void:
+	var fx: BloodSplatter = BLOOD_SPLATTER.instantiate()
+	get_tree().current_scene.add_child(fx)
+	fx.splash(pos, normal, shot_dir)
 
 ## Único punto de entrada para disparar. idle.gd y aim.gd llaman a esto,
 ## nunca duplican esta lógica.
@@ -194,11 +202,12 @@ func _raycast_damage() -> void:
 
 	var hit: Object = result.collider
 	if hit.owner is Zombie:
+		_spawn_blood(result.position, result.normal, (end - origin).normalized())
 		if hit.name == "head":
-			hit.owner.health_component.hurt(current_weapon.damage * current_weapon.headshot_multiplier,hit)
+			hit.owner.health_component.hurt(999,hit)
 			
 		else:
-			hit.owner.health_component.hurt(current_weapon.damage,hit.get_parent())
+			hit.owner.health_component.hurt(0,hit.get_parent())
 
 func reload() -> void:
 	if not current_weapon:

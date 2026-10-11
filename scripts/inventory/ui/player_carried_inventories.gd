@@ -1,118 +1,71 @@
-# PlayerCarriedInventories.gd
 extends Node
 class_name PlayerCarriedInventories
-var _containers: Array[InventoryModel] = []
-@onready var clothes: Panel = %Clothes
+## Todo lo que el jugador carga: bolsillos + ropa puesta + mochilas anidadas.
+## Única autoridad para "meter un objeto en cualquier lado" y saber qué contenedores hay.
+
+## Cambió el conjunto de contenedores (te pusiste una mochila, la soltaste...).
+signal models_changed
+
+var pockets: InventoryModel
+var equipment: EquipmentModel
+var hands := HandsModel.new()
+## Contenedores alcanzables ahora mismo (bolsillos primero).
+var models: Array[InventoryModel] = []
 
 
-
-signal add_container(model:InventoryModel, display:String)
-signal remove_container(model:InventoryModel)
-
-signal item_received(descriptor: ItemDescriptor, container: InventoryModel)
-signal item_lost(descriptor:ItemDescriptor)
-
-signal drop_item_world(descriptor:ItemDescriptor)
-
-func register_container(model: InventoryModel, priority: int = 0, display:String = "") -> void:
-	if _containers.has(model):
-		return
-
-	_containers.append(model)
-	add_container.emit(model,display)
-
-				
-
-	if not model.item_placed.is_connected(_on_item_placed):
-		model.item_placed.connect(_on_item_placed.bind(model))
-	if not model.item_removed.is_connected(_on_item_removed):
-		model.item_removed.connect(_on_item_removed)
-
-	for item in model._return_items():
-		if item.container_capability:
-			if not _containers.has(item.container_capability):
-				_containers.append(item.container_capability)
-				add_container.emit(item.container_capability,item.item_name)
-				if not item.container_capability.item_placed.is_connected(_on_item_placed):
-					item.container_capability.item_placed.connect(_on_item_placed.bind(model))
-				if not item.container_capability.item_removed.is_connected(_on_item_removed):
-					item.container_capability.item_removed.connect(_on_item_removed)
-
-func _on_item_placed(descriptor: ItemDescriptor, row: int, col: int, rotated: bool, model: InventoryModel) -> void:
-	item_received.emit(descriptor, model)
-	if descriptor.container_capability:
-		register_container(descriptor.container_capability, 0, descriptor.item_name)
-
-func _on_item_removed(descriptor: ItemDescriptor) -> void:
-	item_lost.emit(descriptor)
-	if descriptor.container_capability:
-		for item in descriptor.container_capability._return_items():
-			if item.container_capability:
-				unregister_container(item.container_capability)
+func setup(pockets_model: InventoryModel, equipment_model: EquipmentModel) -> void:
+	pockets = pockets_model
+	equipment = equipment_model
+	if pockets.title.is_empty():
+		pockets.title = "Bolsillos"
+	pockets.setup()
+	equipment.changed.connect(_refresh)
+	_refresh()
 
 
-func unregister_container(model: InventoryModel) -> void:
-	_containers.erase(model)
-	remove_container.emit(model)
+## Primero busca lugar en los contenedores; si no hay, intenta ponérselo.
+func pick_up(item: ItemInstance) -> bool:
+	return add_anywhere(item) or equipment.equip(item)
 
-func try_add_anywhere(item: ItemDescriptor) -> bool:
-	for model in _containers:
-		if model.add_item_by_descriptor(item): # el método que ya tengan en InventoryModel
-			if item is Weapon:
-				get_all_ammo(item)
-				if not item.ammo_requested.is_connected(Callable(self,"get_all_ammo")):
-					item.ammo_requested.connect(Callable(self,"get_all_ammo").bind(item))
+
+func add_anywhere(item: ItemInstance) -> bool:
+	for model in models:
+		if model.add(item):
 			return true
 	return false
 
 
-func _on_item_actions_action_drop(what: ItemVisual) -> void:
-	for model in _containers:
-		if model._has_item(what.descriptor):
-			model.remove_item(what.descriptor)
-			return
-		else:
-			return
-			
-	drop_item_world.emit(what.descriptor)
+## Saca el objeto de donde esté: contenedores, manos o ropa puesta.
+func remove(item: ItemInstance) -> bool:
+	for model in models:
+		if model.remove(item):
+			return true
+	return hands.remove(item) or equipment.remove(item)
 
-func player_items() -> Array[ItemDescriptor]:
-	var items_in_player : Array[ItemDescriptor]
-	for model in _containers:
-		for item in model._return_items():
-			if item is ItemDescriptor:
-				items_in_player.append(item)
-	return items_in_player
 
-func search_items(search_item: ItemDescriptor) -> Array[ItemDescriptor]:
-	var items_found : Array[ItemDescriptor] = []
+## Recalcula qué contenedores existen y (des)conecta sus avisos.
+func _refresh() -> void:
+	var found: Array[InventoryModel] = []
+	_collect(pockets, found)
+	for worn: ItemInstance in equipment.items():
+		_collect(worn.container, found)
 
-	for model in _containers:
-		for item in model._return_items():
-			if item == search_item:
-				items_found.append(item)
-	return items_found
+	var added := found.filter(func(m): return m not in models)
+	var removed := models.filter(func(m): return m not in found)
+	for model: InventoryModel in removed:
+		model.changed.disconnect(_refresh)
+	for model: InventoryModel in added:
+		model.changed.connect(_refresh)
 
-func get_all_ammo(gun: Weapon) -> Array[ItemDescriptor]:
-	var items_found : Array[ItemDescriptor] = []
-	for model in _containers:
-		for item in model._return_items():
-			if item is AmmoDescriptor:
-				if item.type == gun.ammo_type:
-					items_found.append(item)
-	gun.ammo_reserve = items_found
-	return items_found
+	models = found
+	if not added.is_empty() or not removed.is_empty():
+		models_changed.emit()
 
-func remove_consumed_item(descriptor: ItemDescriptor) -> void:
-	for model in _containers:
-		if model._has_item(descriptor):
-			model.remove_item(descriptor)
-			return
 
-func remove_ammo(type: Weapon.AMMO_TYPE) -> void:
-	for model in _containers:
-		for item in model._return_items():
-			if item.ammo_capability and item.ammo_capability == type:
-				model.remove_item(item)
-				return
-			
+## Suma 'model' y todos los contenedores que lleva adentro (recursivo).
+func _collect(model: InventoryModel, into: Array[InventoryModel]) -> void:
+	if model == null or model in into:
+		return
+	into.append(model)
+	for item: ItemInstance in model.items():
+		_collect(item.container, into)

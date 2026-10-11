@@ -1,4 +1,4 @@
-extends State
+extends PlayerState
 
 func enter(previous_state_path: String, data := {}) -> void:
 	player.yaw.position = Vector3(0,player.CAM_HEIGHT_STAND,0)

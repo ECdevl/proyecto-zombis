@@ -17,7 +17,6 @@ config/features=PackedStringArray("4.7", "Mobile")
 
 GameManager="*uid://btwo40j11pqfr"
 IconCreator="*uid://w8pon5lrn51x"
-_mcp_game_helper="*res://addons/godot_ai/runtime/game_helper.gd"
 
 [debug]
 
@@ -39,7 +38,7 @@ window/stretch/aspect="expand"
 
 [editor_plugins]
 
-enabled=PackedStringArray()
+enabled=PackedStringArray("res://addons/ragdoll_generator/plugin.cfg")
 
 [global_group]
 

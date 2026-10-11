@@ -22,6 +22,7 @@ func _ready() -> void:
 
 ## Llamar al equipar el arma o cambiar la mira, con el arma en reposo.
 func set_sight(aim_point: Node3D) -> void:
+	
 	var s: Transform3D = weapon_pivot.global_transform.affine_inverse() * aim_point.global_transform
 	var t_cam := Transform3D(Basis.IDENTITY, Vector3(0.0, 0.0, -eye_distance))
 	var cam_to_parent: Transform3D = weapon_pivot.get_parent_node_3d().global_transform.affine_inverse() * camera.global_transform

@@ -43,5 +43,4 @@ mesh = SubResource("QuadMesh_8njf7")
 shape = SubResource("ConcavePolygonShape3D_ihcbt")
 
 [node name="zombie" parent="." unique_id=495252481 instance=ExtResource("1_q2pm7")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.09445286, 0, 0.0441765)
 ragdoll_text = true

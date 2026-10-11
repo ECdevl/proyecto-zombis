@@ -1,4 +1,4 @@
-extends State
+extends PlayerState
 @onready var crouch_shape: ShapeCast3D = %CrouchShape
 @onready var stand_shape: ShapeCast3D = %StandShape
 

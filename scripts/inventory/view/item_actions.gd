@@ -1,47 +1,47 @@
 extends PanelContainer
 class_name ItemActions
+## Menú de acciones de un objeto (soltar, usar...). Solo muestra botones y avisa cuál se eligió.
+
+signal action_selected(item: ItemInstance, action: String)
 
 @onready var item_icon: TextureRect = %ItemIcon
 @onready var buttons_container: VBoxContainer = %ButtonsContainer
-@onready var item_actions: VBoxContainer = %ItemActions
 
-signal action_drop(what:ItemVisual)
-signal action_use(what:ItemVisual)
-signal action_equip(what:ItemVisual)
-
-var item : ItemDescriptor
-var visual : ItemVisual
+var _item: ItemInstance
 
 
+## 'extra' = acciones propias del lugar donde está el objeto (ej: "guardar" en una mano).
+func open(item: ItemInstance, at: Vector2, extra: Array[String] = []) -> void:
+	_clear_buttons()
+	_item = item
+	item_icon.texture = item.descriptor.icon
+	for action in extra + item.descriptor.get_actions():
+		var button := Button.new()
+		button.text = action
+		button.pressed.connect(_on_action_pressed.bind(action))
+		buttons_container.add_child(button)
+	global_position = at
+	show()
 
-func add_action(descriptor:ItemDescriptor) -> void:
-	item = descriptor
-	for action_name in descriptor.get_actions():
-		
-		var action_button = Button.new()
-		action_button.theme = UI
-		action_button.text = action_name
-		action_button.connect("pressed",_on_action_presss,CONNECT_APPEND_SOURCE_OBJECT)
-		item_icon.texture = descriptor.icon
-		buttons_container.add_child(action_button)
-
-func _clear_buttons() -> void:
-	for butt in buttons_container.get_children():
-		butt.queue_free()
 
 func _gui_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton:
-		if event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
-			hide()
-			_clear_buttons()
+	var click := event as InputEventMouseButton
+	if click and click.pressed and click.button_index == MOUSE_BUTTON_RIGHT:
+		close()
 
-func _on_action_presss(button:Button) -> void:
-	match button.text:
-		"soltar":
-			action_drop.emit(visual)
-		"usar":
-			action_use.emit(visual)
-		"equipar":
-			action_equip.emit(visual)
+
+func close() -> void:
 	hide()
 	_clear_buttons()
+
+
+func _clear_buttons() -> void:
+	for button in buttons_container.get_children():
+		buttons_container.remove_child(button)
+		button.queue_free()
+
+
+func _on_action_pressed(action: String) -> void:
+	var item := _item
+	close()
+	action_selected.emit(item, action)

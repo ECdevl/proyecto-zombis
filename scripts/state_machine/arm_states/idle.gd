@@ -1,4 +1,4 @@
-extends State
+extends PlayerState
 
 @export var two_hand_aniumation_names : Dictionary[StringName,Vector3] = {"two_hand_swing_1":Vector3.DOWN,"two_hand_swing_2":Vector3.RIGHT,"two_hand_swing_3":Vector3.RIGHT}
 var weapon_swing_direction : Vector3 = Vector3.LEFT
@@ -6,8 +6,6 @@ var weapon_swing_direction : Vector3 = Vector3.LEFT
 @onready var check_ledge_r: RayCast3D = %CheckLedgeR
 @onready var check_ledge_2: RayCast3D = %CheckLedge2
 @onready var fire_rate: Timer = %FireRate
-@onready var viewmodel_container: Node = %ViewmodelContainer
-
 
 
 
@@ -30,6 +28,8 @@ func check_current_weapon() -> void:
 
 func update(_delta: float) -> void:
 	can_transition = !player.weapon_controller.reloading
+	
+@onready var ui: UI = %UI
 
 func handle_input(_event: InputEvent) -> void:
 	if _event.is_action_pressed("M1"):
@@ -45,7 +45,7 @@ func handle_input(_event: InputEvent) -> void:
 		
 	if _event.is_action_pressed("drop"):
 		if player.weapon_controller.current_weapon:
-			#player.ui.inventory_manager.remove_item(player.weapon_controller.current_weapon,1,true)
+			
 			player.weapon_controller.current_weapon = null
 
 func physics_update(_delta: float) -> void:
@@ -75,6 +75,6 @@ func attack() -> void:
 
 
 
-func _on_ui_item_used(item: ItemDescriptor) -> void:
+func _on_ui_item_used(item: ItemInstance) -> void:
 	await get_tree().process_frame
-	finished.emit("consuming",{"descriptor":item})
+	finished.emit("consuming", {"item": item})

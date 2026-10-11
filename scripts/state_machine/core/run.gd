@@ -1,4 +1,4 @@
-extends State
+extends PlayerState
 @onready var viewmodel_sway: Node = %ViewmodelSway
 
 @export var stamina_cost : float = 1.5

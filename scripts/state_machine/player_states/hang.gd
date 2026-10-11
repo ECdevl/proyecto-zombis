@@ -1,4 +1,4 @@
-extends State
+extends PlayerState
 @onready var check_ledge_l: RayCast3D = %CheckLedgeL
 @onready var check_ledge_r: RayCast3D = %CheckLedgeR
 

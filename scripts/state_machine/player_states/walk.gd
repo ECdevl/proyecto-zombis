@@ -1,4 +1,4 @@
-extends State
+extends PlayerState
 
 func enter(previous_state_path: String, data := {}) -> void:
 	player.speed = player.walk_speed
@@ -12,7 +12,7 @@ func physics_update(_delta: float) -> void:
 	
 	blend_pos = blend_pos.lerp(input_dir,10.0*_delta)
 	player.body_at["parameters/body/walk_dir/blend_position"] = blend_pos
-	print_debug(blend_pos)
+
 	if player.velocity.x == 0 and player.velocity.z == 0:
 		finished.emit("idle")
 		return

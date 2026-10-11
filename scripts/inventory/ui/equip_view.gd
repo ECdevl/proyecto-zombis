@@ -1,36 +1,33 @@
 extends Control
-class_name EquipSlotView
+class_name EquipSlotViews
+## Una ranura de ropa. Muestra el icono y acepta objetos arrastrados (el controller decide).
 
 @export var equip_slot: WearableItemDescriptor.EquipSlot
 @export var equipment_model: EquipmentModel
 @export var icon_rect: TextureRect
 
-# equip_slot_view.gd
+
 func _ready() -> void:
 	add_to_group("drop_targets")
 	mouse_filter = Control.MOUSE_FILTER_STOP
-	equipment_model.item_equipped.connect(_on_equipped)
-	equipment_model.item_unequipped.connect(_on_unequipped)
-	icon_rect = get_child(0)
+	if icon_rect == null:
+		icon_rect = get_child(0) as TextureRect
+	equipment_model.changed.connect(_refresh)
+	_refresh()
+
+
+## ¿Este objeto es ropa de esta ranura?
+func accepts(item: ItemInstance) -> bool:
+	var wearable := item.descriptor as WearableItemDescriptor
+	return wearable != null and wearable.equip_slot == equip_slot
+
 
 func _gui_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
-		equipment_model.unequip(equip_slot)
+	var click := event as InputEventMouseButton
+	if click and click.pressed and click.button_index == MOUSE_BUTTON_RIGHT:
+		get_tree().call_group("inventory_ui", "unequip", equip_slot)
 
-func try_place(item: ItemVisual, _world_pos: Vector2) -> bool:
-	if item.descriptor is not WearableItemDescriptor:
-		return false
-	var wearable := item.descriptor as WearableItemDescriptor
-	if wearable.equip_slot != equip_slot:
-		return false
-	equipment_model.equip(equip_slot, wearable)  # ya tipado bien
-	return true
 
-func _on_equipped(slot: WearableItemDescriptor.EquipSlot, descriptor: ItemDescriptor) -> void:
-	if slot == equip_slot and icon_rect:
-		icon_rect.texture = descriptor.icon
-		print_debug(icon_rect.texture)
-
-func _on_unequipped(slot: WearableItemDescriptor.EquipSlot, _descriptor: ItemDescriptor) -> void:
-	if slot == equip_slot and icon_rect:
-		icon_rect.texture = null
+func _refresh() -> void:
+	var item := equipment_model.get_equipped(equip_slot)
+	icon_rect.texture = item.descriptor.icon if item else null

@@ -94,18 +94,14 @@ var _mouse_delta := Vector2.ZERO
 var speed : float = 3.0
 
 
-# Engine virtuals
-
-@onready var viewmodel_container: Node3D = %ViewmodelContainer
 
 func _ready() -> void:
 	health_component = health_component.duplicate()
 	#ui.inventory_manager.connect("equip_weapon",Callable(self,"equip_weapon"))
 	arms_ap = armsy.get_node("AnimationPlayer")
-	arms_mesh = armsy.get_child(0).get_child(0).get_node("arms")
+	arms_mesh = armsy.find_child("PiernaIzquierda",true,false)
 	playback = animation_tree.get("parameters/player_sm/playback")
 	# Redundancy checks to avoid mistakes
-	assert(self is CharacterBody3D, "This script only works within a CharacterBody3D")
 	#assert(camera.get_parent() == pitch, "Camera needs to be a child of pitch")
 	assert(pitch.get_parent() == yaw, "Pitch needs to be a child of yaw")
 	assert(yaw.get_parent() == self, "Yaw needs to be a child of this CharacterBody3D")
@@ -199,23 +195,19 @@ func __player_movement(delta:float) -> void:
 
 
 
-func drop_item(item:ItemDescriptor):
-	if !item:
-		return
-	if !%normal.can_transition:
+func drop_item(item: ItemInstance) -> void:
+	if item == null or not %normal.can_transition:
 		return
 	const PICKABLE_OBJECT = preload("res://scenes/components/pickable_object.tscn")
-	var object : PickableItem = PICKABLE_OBJECT.instantiate()
-	object.item_descriptor = item
+	var object: PickableItem = PICKABLE_OBJECT.instantiate()
+	object.item = item
 	get_tree().current_scene.add_child(object)
 	object.global_position = camera.global_position
-	object.apply_central_force(-camera.global_transform.basis.z*1000)
-	if get_current_weapon() == item:
-		weapon_changed.emit(null)
+	object.apply_central_force(-camera.global_transform.basis.z * 1000)
 
 
 
-func equip_weapon(resource:ItemDescriptor) -> void:
+func equip_weapon(resource:Weapon) -> void:
 	if resource != get_current_weapon():
 		weapon_changed.emit(resource)
 		return
@@ -223,7 +215,7 @@ func equip_weapon(resource:ItemDescriptor) -> void:
 
 
 
-func get_current_weapon() -> ItemDescriptor:
+func get_current_weapon() -> Weapon:
 	return weapon_controller.current_weapon
 	
 

@@ -1,163 +1,131 @@
 class_name InventoryModel extends Resource
+## Grilla de objetos (bolsillos, mochila, cofre). Solo datos y reglas de colocación.
+## Cada cambio emite el signal `changed` que ya trae Resource.
 
-# Emitted when a descriptor is successfully placed on the grid (try_place succeeds).
-# Listened by: InventoryView (spawns/updates the visual), PlayerCarriedInventories
-# (registers nested container if the descriptor is a WearableItemDescriptor with container_model).
-signal item_placed(descriptor: ItemDescriptor, row: int, col: int, rotated: bool)
+@export var title := ""
+@export var dimensions := Vector2i(10, 7)
+@export var starting_items: Array[ItemDescriptor]
 
-# Emitted when a descriptor is removed from the grid (remove_item).
-# Listened by: InventoryView (destroys the visual, unless it's mid-drag),
-# PlayerCarriedInventories (unregisters nested container).
-signal item_removed(descriptor: ItemDescriptor)
-
-# Emitted when a consumable/usable item is used. Not currently connected anywhere — reserved for future use flow.
-signal item_used(descriptor: ItemDescriptor)
-
-# Emitted manually (not by try_place) when an item moves between two InventoryViews
-# of DIFFERENT models, so the destination model's UI is notified. See item_inventory_visual.gd end_drag().
-signal item_added(descriptor: ItemDescriptor)
-
-var grid: Array = []  # Array[Array[ItemDescriptor]] -- solo datos, sin nodos
-@export var dimensions: Vector2i = Vector2i(10, 7)
-
-@export var starting_items : Array[ItemDescriptor]
+var _cells: Array[ItemInstance] = []                # ancho*alto. null = celda libre
+var _rects: Dictionary[ItemInstance, Rect2i] = {}   # objeto -> celdas que ocupa
 
 
-
-func init_grid() -> void:
-	if not grid.is_empty():
-		return  # ya inicializado, no pisar items existentes
-	grid.clear()
-	for y in dimensions.y:      # filas = altura
-		grid.append([])
-		for x in dimensions.x:  # columnas = ancho
-			grid[y].append(null)
-	if starting_items.size() > 0:
-		for item in starting_items:
-			add_item_by_descriptor(item)
+## Crea la grilla y mete starting_items. Seguro de llamar más de una vez.
+func setup() -> void:
+	if not _cells.is_empty():
+		return
+	_cells.resize(dimensions.x * dimensions.y)
+	for descriptor in starting_items:
+		if descriptor:
+			add(ItemInstance.new(descriptor))
 
 
-func _has_item(item: ItemDescriptor) -> bool:
-	for row in grid:
-		if item in row:
-			return true
-	return false
+# --- Consultas -------------------------------------------------------------
 
-func _return_items() -> Array[ItemDescriptor]:
-	var item_list : Array[ItemDescriptor]
-	for row in grid:
-		for item in row:
-			if item is ItemDescriptor:
-				item_list.append(item)
-	return item_list
-
-func _size_for(descriptor: ItemDescriptor, rotated: bool) -> Vector2i:
-	if rotated:
-		return Vector2i(descriptor.dimensions.y, descriptor.dimensions.x)
-	return descriptor.dimensions
+func has_item(item: ItemInstance) -> bool:
+	return _rects.has(item)
 
 
+func items() -> Array:
+	return _rects.keys()
 
-func can_place(descriptor: ItemDescriptor, row: int, col: int, rotated: bool = false) -> bool:
-	if _contains_model(descriptor):
+
+## Celdas que ocupa. Llamar solo si has_item(item).
+func get_rect(item: ItemInstance) -> Rect2i:
+	return _rects[item]
+
+
+func is_rotated(item: ItemInstance) -> bool:
+	return _rects[item].size != item.descriptor.dimensions
+
+
+## Tamaño en celdas (ancho, alto), con o sin rotar 90°.
+func footprint_of(item: ItemInstance, rotated := false) -> Vector2i:
+	var dims := item.descriptor.dimensions
+	return Vector2i(dims.y, dims.x) if rotated else dims
+
+
+func can_place(item: ItemInstance, cell: Vector2i, rotated := false) -> bool:
+	var rect := Rect2i(cell, footprint_of(item, rotated))
+	if not Rect2i(Vector2i.ZERO, dimensions).encloses(rect):
 		return false
-	if row < 0 or col < 0:
+	if _is_inside(item):
 		return false
-	var size := _size_for(descriptor, rotated)
-	if row + size.y > dimensions.y or col + size.x > dimensions.x:
-		return false
-	for y in size.y:
-		for x in size.x:
-			if grid[row + y][col + x] != null:
+	for y in range(rect.position.y, rect.end.y):
+		for x in range(rect.position.x, rect.end.x):
+			var other: ItemInstance = _cells[y * dimensions.x + x]
+			if other != null and other != item:  # 'other != item' permite mover sobre sí mismo
 				return false
 	return true
 
 
+# --- Cambios ---------------------------------------------------------------
 
-func _contains_model(descriptor: ItemDescriptor) -> bool:
-	if descriptor is not WearableItemDescriptor:
+## Coloca (o mueve, si ya estaba acá) el objeto en 'cell'.
+func place(item: ItemInstance, cell: Vector2i, rotated := false) -> bool:
+	if not can_place(item, cell, rotated):
 		return false
-	var nested: InventoryModel = (descriptor as ItemDescriptor).container_capability
-	if nested == null:
-		return false
-	if nested == self:
-		return true
-	for row in nested.grid:
-		for cell_descriptor in row:
-			if cell_descriptor != null and self._contains_model(cell_descriptor):
+	_take_out(item)
+	var rect := Rect2i(cell, footprint_of(item, rotated))
+	_rects[item] = rect
+	_fill(rect, item)
+	emit_changed()
+	return true
+
+
+## Busca el primer hueco libre.
+func add(item: ItemInstance) -> bool:
+	var size := footprint_of(item)
+	for y in range(dimensions.y - size.y + 1):
+		for x in range(dimensions.x - size.x + 1):
+			if place(item, Vector2i(x, y)):
 				return true
 	return false
 
-func try_place(descriptor: ItemDescriptor, row: int, col: int, rotated: bool = false) -> bool:
-	if not can_place(descriptor, row, col, rotated):
+
+func remove(item: ItemInstance) -> bool:
+	if not _take_out(item):
 		return false
-	var size := _size_for(descriptor, rotated)
-	for y in size.y:
-		for x in size.x:
-			grid[row + y][col + x] = descriptor
-	item_placed.emit(descriptor, row, col, rotated)
+	emit_changed()
 	return true
 
 
-func remove_item(descriptor: ItemDescriptor) -> void:
-	var anchor := get_grid_position(descriptor)
-	if anchor.x < 0:
-		return
-	var size := get_occupied_size(descriptor, anchor)
-	for y in size.y:
-		for x in size.x:
-			grid[anchor.y + y][anchor.x + x] = null
-	item_removed.emit(descriptor)
-
-
-# Primera celda (arriba-izquierda) donde aparece el descriptor en el grid.
-func get_grid_position(descriptor: ItemDescriptor) -> Vector2i:
-	for row in grid.size():
-		for col in grid[row].size():
-			if grid[row][col] == descriptor:
-				return Vector2i(col, row)
-	return Vector2i(-1, -1)
-
-
-# Cuántas celdas ocupa realmente a partir del ancla (ya refleja si está rotado).
-func get_occupied_size(descriptor: ItemDescriptor, anchor: Vector2i) -> Vector2i:
-	var row := anchor.y
-	var col := anchor.x
-	var w := 0
-	while col + w < dimensions.x and grid[row][col + w] == descriptor:
-		w += 1
-	var h := 0
-	while row + h < dimensions.y and grid[row + h][col] == descriptor:
-		h += 1
-	return Vector2i(w, h)
-
-
-func is_rotated(descriptor: ItemDescriptor) -> bool:
-	var anchor := get_grid_position(descriptor)
-	if anchor.x < 0:
+## Mueve un objeto entre dos inventarios (pueden ser el mismo) con UN solo aviso por lado.
+static func transfer(item: ItemInstance, from: InventoryModel, to: InventoryModel,
+		cell: Vector2i, rotated: bool) -> bool:
+	if not to.can_place(item, cell, rotated):
 		return false
-	return get_occupied_size(descriptor, anchor) != descriptor.dimensions
-
-
-func find_free_position(w: int, h: int) -> Vector2i:
-	for row in dimensions.y - h + 1:
-		for col in dimensions.x - w + 1:
-			if _area_free(row, col, w, h):
-				return Vector2i(col, row)
-	return Vector2i(-1, -1)
-
-
-func _area_free(row: int, col: int, w: int, h: int) -> bool:
-	for y in h:
-		for x in w:
-			if grid[row + y][col + x] != null:
-				return false
+	if from != to:
+		from._take_out(item)  # sin avisar todavía: evita que una mochila "desaparezca" un instante
+	to.place(item, cell, rotated)
+	if from != to:
+		from.emit_changed()
 	return true
 
 
+# --- Internos --------------------------------------------------------------
 
-func add_item_by_descriptor(descriptor: ItemDescriptor) -> bool:
-	var origin := find_free_position(descriptor.dimensions.x, descriptor.dimensions.y)
-	if origin == Vector2i(-1, -1):
+func _take_out(item: ItemInstance) -> bool:
+	if not _rects.has(item):
 		return false
-	return try_place(descriptor, origin.y, origin.x)
+	_fill(_rects[item], null)
+	_rects.erase(item)
+	return true
+
+
+func _fill(rect: Rect2i, value: ItemInstance) -> void:
+	for y in range(rect.position.y, rect.end.y):
+		for x in range(rect.position.x, rect.end.x):
+			_cells[y * dimensions.x + x] = value
+
+
+## true si 'self' está dentro de 'item' (ej: mochila metida en sí misma o en su propio contenido).
+func _is_inside(item: ItemInstance) -> bool:
+	if item.container == null:
+		return false
+	if item.container == self:
+		return true
+	for inner: ItemInstance in item.container.items():
+		if _is_inside(inner):
+			return true
+	return false

@@ -1,4 +1,4 @@
-extends State
+extends PlayerState
 
 var original_sens : float
 func enter(previous_state_path: String, data := {}) -> void:

@@ -1,27 +1,31 @@
-# data/inventory/equipment_model.gd
 class_name EquipmentModel extends Resource
+## Lo que el jugador lleva puesto, por ranura. Avisa cambios con `changed`.
 
-signal item_equipped(slot: WearableItemDescriptor.EquipSlot, descriptor: WearableItemDescriptor)
-signal item_unequipped(slot: WearableItemDescriptor.EquipSlot, descriptor: WearableItemDescriptor)
+var _slots: Dictionary[WearableItemDescriptor.EquipSlot, ItemInstance] = {}
 
-var slots: Dictionary = {}  # EquipSlot -> WearableItemDescriptor
 
-func equip(slot: WearableItemDescriptor.EquipSlot, descriptor: WearableItemDescriptor) -> bool:
-	if slots.has(slot):
+## false si no es ropa o la ranura ya está ocupada.
+func equip(item: ItemInstance) -> bool:
+	var wearable := item.descriptor as WearableItemDescriptor
+	if wearable == null or _slots.has(wearable.equip_slot):
 		return false
-		
-	slots[slot] = descriptor
-	item_equipped.emit(slot, descriptor)
+	_slots[wearable.equip_slot] = item
+	emit_changed()
 	return true
 
-func unequip(slot: WearableItemDescriptor.EquipSlot) -> bool:
-	if not slots.has(slot):
-		return false
-	var descriptor: WearableItemDescriptor = slots[slot]
-	slots.erase(slot)
-	emit_signal("item_unequipped",slot,descriptor)
-	
-	return true
 
-func get_equipped(slot: WearableItemDescriptor.EquipSlot) -> WearableItemDescriptor:
-	return slots.get(slot)
+func remove(item: ItemInstance) -> bool:
+	for slot in _slots:
+		if _slots[slot] == item:
+			_slots.erase(slot)
+			emit_changed()
+			return true
+	return false
+
+
+func get_equipped(slot: WearableItemDescriptor.EquipSlot) -> ItemInstance:
+	return _slots.get(slot)
+
+
+func items() -> Array:
+	return _slots.values()

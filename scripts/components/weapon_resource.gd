@@ -15,7 +15,8 @@ enum AMMO_TYPE {NONE,LOW_CALIBER,MID_CALIBER,HIGH_CALIBER,CAL}
 @export var max_bullets : int
 @export var ammo_reserve : Array[ItemDescriptor]
 @export var mag_size : int
-
+enum Handle {ONE,TWO}
+@export var weapon_handle : Handle = Handle.ONE
 
 @export var recoil_kick : Vector2
 @export var recoil_recovery_speed : float
@@ -25,3 +26,6 @@ func get_actions() -> Array[String]:
 	var lines = super.get_actions()
 	lines.append("equipar")
 	return lines
+
+func get_hands_required() -> int:
+	return 2 if weapon_handle == Handle.TWO else 1
