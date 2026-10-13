@@ -59,6 +59,9 @@ height = 1.5859375
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_5ow1q"]
 height = 1.1
 
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_4ni07"]
+animation = &"punch"
+
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_t4otl"]
 animation = &"grab"
 
@@ -84,9 +87,6 @@ animation = &"pistol_reload"
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_hax0n"]
 animation = &"pistol_shoot"
 
-[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_4ni07"]
-animation = &"punch"
-
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_4r5pv"]
 animation = &"run"
 
@@ -106,13 +106,6 @@ switch_mode = 1
 [sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_31cv2"]
 switch_mode = 2
 advance_mode = 2
-
-[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_pf23h"]
-switch_mode = 2
-advance_mode = 2
-
-[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_dt7fs"]
-switch_mode = 1
 
 [sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_hhpqf"]
 switch_mode = 2
@@ -145,12 +138,15 @@ states/pistol_reload/node = SubResource("AnimationNodeAnimation_jc3p3")
 states/pistol_reload/position = Vector2(681, 107)
 states/pistol_shoot/node = SubResource("AnimationNodeAnimation_hax0n")
 states/pistol_shoot/position = Vector2(681, 215.08368)
-states/punch/node = SubResource("AnimationNodeAnimation_4ni07")
-states/punch/position = Vector2(340, 107)
 states/run/node = SubResource("AnimationNodeAnimation_4r5pv")
 states/run/position = Vector2(467, 43)
-transitions = ["Start", "Idle", SubResource("AnimationNodeStateMachineTransition_4r5pv"), "Idle", "run", SubResource("AnimationNodeStateMachineTransition_l71n6"), "run", "Idle", SubResource("AnimationNodeStateMachineTransition_ke2ow"), "Idle", "grab", SubResource("AnimationNodeStateMachineTransition_ujl30"), "grab", "Idle", SubResource("AnimationNodeStateMachineTransition_31cv2"), "punch", "Idle", SubResource("AnimationNodeStateMachineTransition_pf23h"), "Idle", "punch", SubResource("AnimationNodeStateMachineTransition_dt7fs"), "pistol_draw", "pistol_idle", SubResource("AnimationNodeStateMachineTransition_hhpqf"), "pistol_idle", "pistol_reload", SubResource("AnimationNodeStateMachineTransition_g5jhy"), "pistol_reload", "pistol_idle", SubResource("AnimationNodeStateMachineTransition_holxr"), "pistol_shoot", "pistol_idle", SubResource("AnimationNodeStateMachineTransition_mx1m4"), "pistol_idle", "pistol_shoot", SubResource("AnimationNodeStateMachineTransition_4gjji")]
+transitions = ["Start", "Idle", SubResource("AnimationNodeStateMachineTransition_4r5pv"), "Idle", "run", SubResource("AnimationNodeStateMachineTransition_l71n6"), "run", "Idle", SubResource("AnimationNodeStateMachineTransition_ke2ow"), "Idle", "grab", SubResource("AnimationNodeStateMachineTransition_ujl30"), "grab", "Idle", SubResource("AnimationNodeStateMachineTransition_31cv2"), "pistol_draw", "pistol_idle", SubResource("AnimationNodeStateMachineTransition_hhpqf"), "pistol_idle", "pistol_reload", SubResource("AnimationNodeStateMachineTransition_g5jhy"), "pistol_reload", "pistol_idle", SubResource("AnimationNodeStateMachineTransition_holxr"), "pistol_shoot", "pistol_idle", SubResource("AnimationNodeStateMachineTransition_mx1m4"), "pistol_idle", "pistol_shoot", SubResource("AnimationNodeStateMachineTransition_4gjji")]
 graph_offset = Vector2(-169, -30.57741)
+
+[sub_resource type="AnimationNodeOneShot" id="AnimationNodeOneShot_4ni07"]
+filter_enabled = true
+filters = ["", "rig/Skeleton3D:f_middle.01.L.001", "rig/Skeleton3D:f_middle.01.L.002", "rig/Skeleton3D:f_middle.01.L.003", "rig/Skeleton3D:forearm_left", "rig/Skeleton3D:hand_left", "rig/Skeleton3D:thumb.01.L", "rig/Skeleton3D:thumb.02.L", "rig/Skeleton3D:upper_arm_left"]
+fadeout_time = 0.2
 
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_j2b1d"]
 animation = &"run"
@@ -160,8 +156,7 @@ filter_enabled = true
 filters = ["", "rig/Skeleton3D:f_middle.01.L.001", "rig/Skeleton3D:f_middle.01.L.002", "rig/Skeleton3D:f_middle.01.L.003", "rig/Skeleton3D:f_middle.01.R", "rig/Skeleton3D:f_middle.01.R.001", "rig/Skeleton3D:f_middle.01.R.002", "rig/Skeleton3D:f_middle.01.R.003", "rig/Skeleton3D:forearm_left", "rig/Skeleton3D:forearm_right", "rig/Skeleton3D:hand_left", "rig/Skeleton3D:hand_right", "rig/Skeleton3D:ik_hand_left", "rig/Skeleton3D:ik_hand_right", "rig/Skeleton3D:ik_pole_left", "rig/Skeleton3D:thumb.01.L", "rig/Skeleton3D:thumb.01.R", "rig/Skeleton3D:thumb.02.L", "rig/Skeleton3D:upper_arm_left", "rig/Skeleton3D:upper_arm_right"]
 
 [sub_resource type="AnimationNodeBlendTree" id="AnimationNodeBlendTree_fql2p"]
-graph_offset = Vector2(167.58173, 237.09865)
-nodes/output/position = Vector2(460, 60)
+nodes/output/position = Vector2(780, 60)
 nodes/player_sm/node = SubResource("AnimationNodeStateMachine_ua7yo")
 nodes/player_sm/position = Vector2(-300, 80)
 nodes/grab/node = SubResource("AnimationNodeOneShot_a38lo")
@@ -172,7 +167,11 @@ nodes/run/node = SubResource("AnimationNodeBlend2_cs1tg")
 nodes/run/position = Vector2(300, 120)
 "nodes/run 2/node" = SubResource("AnimationNodeAnimation_j2b1d")
 "nodes/run 2/position" = Vector2(157.73015, 371.4164)
-node_connections = [&"output", 0, &"run", &"grab", 0, &"player_sm", &"grab", 1, &"Animation", &"run", 0, &"grab", &"run", 1, &"run 2"]
+"nodes/Animation 2/node" = SubResource("AnimationNodeAnimation_4ni07")
+"nodes/Animation 2/position" = Vector2(440, 340)
+nodes/punch/node = SubResource("AnimationNodeOneShot_4ni07")
+nodes/punch/position = Vector2(580, 80)
+node_connections = [&"output", 0, &"punch", &"grab", 0, &"player_sm", &"grab", 1, &"Animation", &"run", 0, &"grab", &"run", 1, &"run 2", &"punch", 0, &"run", &"punch", 1, &"Animation 2"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_8njf7"]
 radius = 4.0
@@ -363,7 +362,7 @@ unique_name_in_owner = true
 unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.07166581)
 
-[node name="Skeleton3D" parent="Yaw/Pitch/WeaponPivot/armsy/rig" parent_id_path=PackedInt32Array(1586675216, 1018458947) index="0" unique_id=216091196]
+[node name="Skeleton3D" parent="Yaw/Pitch/WeaponPivot/armsy/rig" parent_id_path=PackedInt32Array(1586675216, 443311703) index="0" unique_id=1765088010]
 bones/0/position = Vector3(0.355911, -0.62553966, -0.08020999)
 bones/0/rotation = Quaternion(0.05944535, 0.059783433, 0.9923101, -0.090625964)
 bones/1/position = Vector3(-0.355911, -0.62553966, -0.08020999)
@@ -387,7 +386,7 @@ bones/21/rotation = Quaternion(-0.0012720712, -2.121765e-08, 0.0137703335, 0.999
 bones/22/rotation = Quaternion(-3.8087882e-07, 1.6630112e-08, 1.3133022e-07, 1)
 bones/23/rotation = Quaternion(-0.20150816, 0.9061055, 0.3466465, 0.13492043)
 
-[node name="AnimationPlayer" parent="Yaw/Pitch/WeaponPivot/armsy" index="1" unique_id=2003402885]
+[node name="AnimationPlayer" parent="Yaw/Pitch/WeaponPivot/armsy" index="1" unique_id=1136423784]
 callback_mode_process = 0
 playback_default_blend_time = 0.3
 
@@ -540,6 +539,9 @@ parameters/grab/active = false
 parameters/grab/internal_active = false
 parameters/grab/request = 0
 parameters/run/blend_amount = 0.0
+parameters/punch/active = false
+parameters/punch/internal_active = false
+parameters/punch/request = 0
 
 [node name="WeaponController" type="Node" parent="." unique_id=1584435727]
 unique_name_in_owner = true

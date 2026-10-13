@@ -69,3 +69,41 @@ func _collect(model: InventoryModel, into: Array[InventoryModel]) -> void:
 	into.append(model)
 	for item: ItemInstance in model.items():
 		_collect(item.container, into)
+
+func _ready() -> void:
+	add_to_group("ammo_source")
+func debug_ammo() -> void:
+	print("contenedores: ", models.size())
+	for model in models:
+		print(" modelo '", model.title, "' | objetos: ", model.items().size())
+		for item: ItemInstance in model.items():
+			var d = item.descriptor
+			print("   ", d.item_name, " | script: ", d.get_script().resource_path if d.get_script() else "ninguno", " | es AmmoItemDescriptor: ", d is AmmoItemDescriptor)
+func count_ammo(type: Weapon.AMMO_TYPE) -> int:
+	var total := 0
+	for model in models:
+		for item in model.items():
+			if item is ItemInstance:
+				item = item.descriptor
+			if item is AmmoItemDescriptor and item.ammo_type == type:
+				total += item.rounds
+	return total
+
+## Saca hasta `amount` balas. Devuelve cuántas sacó de verdad.
+func take_ammo(type: Weapon.AMMO_TYPE, amount: int) -> int:
+	var taken := 0
+	for model in models:
+		for item in model.items():
+			var item_instance = item
+			if item is ItemInstance:
+				item = item_instance.descriptor
+			if taken >= amount:
+				return taken
+			var ammo := item as AmmoItemDescriptor
+			if ammo and ammo.ammo_type == type:
+				var grab := mini(ammo.rounds, amount - taken)
+				ammo.rounds -= grab
+				taken += grab
+				if ammo.rounds <= 0:
+					model.remove(item_instance)  # caja vacía desaparece
+	return taken

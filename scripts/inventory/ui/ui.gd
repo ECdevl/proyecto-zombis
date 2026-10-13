@@ -38,7 +38,7 @@ func _ready() -> void:
 	inventory_ui.item_used.connect(item_used.emit)
 	inventory_ui.item_dropped.connect(drop_item.emit)
 	inventory.hide.call_deferred()
-
+	
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("toggle_inventory"):
@@ -51,17 +51,16 @@ func _process(_delta: float) -> void:
 	hunger.value = player.player_needs.current_hunger
 	thirst.value = player.player_needs.current_thirst
 	sleep.value = player.player_needs.current_sleep
+
 	_update_ammo()
 	_update_hint()
 
 
 func _update_ammo() -> void:
 	var weapon : Weapon = player.get_current_weapon()
-	if !weapon:
-		return
 	if weapon and weapon.weapon_type != weapon.WEAPON_TYPE.MELEE:
 		ammo_count.show()
-		ammo_count.text = str(weapon.curr_bullets) + "/" + str(weapon.ammo_reserve)
+		ammo_count.text = "%d/%d" % [player.get_current_weapon().curr_bullets, player.weapon_controller.get_reserve_ammo()]
 	else:
 		ammo_count.hide()
 

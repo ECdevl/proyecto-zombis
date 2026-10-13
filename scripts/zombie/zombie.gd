@@ -5,16 +5,18 @@ class_name Zombie
 @export var zombie_ap : AnimationPlayer
 @onready var ragdoll: PhysicalBoneSimulator3D = %ragdoll
 
+
+
 var hit_direction : Vector3
 var bone_hit : Node3D
 @onready var look_head: LookAtModifier3D = %LookHead
-
 ##Animation
 @onready var at: AnimationTree = %AT
 var playback : AnimationNodeStateMachinePlayback
+
 func _ready() -> void:
 	playback = at.get("parameters/zombie_sm/playback")
-	
+
 
 
 	if health_component:
@@ -32,6 +34,14 @@ func hurted(who:Node3D) -> void:
 	print_debug("OUCH MY: ",who)
 	if who.name == "head":
 		die()
+
+func _physics_process(delta: float) -> void:
+	if not is_on_floor():
+		velocity.y += get_gravity().y * delta
+
+		
+	
+	move_and_slide()
 
 func die() -> void:
 	

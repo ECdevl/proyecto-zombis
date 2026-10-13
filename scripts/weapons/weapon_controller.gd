@@ -6,7 +6,7 @@ class_name WeaponController
 ## a las funciones públicas de acá (shoot(), reload()).
 
 signal gun_fired(ammo:Weapon.AMMO_TYPE)
-signal ammo_consumed(item:AmmoDescriptor)
+signal ammo_consumed(item:AmmoItemDescriptor)
 
 var player: Player
 var current_weapon: Weapon
@@ -25,10 +25,25 @@ var weapon_visual_offset: Vector3 = Vector3.ZERO
 var weapon_base_position: Vector3 = Vector3.ZERO
 
 var bullets_available : Array[ItemDescriptor]
+@onready var ui: UI = %UI
+
+
+
+var ammo_source: PlayerCarriedInventories  # asignar en el inspector → PlayerContainers
+
+func get_reserve_ammo() -> int:
+	if not current_weapon or not ammo_source:
+		return 0
+
+	return ammo_source.count_ammo(current_weapon.ammo_type)
 
 func _ready() -> void:
 	player = owner
 	player.weapon_changed.connect(_on_weapon_changed)
+	await ui.ready
+	ammo_source = get_tree().get_first_node_in_group("ammo_source")
+
+
 
 var playback : AnimationNodeStateMachinePlayback
 
@@ -84,10 +99,9 @@ func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("punch"):
 		if push_time.time_left > 0:
 			return
-		if player.animation_tree and current_weapon != null:
+		if player.animation_tree:
 			player.animation_tree["parameters/punch/request"]  = AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE
-		else:
-			player.playback.travel("punch")
+
 			
 		push()
 		push_time.start()
@@ -210,46 +224,20 @@ func _raycast_damage() -> void:
 			hit.owner.health_component.hurt(0,hit.get_parent())
 
 func reload() -> void:
-	if not current_weapon:
+	var gun := current_weapon
+	if not gun or gun.weapon_type == gun.WEAPON_TYPE.MELEE:
 		return
-	if current_weapon.curr_bullets >= current_weapon.mag_size:
+	var missing: int = gun.mag_size - gun.curr_bullets
+	if missing <= 0 or get_reserve_ammo() <= 0:
 		return
-	if current_weapon.ammo_reserve.size() <= 0:
-		return
-		
 	reloading = true
-	if player.animation_tree:
-		match current_weapon.weapon_type:
-			Weapon.WEAPON_TYPE.PISTOL:
-				playback.travel("pistol_reload")
-				weapon_ap.play("reload")
-	current_weapon.curr_bullets = 0
-	if player.animation_tree:
-		await player.animation_tree.animation_finished
-
+	playback.travel("pistol_reload")
+	weapon_ap.play("reload")
+	await player.animation_tree.animation_finished
 	reloading = false
-	var wasted_ammo = current_weapon.mag_size - current_weapon.curr_bullets
-	var boolets : int = 0
-	var ammo_to_consume : AmmoDescriptor
-	for ammo in current_weapon.ammo_reserve:
-		if ammo is AmmoDescriptor:
-			if ammo.amount > 0:
-				boolets = ammo.amount
-				ammo_to_consume = ammo
-				break
-	ammo_to_consume.amount -= current_weapon.mag_size
-	if ammo_to_consume.amount < 0:
-		ammo_consumed.emit(ammo_to_consume)
-		current_weapon.ammo_reserve.erase(ammo_to_consume)
-	
-	var final_bullets = boolets - wasted_ammo
-
-	if final_bullets < 0:
-		current_weapon.curr_bullets = current_weapon.mag_size + final_bullets
-	else:
-		current_weapon.curr_bullets = current_weapon.mag_size
-	
-
+	playback.travel("pistol_idle")
+	weapon_ap.play("idle")
+	gun.curr_bullets += ammo_source.take_ammo(gun.ammo_type, missing)
 
 func _on_player_grabbed_object(world_obj: PickableItem) -> void:
 	if player.animation_tree:
