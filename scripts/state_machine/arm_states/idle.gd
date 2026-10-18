@@ -24,7 +24,7 @@ func check_current_weapon() -> void:
 				#player.playback.start("one_hand_idle")
 				#return
 	else:
-		player.playback.travel("Idle")
+		player.playback.travel("idle")
 
 func update(_delta: float) -> void:
 	can_transition = !player.weapon_controller.reloading
@@ -34,6 +34,7 @@ func update(_delta: float) -> void:
 func handle_input(_event: InputEvent) -> void:
 	if _event.is_action_pressed("M1"):
 		call_deferred("attack")
+
 
 	if _event.is_action_pressed("M2"):
 
@@ -45,8 +46,14 @@ func handle_input(_event: InputEvent) -> void:
 		
 	if _event.is_action_pressed("drop"):
 		if player.weapon_controller.current_weapon:
-			
-			player.weapon_controller.current_weapon = null
+			var player_inventory : PlayerCarriedInventories = get_tree().get_first_node_in_group("player_inventory")
+			if player_inventory.hands._held.is_empty():
+				return
+			var held_instance : ItemInstance = player_inventory.hands.get_held(HandsModel.Hand.RIGHT)
+			if not held_instance:
+				held_instance = player_inventory.hands.get_held(HandsModel.Hand.LEFT)
+			player_inventory.remove(held_instance)
+			player.drop_item(held_instance)
 
 func physics_update(_delta: float) -> void:
 	if !player.is_on_floor():

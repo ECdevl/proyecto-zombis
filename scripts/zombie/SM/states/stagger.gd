@@ -1,0 +1,100 @@
+extends ZombieState
+## Empujón: el zombi retrocede en la dirección del empuje y luego se recupera.
+## Entrada: data = {"direction": Vector3}  (no hace falta que venga normalizada)
+##
+## Matemática (resumen):
+##   La velocidad baja en línea recta de v0 a 0 en T segundos.
+##   Distancia recorrida = área del triángulo = v0 * T / 2
+##   => v0 = 2 * d / T        (velocidad inicial)
+##   => a  = v0 / T           (desaceleración por segundo)
+
+## Estado al que vuelve al terminar. Si no hay objetivo, "chase" lo manda a "idle".
+@export var next_state: StringName = &"chase"
+## Nodos del AnimationTree (state machine "zombie_sm").
+## Empujado desde ATRÁS: cae hacia adelante. Empujado desde ADELANTE: cae hacia atrás.
+@export var anim_from_behind: StringName = &"stumble_forward"
+@export var anim_from_front: StringName = &"stumble_back"
+## Cuánto retrocede (metros).
+@export var knockback_distance: float = 1.0
+
+
+## Qué tan rápido gira para quedar alineado con el empujón (grados por segundo).
+@export var turn_speed_deg: float = 720.0
+@export var max_stagger : int = 3
+
+var _decel: float
+var _time_left: float
+var _target_yaw: float
+
+var stagger_count : int
+
+func _ready() -> void:
+	super()  # ZombieState._ready asigna `zombie`
+	if not zombie.pushed.is_connected(_on_zombie_pushed):
+		zombie.pushed.connect(_on_zombie_pushed)
+
+
+func enter(_previous_state_path: String, data := {}) -> void:
+	stagger_count += 1
+	
+
+	var dir: Vector3 = data.get("direction", zombie.global_basis.z)
+	if stagger_count >= max_stagger:
+		zombie.ragdoll_component.start(false,dir,50)
+		stagger_count = 0
+		return
+	# Producto punto: +1 = misma dirección, -1 = opuesta, 0 = perpendicular.
+	# El zombi mira hacia -Z. Si el empujón va hacia donde mira, lo empujaron por la espalda.
+	var facing := -zombie.global_basis.z
+	var from_behind := dir.dot(facing) >= 0.0
+	
+	dir.y = 0.0
+	if dir.is_zero_approx():
+		dir = zombie.global_basis.z  # sin dirección: cae hacia atrás
+	dir = dir.normalized()
+	var stun_time : float
+	stun_time = zombie.at.get_animation(anim_from_behind if from_behind else anim_from_front).length
+	var speed := 2.0 * knockback_distance / stun_time
+	_decel = speed / stun_time
+	_time_left = stun_time
+
+	zombie.velocity.x = dir.x * speed
+	zombie.velocity.z = dir.z * speed
+
+	zombie.playback.start(anim_from_behind if from_behind else anim_from_front)
+
+	# Hacia dónde debe mirar al caer:
+	#   por la espalda -> mira en la dirección del empujón (de espaldas al jugador)
+	#   de frente      -> mira al revés del empujón (de cara al jugador)
+	# Yaw que hace que el frente (-Z) apunte a un vector v: atan2(-v.x, -v.z)
+	var look_dir := dir if from_behind else -dir
+	_target_yaw = atan2(-look_dir.x, -look_dir.z)
+
+
+func physics_update(delta: float) -> void:
+	zombie.handle_gravity(delta)
+
+	# Frena en línea recta hasta 0, manteniendo la dirección.
+	var horizontal := Vector2(zombie.velocity.x, zombie.velocity.z)
+	horizontal = horizontal.move_toward(Vector2.ZERO, _decel * delta)
+	zombie.velocity.x = horizontal.x
+	zombie.velocity.z = horizontal.y
+	zombie.move_and_slide()
+
+	# Gira por el camino más corto, sin pasarse del ángulo objetivo.
+	zombie.rotation.y = rotate_toward(zombie.rotation.y, _target_yaw, deg_to_rad(turn_speed_deg) * delta)
+
+
+
+
+
+
+
+func _on_zombie_pushed(direction: Vector3) -> void:
+	# Si ya está aturdido, can_transition = false lo ignora (no se encadena el stun).
+	finished.emit(name, {"direction": direction})
+
+
+func _on_at_animation_finished(anim_name: StringName) -> void:
+	if anim_name.contains("stumble"):
+		finished.emit(next_state)

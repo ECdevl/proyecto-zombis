@@ -392,7 +392,7 @@ static func generate_ragdoll(skeleton: Skeleton3D, config: Dictionary = {}) -> i
 	var simulator = PhysicalBoneSimulator3D.new()
 	simulator.name = "PhysicalBoneSimulator3D"
 	skeleton.add_child(simulator)
-	simulator.owner = skeleton.owner if skeleton.owner else skeleton
+	simulator.owner = EditorInterface.get_edited_scene_root()
 
 	var total_fraction: float = 0.0
 	for part in bone_map:
@@ -415,9 +415,9 @@ static func generate_ragdoll(skeleton: Skeleton3D, config: Dictionary = {}) -> i
 
 		var pb = _create_physical_bone(skeleton, bone_name, part, m, shape_cache, total_mass, mass_share, strength, flip_forward)
 		simulator.add_child(pb)
-		pb.owner = skeleton.owner if skeleton.owner else skeleton
+		pb.owner = EditorInterface.get_edited_scene_root()
 		for child in pb.get_children():
-			child.owner = skeleton.owner if skeleton.owner else skeleton
+			child.owner = EditorInterface.get_edited_scene_root()
 		created_count += 1
 
 	print("[Ragdoll Generator] Ragdoll created with ", created_count, " physical bones.")

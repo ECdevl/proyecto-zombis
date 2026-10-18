@@ -5,7 +5,7 @@ class_name WearableItemDescriptor extends ItemDescriptor
 @export var equip_slot: EquipSlot
 
 @export var random_color : bool = true 
-
+@export var quick_slots : int = 0
 @export var cloth_color : Color = Color(255,10,23)
 
 func _init() -> void:

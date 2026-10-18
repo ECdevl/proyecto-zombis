@@ -7,6 +7,7 @@ enum WearPlace {BACK,HEAD,TORSO,LEGS,FOOT}
 @export var place : WearPlace
 @export var container : ContainerResource
 @export var time_consume : float = 3.0
+@export var quick_slots : int = 0
 
 func get_actions() -> Array[StringName]:
 	return [&"wear",&"drop",&"move"]

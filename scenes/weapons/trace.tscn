@@ -1,0 +1,29 @@
+[gd_scene format=3 uid="uid://d4f0qs7a20vub"]
+
+[ext_resource type="Script" uid="uid://bpsvhb5siarw8" path="res://scripts/weapons/trace.gd" id="1_8pbnv"]
+
+[sub_resource type="Curve" id="Curve_8pbnv"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.7863636, 0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_u1vlo"]
+albedo_color = Color(1, 0.47058824, 0, 1)
+
+[sub_resource type="RibbonTrailMesh" id="RibbonTrailMesh_8pbnv"]
+material = SubResource("StandardMaterial3D_u1vlo")
+size = 0.025
+section_length = 0.285
+curve = SubResource("Curve_8pbnv")
+
+[node name="Trace" type="Node3D" unique_id=340936552]
+script = ExtResource("1_8pbnv")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1057343220]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, 0.7167711)
+layers = 512
+mesh = SubResource("RibbonTrailMesh_8pbnv")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="." unique_id=888742909]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.7167711)
+light_color = Color(1, 0.52156866, 0, 1)
+light_cull_mask = 4294966783

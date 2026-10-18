@@ -35,7 +35,7 @@ func can_equip(item: ItemInstance, hand: Hand) -> bool:
 
 
 func equip(item: ItemInstance, hand: Hand) -> bool:
-	if not can_equip(item, hand):
+	if not can_equip(item, hand) or get_held(hand) == item:
 		return false
 	if item.descriptor.get_hands_required() == 2:
 		_held[Hand.LEFT] = item

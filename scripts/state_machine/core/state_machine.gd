@@ -5,7 +5,7 @@ class_name StateMachine extends Node
 @onready var state: State = (func get_initial_state() -> State:
 	return initial_state if initial_state != null else get_child(0)
 ).call()
-
+var can_change_state : bool = true
 
 func _ready() -> void:
 	# Give every state a reference to the state machine.
@@ -30,6 +30,8 @@ func _physics_process(delta: float) -> void:
 
 
 func _transition_to_next_state(target_state_path: String, data: Dictionary = {}) -> void:
+	if not can_change_state:
+		return
 	if not has_node(target_state_path): #error handler
 		printerr(owner.name + ": Trying to transition to state " + target_state_path + " but it does not exist.")
 		return

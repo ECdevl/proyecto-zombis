@@ -1,0 +1,22 @@
+[gd_scene format=3 uid="uid://fs2royy3djt"]
+
+[ext_resource type="Script" uid="uid://b0i8m83fy8lol" path="res://scripts/quick_slot.gd" id="1_syany"]
+
+[node name="PanelContainer" type="PanelContainer" unique_id=1070542923]
+custom_minimum_size = Vector2(135, 135)
+offset_right = 40.0
+offset_bottom = 40.0
+size_flags_horizontal = 4
+size_flags_vertical = 3
+script = ExtResource("1_syany")
+
+[node name="Label" type="Label" parent="." unique_id=930558386]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 0
+text = "2"
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=1028633991]
+unique_name_in_owner = true
+layout_mode = 2
+expand_mode = 2

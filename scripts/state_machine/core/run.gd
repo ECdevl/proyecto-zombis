@@ -4,7 +4,7 @@ extends PlayerState
 @export var stamina_cost : float = 1.5
 func enter(previous_state_path: String, data := {}) -> void:
 	viewmodel_sway.bob_speed = 10.0
-	player.body_at_playback.travel("walk")
+	player.body_at_playback.travel("walk_dir")
 	if player.animation_tree:
 		player.animation_tree["parameters/run/blend_amount"] = 1.0
 	player.speed = player.sprint_speed

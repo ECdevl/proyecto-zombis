@@ -12,6 +12,7 @@ var hands := HandsModel.new()
 ## Contenedores alcanzables ahora mismo (bolsillos primero).
 var models: Array[InventoryModel] = []
 
+@onready var quick_slots: HBoxContainer = %quick_slots
 
 func setup(pockets_model: InventoryModel, equipment_model: EquipmentModel) -> void:
 	pockets = pockets_model
@@ -22,6 +23,31 @@ func setup(pockets_model: InventoryModel, equipment_model: EquipmentModel) -> vo
 	equipment.changed.connect(_refresh)
 	_refresh()
 
+func _quick_slot_called(item:ItemInstance) -> void:
+	if item.descriptor is Weapon:
+		remove(item)
+		var holded_item = hands.get_held(HandsModel.Hand.RIGHT)
+		if holded_item:
+			if holded_item != item:
+				hands.remove(holded_item)
+				add_anywhere(holded_item)
+				hands.equip(item,HandsModel.Hand.RIGHT)
+		else:
+			hands.equip(item,HandsModel.Hand.RIGHT)
+
+func add_quick_slot() -> void:
+	const QUICK_SLOT = preload("uid://fs2royy3djt")
+	var slot : QuickSlot = QUICK_SLOT.instantiate()
+	quick_slots.add_child(slot)
+	slot.quick_slot_call.connect(Callable(self,"_quick_slot_called"))
+	refresh_quick_slots()
+
+func refresh_quick_slots() -> void:
+	var number : int = 49
+	for slot in quick_slots.get_children():
+		if slot is QuickSlot:
+			slot.number_input = number
+			number+= 1
 
 ## Primero busca lugar en los contenedores; si no hay, intenta ponérselo.
 func pick_up(item: ItemInstance) -> bool:
@@ -72,6 +98,8 @@ func _collect(model: InventoryModel, into: Array[InventoryModel]) -> void:
 
 func _ready() -> void:
 	add_to_group("ammo_source")
+	add_to_group("player_inventory")
+
 func debug_ammo() -> void:
 	print("contenedores: ", models.size())
 	for model in models:

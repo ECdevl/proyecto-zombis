@@ -30,7 +30,7 @@ transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545
 shadow_enabled = true
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=671723636]
-transform = Transform3D(0.61213005, -0.3080917, 0.7282694, -1.4901161e-08, 0.92097735, 0.3896161, -0.7907571, -0.23849572, 0.5637579, 4.3044515, 3.369123, 3.2520163)
+transform = Transform3D(-0.66921145, -0.3043731, 0.6778739, 0, 0.9122587, 0.4096145, -0.74307203, 0.27411872, -0.61049396, 3.4694943, 2.5942037, -4.3771334)
 fov = 35.5
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=328227477]
@@ -44,4 +44,12 @@ shape = SubResource("ConcavePolygonShape3D_ihcbt")
 
 [node name="zombie" parent="." unique_id=495252481 instance=ExtResource("1_q2pm7")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00037956238, 1.0921745, -1.1919378)
+ragdoll_text = true
+
+[node name="zombie2" parent="." unique_id=1205266242 instance=ExtResource("1_q2pm7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.0855644, 1.0921745, -1.1919378)
+ragdoll_text = true
+
+[node name="zombie3" parent="." unique_id=1137315813 instance=ExtResource("1_q2pm7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.13144612, 237.03844, 0.72054005)
 ragdoll_text = true

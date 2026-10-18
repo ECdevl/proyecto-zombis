@@ -186,12 +186,18 @@ func __player_movement(delta:float) -> void:
 	else:
 		direction = (yaw.transform.basis * Vector3(_input_direction.x  , 0, 0  )).normalized()
 	if can_move:
-		velocity.x = direction.x * speed / player_stats.base_speed
-		velocity.z = direction.z * speed / player_stats.base_speed
+		var target := direction * speed / player_stats.base_speed
+		var horizontal := Vector3(velocity.x, 0.0, velocity.z)
 
-	
+		var rate = player_stats.acceleration if direction != Vector3.ZERO else player_stats.deceleration
+		if not is_on_floor():
+			rate *= player_stats.air_control
+
+		horizontal = horizontal.move_toward(target, rate * delta)
+		velocity.x = horizontal.x
+		velocity.z = horizontal.z
+
 	move_and_slide()
-
 
 
 

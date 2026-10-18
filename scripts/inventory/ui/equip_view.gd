@@ -1,5 +1,5 @@
 extends Control
-class_name EquipSlotViews
+class_name EquipSlotView
 ## Una ranura de ropa. Muestra el icono y acepta objetos arrastrados (el controller decide).
 
 @export var equip_slot: WearableItemDescriptor.EquipSlot

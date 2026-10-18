@@ -59,15 +59,22 @@ func remove_item(item: ItemInstance) -> bool:
 			return true
 	return false
 
+@onready var quick_slots: HBoxContainer = %quick_slots
 
 ## Se llama desde EquipSlotView (por grupo "inventory_ui") con clic derecho.
 func unequip(slot: WearableItemDescriptor.EquipSlot) -> void:
-	var item := carried.equipment.get_equipped(slot)
+	var item = carried.equipment.get_equipped(slot)
 	if item == null:
 		return
 	if not carried.add_anywhere(item):
 		item_dropped.emit(item)
 	carried.equipment.remove(item)
+	for i in item.descriptor.quick_slots:
+		if i >= 0:
+			quick_slots.get_child(i).queue_free()
+			carried.refresh_quick_slots()
+		else:
+			break
 
 
 ## Clic derecho sobre un slot de mano (lo llama HandSlotView).
@@ -185,14 +192,19 @@ func _rotate_drag() -> void:
 func _end_drag() -> void:
 	var mouse := get_global_mouse_position()
 	var target := _target_at(mouse)
+
 	if target is InventoryView:
 		_drop_on_inventory(target as InventoryView, mouse)
 	elif target is EquipSlotView:
 		_drop_on_equip_slot(target as EquipSlotView)
 	elif target is HandSlotView:
 		_drop_on_hand(target as HandSlotView)
+	elif target is QuickSlot:
+		_drop_on_quick_slot(target as QuickSlot)
 	_finish_drag()  # si no se pudo soltar, nada cambió: el objeto sigue donde estaba
 
+func _drop_on_quick_slot(target:QuickSlot) -> void:
+	target.change_linked_item(_drag_item)
 
 func _drop_on_inventory(view: InventoryView, mouse: Vector2) -> void:
 	var footprint := view.model.footprint_of(_drag_item, _drag_rotated)
@@ -208,7 +220,10 @@ func _drop_on_inventory(view: InventoryView, mouse: Vector2) -> void:
 func _drop_on_equip_slot(slot: EquipSlotView) -> void:
 	if _drag_model and slot.accepts(_drag_item) and slot.equipment_model.equip(_drag_item):
 		_drag_model.remove(_drag_item)
+		for i in _drag_item.descriptor.quick_slots:
 
+			if i >= 0:
+				carried.add_quick_slot()
 
 func _drop_on_hand(slot: HandSlotView) -> void:
 	if _drag_model:

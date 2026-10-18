@@ -6,6 +6,7 @@
 [resource]
 script = ExtResource("1_30a2k")
 equip_slot = 2
+quick_slots = 2
 item_name = "Pantalon Largo"
 dimensions = Vector2i(2, 2)
 item_mesh = ExtResource("1_dyp55")

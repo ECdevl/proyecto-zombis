@@ -30,6 +30,7 @@ const INSTRUCTOR = preload("uid://b6idlm6tyvtrx")
 
 var player: Player
 
+@onready var quick_slots: HBoxContainer = %quick_slots
 
 func _ready() -> void:
 	player = get_parent().owner

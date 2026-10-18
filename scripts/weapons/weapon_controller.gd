@@ -27,8 +27,7 @@ var weapon_base_position: Vector3 = Vector3.ZERO
 var bullets_available : Array[ItemDescriptor]
 @onready var ui: UI = %UI
 
-
-
+@export var view_punch: ViewPunch
 var ammo_source: PlayerCarriedInventories  # asignar en el inspector → PlayerContainers
 
 func get_reserve_ammo() -> int:
@@ -50,6 +49,7 @@ var playback : AnimationNodeStateMachinePlayback
 var weapon_ap : AnimationPlayer
 
 var weapon_node: Node3D  # nuevo: guarda el modelo instanciado
+const MUZZLE_FLASH = preload("uid://ctoelcfhcmm8g")
 
 func _free_weapon() -> void:
 	var old := player.weapon_pivot.get_node_or_null("gun")
@@ -61,8 +61,11 @@ func _on_weapon_changed(gun: Weapon) -> void:
 	current_weapon = gun
 	player.ads_controller.aiming = false
 	if not gun:
+		weapon_ap.play_backwards("draw")
+		player.playback.start("pistol_undraw")
+		await weapon_ap.animation_finished
 		_free_weapon()
-		player.playback.start("Idle")
+		player.playback.start("idle")
 		return
 	if gun is Weapon:
 		_free_weapon()
@@ -71,12 +74,18 @@ func _on_weapon_changed(gun: Weapon) -> void:
 		weapon_ap = weapon_node.get_node("AnimationPlayer")
 		player.armsy.add_sibling(weapon_node)
 		weapon_node.global_transform = player.armsy.global_transform
+		var muzzle_point = weapon_node.find_child("Muzzle",true)
+		if muzzle_point:
+			var muzzle_particle = MUZZLE_FLASH.instantiate()
+			muzzle_point.add_child(muzzle_particle)
+			
 	if player.animation_tree:
 		playback = player.animation_tree["parameters/player_sm/playback"]
 		match current_weapon.weapon_type:
 			Weapon.WEAPON_TYPE.PISTOL:
-				playback.start("pistol_draw")
 				weapon_ap.play("draw")
+				playback.start("pistol_draw")
+				
 	
 	melee_swings.clear()
 	if current_weapon is Weapon:
@@ -119,12 +128,7 @@ func _physics_process(delta: float) -> void:
 		ads_visual_offset = ads_visual_offset.lerp(Vector3.ZERO, delta * current_weapon.recoil_recovery_speed)
 
 
-const BLOOD_SPLATTER = preload("res://scenes/components/blood_splatter.tscn")
 
-func _spawn_blood(pos: Vector3, normal: Vector3, shot_dir: Vector3) -> void:
-	var fx: BloodSplatter = BLOOD_SPLATTER.instantiate()
-	get_tree().current_scene.add_child(fx)
-	fx.splash(pos, normal, shot_dir)
 
 ## Único punto de entrada para disparar. idle.gd y aim.gd llaman a esto,
 ## nunca duplican esta lógica.
@@ -145,14 +149,28 @@ func shoot() -> bool:
 	if player.animation_tree:
 		match Weapon.WEAPON_TYPE.PISTOL:
 			Weapon.WEAPON_TYPE.PISTOL:
-				playback.travel("pistol_shoot")
+				playback.start("pistol_shoot",true)
+				weapon_ap.stop()
 				weapon_ap.play("shoot")
 
 	
 	gun_fired.emit(current_weapon.ammo_type)
 	_apply_recoil()
-	_raycast_damage()
+	load_projectile(current_weapon.damage,current_weapon.weapon_range)
+	if get_tree().get_first_node_in_group("muzzle"):
+		get_tree().get_first_node_in_group("muzzle").start_effect()
 	return true
+const PROJECTILE = preload("uid://bct0h10f6qq3m")
+
+func load_projectile(damage:float,range:float) -> void:
+	var projectile : Projectile = PROJECTILE.instantiate()
+	
+	if weapon_node:
+		weapon_node.find_child("Muzzle",true).add_child(projectile)
+	projectile.set_projectile(damage,range)
+	if weapon_node:
+		projectile.global_position = weapon_node.find_child("Muzzle",true).global_position
+	
 
 func update_inventory_ammo(item:Variant) -> void:
 	await get_tree().process_frame
@@ -168,10 +186,12 @@ func update_inventory_ammo(item:Variant) -> void:
 		if current_weapon is Weapon:
 			current_weapon.ammo_requested.emit()
 	
+	 
 func _apply_recoil() -> void:
-	recoil_current.x += current_weapon.recoil_kick.x
-	recoil_current.y += randf_range(-current_weapon.recoil_kick.y, current_weapon.recoil_kick.y)
-	# el salto visual escala con lo fuerte que sea el recoil de ESTA arma
+	if view_punch == null or current_weapon == null:
+		return
+	var kick := current_weapon.recoil_kick
+	view_punch.punch(Vector2(kick.x, randf_range(-kick.y, kick.y)))
 
 var melee_combo : int
 func swing() -> bool: 
@@ -186,7 +206,7 @@ func swing() -> bool:
 	melee_combo += 1
 	fire_rate.start(current_weapon.fire_rate)
 	await get_tree().create_timer(current_weapon.delay).timeout
-	_raycast_damage()  # igual que shoot()
+
 	return true
 
 @onready var push_hitbox: Area3D = %PushHitbox
@@ -194,34 +214,8 @@ func swing() -> bool:
 
 func push() -> void:
 	for c in push_hitbox.get_overlapping_bodies():
-		if c.owner is Zombie:
-			c.owner.health_component.hurt(0, c)
-			
-
-func _raycast_damage() -> void:
-	await get_tree().physics_frame
-	var space_state = get_viewport().get_camera_3d().get_world_3d().direct_space_state
-	var origin: Vector3 = player.camera.global_transform.origin
-	var end: Vector3 = origin + (-player.camera.global_transform.basis.z * current_weapon.weapon_range)
-
-	var query := PhysicsRayQueryParameters3D.create(origin, end)
-	query.collide_with_areas = true
-	query.exclude = [player]
-	query.collision_mask = (1 << 0) | (1 << 6)  # capa 1 (mundo) + capa 7 (partes de cuerpo)
-
-	var result = space_state.intersect_ray(query)
-	
-	if not result:
-		return
-
-	var hit: Object = result.collider
-	if hit.owner is Zombie:
-		_spawn_blood(result.position, result.normal, (end - origin).normalized())
-		if hit.name == "head":
-			hit.owner.health_component.hurt(999,hit)
-			
-		else:
-			hit.owner.health_component.hurt(0,hit.get_parent())
+		if c is Zombie:
+			c.push(c.global_position - player.global_position)
 
 func reload() -> void:
 	var gun := current_weapon
@@ -231,8 +225,11 @@ func reload() -> void:
 	if missing <= 0 or get_reserve_ammo() <= 0:
 		return
 	reloading = true
-	playback.travel("pistol_reload")
+ 
+	
+	playback.start("pistol_reload")
 	weapon_ap.play("reload")
+
 	await player.animation_tree.animation_finished
 	reloading = false
 	playback.travel("pistol_idle")
