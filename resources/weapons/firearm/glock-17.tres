@@ -1,9 +1,9 @@
 [gd_resource type="Resource" script_class="Weapon" format=3 uid="uid://vhjqrf85xijj"]
 
 [ext_resource type="Script" uid="uid://cg2alhn207kxn" path="res://scripts/inventory/descriptors/item_descriptor.gd" id="1_0l6i6"]
-[ext_resource type="PackedScene" uid="uid://cqmgufy1mebah" path="res://Assets/models/weapons/firearm/Glock 17.obj" id="2_0l6i6"]
-[ext_resource type="Script" uid="uid://dbklk7rcbx4yy" path="res://scripts/components/weapon_resource.gd" id="2_rpb6p"]
-[ext_resource type="PackedScene" uid="uid://d1bts76g8d5if" path="res://Assets/models/weapons/firearm/viewmodels/pistols/glock.gltf" id="4_0l6i6"]
+[ext_resource type="PackedScene" uid="uid://cqmgufy1mebah" path="res://assets/models/weapons/firearm/glock_17.obj" id="2_0l6i6"]
+[ext_resource type="Script" uid="uid://dbklk7rcbx4yy" path="res://scripts/inventory/descriptors/weapon.gd" id="2_rpb6p"]
+[ext_resource type="PackedScene" uid="uid://d1bts76g8d5if" path="res://assets/models/weapons/firearm/viewmodels/pistols/glock.gltf" id="4_0l6i6"]
 
 [resource]
 script = ExtResource("2_rpb6p")

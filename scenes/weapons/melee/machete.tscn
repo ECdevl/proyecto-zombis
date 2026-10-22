@@ -1,6 +1,5 @@
 [gd_scene format=4 uid="uid://cw1fcacgppqha"]
 
-[ext_resource type="PackedScene" uid="uid://csov4x4dub6dc" path="res://scenes/components/melee_hitbox.tscn" id="2_kety8"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_cou3f"]
 resource_name = "none.001"
@@ -1943,23 +1942,6 @@ tracks/29/path = NodePath("Arms_Rig/Skeleton3D:thumb_03_R")
 tracks/29/interp = 1
 tracks/29/loop_wrap = true
 tracks/29/keys = PackedFloat32Array(0, 1, -0.60846686, -2.253259e-07, 3.1217027e-07, 0.7935793)
-tracks/30/type = "method"
-tracks/30/imported = false
-tracks/30/enabled = true
-tracks/30/path = NodePath("BoneAttachment3D/MeleeHitbox")
-tracks/30/interp = 1
-tracks/30/loop_wrap = true
-tracks/30/keys = {
-"times": PackedFloat32Array(0.23333333, 0.4),
-"transitions": PackedFloat32Array(1, 1),
-"values": [{
-"args": [],
-"method": &"start_attack"
-}, {
-"args": [],
-"method": &"stop_attack"
-}]
-}
 
 [sub_resource type="Animation" id="Animation_ltevr"]
 resource_name = "swing2"
@@ -2174,23 +2156,6 @@ tracks/29/path = NodePath("Arms_Rig/Skeleton3D:thumb_03_R")
 tracks/29/interp = 1
 tracks/29/loop_wrap = true
 tracks/29/keys = PackedFloat32Array(0, 1, -0.60846686, -2.253259e-07, 3.1217027e-07, 0.7935793)
-tracks/30/type = "method"
-tracks/30/imported = false
-tracks/30/enabled = true
-tracks/30/path = NodePath("BoneAttachment3D/MeleeHitbox")
-tracks/30/interp = 1
-tracks/30/loop_wrap = true
-tracks/30/keys = {
-"times": PackedFloat32Array(0.26666668, 0.43333334),
-"transitions": PackedFloat32Array(1, 1),
-"values": [{
-"args": [],
-"method": &"start_attack"
-}, {
-"args": [],
-"method": &"stop_attack"
-}]
-}
 
 [sub_resource type="Animation" id="Animation_qpymt"]
 resource_name = "swing3"
@@ -2405,23 +2370,6 @@ tracks/29/path = NodePath("Arms_Rig/Skeleton3D:thumb_03_R")
 tracks/29/interp = 1
 tracks/29/loop_wrap = true
 tracks/29/keys = PackedFloat32Array(0, 1, -0.60846686, -2.253259e-07, 3.1217027e-07, 0.7935793)
-tracks/30/type = "method"
-tracks/30/imported = false
-tracks/30/enabled = true
-tracks/30/path = NodePath("BoneAttachment3D/MeleeHitbox")
-tracks/30/interp = 1
-tracks/30/loop_wrap = true
-tracks/30/keys = {
-"times": PackedFloat32Array(0.26666668, 0.56666666),
-"transitions": PackedFloat32Array(1, 1),
-"values": [{
-"args": [],
-"method": &"start_attack"
-}, {
-"args": [],
-"method": &"stop_attack"
-}]
-}
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_14qo1"]
 _data = {
@@ -3055,7 +3003,3 @@ bone_idx = 42
 use_external_skeleton = true
 external_skeleton = NodePath("../Arms_Rig/Skeleton3D")
 
-[node name="MeleeHitbox" parent="BoneAttachment3D" unique_id=1261697367 instance=ExtResource("2_kety8")]
-transform = Transform3D(0.009999998, 0, 0, 0, 0.010000002, 0, 0, 0, 0.009999993, 0, 0, 0)
-collision_mask = 85
-collide_with_areas = true

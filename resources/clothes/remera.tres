@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="WearableItemDescriptor" format=3 uid="uid://drmoh42cugk0"]
 
 [ext_resource type="Script" uid="uid://bevkhgemyn38" path="res://scripts/inventory/descriptors/wearable_item_descriptor.gd" id="1_64ka2"]
-[ext_resource type="PackedScene" uid="uid://mrbohd5cko7w" path="res://Assets/models/clothing/remera_manga_corta.tscn" id="1_xoxk7"]
+[ext_resource type="PackedScene" uid="uid://mrbohd5cko7w" path="res://assets/models/clothing/remera_manga_corta.tscn" id="1_xoxk7"]
 
 [resource]
 script = ExtResource("1_64ka2")

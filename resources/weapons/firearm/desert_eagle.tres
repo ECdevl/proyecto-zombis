@@ -1,9 +1,9 @@
 [gd_resource type="Resource" script_class="Weapon" format=3 uid="uid://dy3nx17clcfwc"]
 
 [ext_resource type="Script" uid="uid://cg2alhn207kxn" path="res://scripts/inventory/descriptors/item_descriptor.gd" id="1_473yl"]
-[ext_resource type="PackedScene" uid="uid://rwjbtdvie0b7" path="res://Assets/models/weapons/firearm/DesertEagle.obj" id="2_0ojjd"]
-[ext_resource type="Script" uid="uid://dbklk7rcbx4yy" path="res://scripts/components/weapon_resource.gd" id="2_473yl"]
-[ext_resource type="PackedScene" uid="uid://35iktyfoupo5" path="res://Assets/models/weapons/firearm/viewmodels/pistols/DE.gltf" id="4_0ojjd"]
+[ext_resource type="PackedScene" uid="uid://rwjbtdvie0b7" path="res://assets/models/weapons/firearm/desert_eagle.obj" id="2_0ojjd"]
+[ext_resource type="Script" uid="uid://dbklk7rcbx4yy" path="res://scripts/inventory/descriptors/weapon.gd" id="2_473yl"]
+[ext_resource type="PackedScene" uid="uid://35iktyfoupo5" path="res://assets/models/weapons/firearm/viewmodels/pistols/desert_eagle.gltf" id="4_0ojjd"]
 
 [resource]
 script = ExtResource("2_473yl")

@@ -180,6 +180,8 @@ func _gravity(delta: float) -> void:
 		velocity.y += get_gravity().y * delta
 
 func __player_movement(delta:float) -> void:
+	if not can_move:
+		return
 	_input_direction = Input.get_vector(left, right, forward, backward)
 	if %StateMachine.state.name != "hang":
 		direction = (yaw.transform.basis * Vector3(_input_direction.x  , 0, _input_direction.y  )).normalized()
@@ -213,7 +215,7 @@ func drop_item(item: ItemInstance) -> void:
 
 
 
-func equip_weapon(resource:Weapon) -> void:
+func equip_weapon(resource:EquippableDescriptor) -> void:
 	if resource != get_current_weapon():
 		weapon_changed.emit(resource)
 		return
@@ -221,7 +223,7 @@ func equip_weapon(resource:Weapon) -> void:
 
 
 
-func get_current_weapon() -> Weapon:
+func get_current_weapon() -> EquippableDescriptor:
 	return weapon_controller.current_weapon
 	
 
@@ -232,3 +234,26 @@ func _on_item_success_grab(what: PickableItem) -> void:
 	await tween.finished
 	if what:
 		what.queue_free()
+
+signal grab_escaped  # el jugador llenó la barra de escape
+
+var grabber: CharacterBody3D
+var grab_anchor: Node3D
+
+func get_grabbed(by: CharacterBody3D, anchor: Node3D) -> void:
+	if grabber:
+		return
+	grabber = by
+	grab_anchor = anchor
+	var data := {"grabber": by, "anchor": anchor}
+	%StateMachine.state.finished.emit("grabbed", data)
+	%ArmsFSM.state.can_transition = true  # aunque esté recargando
+	%ArmsFSM.state.finished.emit("grabbed", data)
+
+func end_grab() -> void:
+	if not grabber:
+		return
+	grabber = null
+	grab_anchor = null
+	%StateMachine.state.finished.emit("idle")
+	%ArmsFSM.state.finished.emit("normal")

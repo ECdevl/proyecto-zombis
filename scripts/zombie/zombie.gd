@@ -16,7 +16,7 @@ var bone_hit : Node3D
 var playback : AnimationNodeStateMachinePlayback
 @onready var vision: ZombieVision = %Vision
 @onready var skeleton_3d: Skeleton3D = $ZombiConRig/rig/Skeleton3D
-
+@export var hit_reaction: ZombieHitReaction
 @export var zombie_mesh : MeshInstance3D
 
 var direction : Vector3
@@ -56,15 +56,15 @@ func hurted(who: Node3D, damage: float, attacker: Node3D, hit_pos := Vector3.INF
 
 	if not hit_pos.is_finite():
 		hit_pos = who.global_position  # respaldo si no llega el punto
-
+	
 	var to_attacker := hit_pos.direction_to(attacker.global_position)
 	GameManager.blood_splatter(hit_pos, to_attacker, who)
 	_spawn_decals(hit_pos, to_attacker)
-	print_debug(who)
 	if who.is_in_group("zombie_legs_left"):
+		print_debug("OH MY LEG")
 		state_machine.state.finished.emit("stun",{"direction":1})
-		
 	elif who.is_in_group("zombie_legs_right"):
+		print_debug("OH MY LEG")
 		state_machine.state.finished.emit("stun",{"direction":0})
 		
 

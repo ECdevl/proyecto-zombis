@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://t0si10ufqqi6"]
 
-[ext_resource type="Texture2D" uid="uid://csnjpx6ohqe73" path="res://Assets/sprites/grid.png" id="1_jkamp"]
+[ext_resource type="Texture2D" uid="uid://csnjpx6ohqe73" path="res://assets/sprites/grid.png" id="1_jkamp"]
 
 [node name="Slot" type="TextureRect" unique_id=717450968]
 custom_minimum_size = Vector2(50, 50)

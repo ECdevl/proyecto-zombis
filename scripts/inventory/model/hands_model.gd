@@ -3,12 +3,12 @@ class_name HandsModel extends Resource
 ## Un arma de 2 manos ocupa AMBAS: la misma instancia queda guardada en las dos.
 ## Avisa con `changed`, y con `main_weapon_changed` cuando cambia el arma que se ve en pantalla.
 
-signal main_weapon_changed(weapon: Weapon)  # null = sin arma
+signal main_weapon_changed(weapon: EquippableDescriptor)  # null = sin arma
 
 enum Hand { LEFT, RIGHT }
 
 var _held: Dictionary[Hand, ItemInstance] = {}
-var _main_weapon: Weapon
+var _main_weapon: EquippableDescriptor
 
 
 func get_held(hand: Hand) -> ItemInstance:
@@ -79,9 +79,10 @@ func _notify() -> void:
 
 
 ## El arma "principal" es la de la mano derecha; si no hay, la de la izquierda.
-func _find_main_weapon() -> Weapon:
+## Cuenta cualquier EquippableDescriptor (arma de fuego o cuerpo a cuerpo).
+func _find_main_weapon() -> EquippableDescriptor:
 	for hand in [Hand.RIGHT, Hand.LEFT]:
 		var item := get_held(hand)
-		if item and item.descriptor is Weapon:
-			return item.descriptor as Weapon
+		if item and item.descriptor is EquippableDescriptor:
+			return item.descriptor as EquippableDescriptor
 	return null

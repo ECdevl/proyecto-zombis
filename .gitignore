@@ -1,3 +1,7 @@
 # Godot 4+ specific ignores
 .godot/
 /android/
+
+# Claves SSH locales (no deben estar en el repo)
+key
+key.pub

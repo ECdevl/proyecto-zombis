@@ -7,10 +7,10 @@
 [ext_resource type="Script" uid="uid://b82qc25arbofl" path="res://scripts/inventory/ui/player_carried_inventories.gd" id="5_wm3ai"]
 [ext_resource type="PackedScene" uid="uid://5v7bcrkk5m62" path="res://scenes/ui/inventory_view.tscn" id="6_8dubc"]
 [ext_resource type="Script" uid="uid://dalhqhdgs4pkw" path="res://scripts/inventory/ui/equip_view.gd" id="6_p7vwb"]
-[ext_resource type="Script" uid="uid://d4duou0lvvuqo" path="res://scripts/components/equipment_model.gd" id="7_ktti3"]
+[ext_resource type="Script" uid="uid://d4duou0lvvuqo" path="res://scripts/inventory/model/equipment_model.gd" id="7_ktti3"]
 [ext_resource type="PackedScene" uid="uid://g74dur30org" path="res://scenes/ui/item_actions.tscn" id="8_uegxj"]
 [ext_resource type="Script" uid="uid://x065rabl4u3m" path="res://scripts/inventory/view/hand_slot_view.gd" id="10_4kltc"]
-[ext_resource type="Texture2D" uid="uid://csnjpx6ohqe73" path="res://Assets/sprites/grid.png" id="10_y220t"]
+[ext_resource type="Texture2D" uid="uid://csnjpx6ohqe73" path="res://assets/sprites/grid.png" id="10_y220t"]
 
 [sub_resource type="Resource" id="Resource_gdt2y"]
 script = ExtResource("4_p7vwb")
@@ -36,6 +36,18 @@ font_size = 25
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8njf7"]
 bg_color = Color(0.6, 0.6, 0.6, 0.44705883)
+
+[sub_resource type="Gradient" id="Gradient_4kltc"]
+offsets = PackedFloat32Array(1)
+colors = PackedColorArray(1, 1, 1, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_4kltc"]
+gradient = SubResource("Gradient_4kltc")
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vyfcd"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_vyfcd"]
+font_size = 48
 
 [node name="UI" type="Control" unique_id=1877997638]
 layout_mode = 3
@@ -471,5 +483,64 @@ grow_vertical = 0
 mouse_filter = 2
 theme_override_constants/separation = 17
 alignment = 1
+
+[node name="SturggleProgress" type="TextureProgressBar" parent="." unique_id=931239724]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -50.0
+offset_top = 64.0
+offset_right = 50.0
+offset_bottom = 164.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset_ratio = Vector2(0.5, 0.5)
+max_value = 1.0
+step = 0.0
+fill_mode = 4
+nine_patch_stretch = true
+texture_progress = SubResource("GradientTexture2D_4kltc")
+
+[node name="PanelContainer" type="PanelContainer" parent="SturggleProgress" unique_id=1679524590]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_vyfcd")
+
+[node name="key_struggle" type="Label" parent="SturggleProgress/PanelContainer" unique_id=927221674]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+text = "F"
+label_settings = SubResource("LabelSettings_vyfcd")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Label" type="Label" parent="SturggleProgress" unique_id=1840993030]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -20.0
+offset_top = 12.0
+offset_right = 20.0
+offset_bottom = 35.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "¡Liberate!"
+horizontal_alignment = 1
 
 [connection signal="inventory_close" from="." to="InventoryUIController" method="_on_ui_inventory_close"]

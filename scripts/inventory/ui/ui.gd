@@ -30,6 +30,8 @@ const INSTRUCTOR = preload("uid://b6idlm6tyvtrx")
 
 var player: Player
 
+@onready var sturggle_progress: TextureProgressBar = %SturggleProgress
+@onready var key_struggle: Label = %key_struggle
 @onready var quick_slots: HBoxContainer = %quick_slots
 
 func _ready() -> void:
@@ -39,7 +41,9 @@ func _ready() -> void:
 	inventory_ui.item_used.connect(item_used.emit)
 	inventory_ui.item_dropped.connect(drop_item.emit)
 	inventory.hide.call_deferred()
-	
+	var tween = create_tween().set_loops(0)
+	tween.tween_property(sturggle_progress,"scale",Vector2(1.2,1.2),.1)
+	tween.tween_property(sturggle_progress,"scale",Vector2(1,1),.1)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("toggle_inventory"):
@@ -58,7 +62,9 @@ func _process(_delta: float) -> void:
 
 
 func _update_ammo() -> void:
-	var weapon : Weapon = player.get_current_weapon()
+	var weapon := player.get_current_weapon()
+	if weapon != Weapon:
+		return
 	if weapon and weapon.weapon_type != weapon.WEAPON_TYPE.MELEE:
 		ammo_count.show()
 		ammo_count.text = "%d/%d" % [player.get_current_weapon().curr_bullets, player.weapon_controller.get_reserve_ammo()]
@@ -139,3 +145,15 @@ func _on_item_instruct_body_exited(body: Node3D) -> void:
 	for instructor in instructor_container.get_children():
 		if instructor.target == body:
 			instructor.target = null
+
+
+func _on_grabbed_progress_changed(value: float) -> void:
+	key_struggle.text == _key_of("struggle")
+	sturggle_progress.value = value
+	if sturggle_progress.value >= 1.0:
+		sturggle_progress.hide()
+
+
+func _on_grabbed_progress_show() -> void:
+	sturggle_progress.show()
+	sturggle_progress.value = 0.0

@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="WearableItemDescriptor" format=3 uid="uid://brdlhb2d4au2y"]
 
 [ext_resource type="Script" uid="uid://bevkhgemyn38" path="res://scripts/inventory/descriptors/wearable_item_descriptor.gd" id="1_kjbly"]
-[ext_resource type="PackedScene" uid="uid://dns216r4vr3p4" path="res://Assets/models/clothing/zapatillas.tscn" id="1_l82hb"]
+[ext_resource type="PackedScene" uid="uid://dns216r4vr3p4" path="res://assets/models/clothing/zapatillas.tscn" id="1_l82hb"]
 
 [resource]
 script = ExtResource("1_kjbly")

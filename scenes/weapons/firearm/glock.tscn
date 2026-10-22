@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://bypcf76oxvk1a"]
 
-[ext_resource type="PackedScene" uid="uid://bxvs5rsv52gv8" path="res://Assets/models/weapons/firearm/viewmodels/pistols/Glock.fbx" id="1_tb8k6"]
+[ext_resource type="PackedScene" uid="uid://bxvs5rsv52gv8" path="res://assets/models/weapons/firearm/viewmodels/pistols/glock.fbx" id="1_tb8k6"]
 [ext_resource type="PackedScene" uid="uid://ctoelcfhcmm8g" path="res://scenes/effects/muzzle_flash.tscn" id="2_2whac"]
 
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_tb8k6"]

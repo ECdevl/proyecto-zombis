@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://cw2gxg62gx4of" path="res://scripts/inventory/model/inventory_model.gd" id="1_5x37o"]
 [ext_resource type="Script" uid="uid://cg2alhn207kxn" path="res://scripts/inventory/descriptors/item_descriptor.gd" id="2_vq4om"]
-[ext_resource type="PackedScene" uid="uid://o8erferokuqo" path="res://Assets/models/clothing/mochila.tscn" id="3_8wx85"]
+[ext_resource type="PackedScene" uid="uid://o8erferokuqo" path="res://assets/models/clothing/mochila.tscn" id="3_8wx85"]
 [ext_resource type="Script" uid="uid://bevkhgemyn38" path="res://scripts/inventory/descriptors/wearable_item_descriptor.gd" id="4_oolga"]
 
 [sub_resource type="Resource" id="Resource_i5s65"]

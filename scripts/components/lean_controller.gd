@@ -1,4 +1,4 @@
-extends Node
+extends PlayerComponent
 
 var player : Player
 
@@ -9,6 +9,8 @@ func _ready() -> void:
 	player = owner
 
 func _input(event: InputEvent) -> void:
+	if enabled == false:
+		return
 	if event.is_action_released("lean_left") or event.is_action_released("lean_right"):
 		var tween = create_tween().set_parallel(true)
 		tween.tween_property(player.pitch,"rotation_degrees:z",0.0,.15)

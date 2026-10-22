@@ -10,7 +10,7 @@ var target: Node3D  # objeto 3D a seguir
 
 func set_target(targ: Node3D, label: String) -> void:
 	target = targ
-	text = "[img=40]res://Assets/sprites/instructor_warn.png[/img] " + label
+	text = "[img=40]res://assets/sprites/instructor_warn.png[/img] " + label
 
 
 func _ready() -> void:

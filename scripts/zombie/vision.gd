@@ -1,7 +1,7 @@
 class_name ZombieVision extends Node
 
 signal target_spotted(target: Node3D)
-signal target_lost(target: Node3D)
+signal target_lost(target: Variant)
 
 @export var eye: Node3D  # Marker3D a la altura de los ojos
 @export_range(1.0, 360.0) var fov_degrees: float = 120.0

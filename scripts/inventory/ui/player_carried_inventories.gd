@@ -24,7 +24,7 @@ func setup(pockets_model: InventoryModel, equipment_model: EquipmentModel) -> vo
 	_refresh()
 
 func _quick_slot_called(item:ItemInstance) -> void:
-	if item.descriptor is Weapon:
+	if item.descriptor is EquippableDescriptor:
 		remove(item)
 		var holded_item = hands.get_held(HandsModel.Hand.RIGHT)
 		if holded_item:

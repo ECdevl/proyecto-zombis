@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://bgrou52740p2b"]
 
-[ext_resource type="PackedScene" uid="uid://c7x6dda4n7657" path="res://Assets/models/weapons/melee/one hand/cuchillo.fbx" id="1_1mrp0"]
+[ext_resource type="PackedScene" uid="uid://c7x6dda4n7657" path="res://assets/models/weapons/melee/one_hand/cuchillo.fbx" id="1_1mrp0"]
 
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_tb8k6"]
 animation = &"player_anims/punch"
