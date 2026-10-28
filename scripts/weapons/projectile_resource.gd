@@ -66,8 +66,8 @@ func _spawn_trace(result: Dictionary) -> void:
 
 func _camera_raycast(max_range: float, _by: Node3D = null) -> Dictionary:
 	await get_tree().physics_frame
-	var cam_xform := get_viewport().get_camera_3d().global_transform
-	var space_state := get_viewport().get_camera_3d().get_world_3d().direct_space_state
+	var cam_xform : Transform3D = get_viewport().get_camera_3d().global_transform
+	var space_state : PhysicsDirectSpaceState3D = get_viewport().get_camera_3d().get_world_3d().direct_space_state
 	var origin: Vector3 = cam_xform.origin
 	_ray_end = origin + (-cam_xform.basis.z * max_range)
 

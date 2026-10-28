@@ -3,23 +3,11 @@
 [ext_resource type="Script" uid="uid://nbf8mh53g4mq" path="res://scripts/inventory/ui/ui.gd" id="1_nt7q6"]
 [ext_resource type="Script" uid="uid://cg2alhn207kxn" path="res://scripts/inventory/descriptors/item_descriptor.gd" id="3_8dubc"]
 [ext_resource type="Script" uid="uid://bsopu1qttaw0" path="res://scripts/inventory/controller/inventory_ui_controller.gd" id="4_gdt2y"]
-[ext_resource type="Script" uid="uid://cw2gxg62gx4of" path="res://scripts/inventory/model/inventory_model.gd" id="4_p7vwb"]
-[ext_resource type="Script" uid="uid://b82qc25arbofl" path="res://scripts/inventory/ui/player_carried_inventories.gd" id="5_wm3ai"]
 [ext_resource type="PackedScene" uid="uid://5v7bcrkk5m62" path="res://scenes/ui/inventory_view.tscn" id="6_8dubc"]
 [ext_resource type="Script" uid="uid://dalhqhdgs4pkw" path="res://scripts/inventory/ui/equip_view.gd" id="6_p7vwb"]
-[ext_resource type="Script" uid="uid://d4duou0lvvuqo" path="res://scripts/inventory/model/equipment_model.gd" id="7_ktti3"]
 [ext_resource type="PackedScene" uid="uid://g74dur30org" path="res://scenes/ui/item_actions.tscn" id="8_uegxj"]
 [ext_resource type="Script" uid="uid://x065rabl4u3m" path="res://scripts/inventory/view/hand_slot_view.gd" id="10_4kltc"]
 [ext_resource type="Texture2D" uid="uid://csnjpx6ohqe73" path="res://assets/sprites/grid.png" id="10_y220t"]
-
-[sub_resource type="Resource" id="Resource_gdt2y"]
-script = ExtResource("4_p7vwb")
-dimensions = Vector2i(7, 2)
-metadata/_custom_type_script = "uid://cw2gxg62gx4of"
-
-[sub_resource type="Resource" id="Resource_ktti3"]
-script = ExtResource("7_ktti3")
-metadata/_custom_type_script = "uid://d4duou0lvvuqo"
 
 [sub_resource type="Gradient" id="Gradient_nt7q6"]
 interpolation_mode = 1
@@ -58,8 +46,6 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_nt7q6")
-player_inventory_model = SubResource("Resource_gdt2y")
-equipment_model = SubResource("Resource_ktti3")
 
 [node name="progress" type="TextureProgressBar" parent="." unique_id=1089592638]
 unique_name_in_owner = true
@@ -249,7 +235,6 @@ offset_bottom = 140.0
 grow_horizontal = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_8njf7")
 script = ExtResource("6_p7vwb")
-equipment_model = SubResource("Resource_ktti3")
 icon_rect = NodePath("TextureRect")
 
 [node name="TextureRect" type="TextureRect" parent="Inventory/Clothes/head" unique_id=1721297238]
@@ -276,7 +261,6 @@ grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_8njf7")
 script = ExtResource("6_p7vwb")
 equip_slot = 1
-equipment_model = SubResource("Resource_ktti3")
 icon_rect = NodePath("TextureRect2")
 metadata/_edit_use_anchors_ = true
 
@@ -303,7 +287,6 @@ grow_vertical = 0
 theme_override_styles/panel = SubResource("StyleBoxFlat_8njf7")
 script = ExtResource("6_p7vwb")
 equip_slot = 2
-equipment_model = SubResource("Resource_ktti3")
 icon_rect = NodePath("TextureRect3")
 metadata/_edit_use_anchors_ = true
 
@@ -330,7 +313,6 @@ grow_vertical = 0
 theme_override_styles/panel = SubResource("StyleBoxFlat_8njf7")
 script = ExtResource("6_p7vwb")
 equip_slot = 3
-equipment_model = SubResource("Resource_ktti3")
 icon_rect = NodePath("TextureRect4")
 metadata/_edit_use_anchors_ = true
 
@@ -356,7 +338,6 @@ grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_8njf7")
 script = ExtResource("6_p7vwb")
 equip_slot = 4
-equipment_model = SubResource("Resource_ktti3")
 icon_rect = NodePath("TextureRect5")
 metadata/_edit_use_anchors_ = true
 
@@ -384,7 +365,6 @@ grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_8njf7")
 script = ExtResource("6_p7vwb")
 equip_slot = 5
-equipment_model = SubResource("Resource_ktti3")
 icon_rect = NodePath("TextureRect6")
 metadata/_edit_use_anchors_ = true
 
@@ -451,11 +431,6 @@ grow_vertical = 2
 mouse_filter = 2
 texture = ExtResource("10_y220t")
 expand_mode = 1
-
-[node name="PlayerContainers" type="Node" parent="." unique_id=331795773]
-unique_name_in_owner = true
-script = ExtResource("5_wm3ai")
-metadata/_custom_type_script = "uid://b82qc25arbofl"
 
 [node name="InstructorContainer" type="Control" parent="." unique_id=1910010534]
 unique_name_in_owner = true
@@ -543,4 +518,3 @@ grow_vertical = 0
 text = "¡Liberate!"
 horizontal_alignment = 1
 
-[connection signal="inventory_close" from="." to="InventoryUIController" method="_on_ui_inventory_close"]

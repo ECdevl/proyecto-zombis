@@ -67,8 +67,8 @@ metadata/_custom_type_script = "uid://cky1fu523t4i0"
 
 [sub_resource type="Resource" id="Resource_my7w5"]
 script = ExtResource("19_7rf62")
-ammo_type = 2
-item_name = "45 acp"
+ammo_type = 1
+item_name = "9mm"
 item_mesh = ExtResource("19_xlxmm")
 metadata/_custom_type_script = "uid://orlxlnvacg2d"
 

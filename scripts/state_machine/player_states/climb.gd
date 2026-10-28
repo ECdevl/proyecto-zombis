@@ -7,7 +7,10 @@ func update(_delta: float) -> void:
 	pass
 
 func enter(previous_state_path: String, data := {}) -> void:
-	player.armsy.hide()
+	if is_instance_valid(player.armsy):
+		player.armsy.hide()
+	if is_instance_valid(player.current_viewmodel):
+		player.current_viewmodel.hide()
 	player.pitch.rotation = Vector3.ZERO
 
 
@@ -21,13 +24,18 @@ func enter(previous_state_path: String, data := {}) -> void:
 	tween2.tween_property(player.camera,"rotation_degrees",Vector3(0,0,0),.25)
 	
 	await tween.finished
-	player.weapon_grip.show()
+	if is_instance_valid(player.weapon_grip):
+		player.weapon_grip.show()
 	
 
 	finished.emit("normal")
 
 func exit(next_state_path:String) -> void:
-	player.armsy.show()
-	player.arms_mesh.top_level = false
-	player.arms_mesh.position = Vector3.ZERO 
-	player.arms_mesh.rotation_degrees = Vector3.ZERO
+	if is_instance_valid(player.armsy):
+		player.armsy.show()
+	if is_instance_valid(player.current_viewmodel):
+		player.current_viewmodel.show()
+	if is_instance_valid(player.arms_mesh):
+		player.arms_mesh.top_level = false
+		player.arms_mesh.position = Vector3.ZERO 
+		player.arms_mesh.rotation_degrees = Vector3.ZERO

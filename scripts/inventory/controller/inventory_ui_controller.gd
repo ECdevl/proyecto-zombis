@@ -10,11 +10,15 @@ signal item_dropped(item: ItemInstance)  # sale al mundo; quien escuche lo insta
 @export var panels_container: Control
 
 @onready var loot_view_container: VBoxContainer = %LootViewContainer
-@onready var carried: PlayerCarriedInventories = %PlayerContainers
 @onready var item_actions: ItemActions = %ItemActions
+@onready var quick_slots: HBoxContainer = %quick_slots
 
 var _player_panels: Dictionary[InventoryModel, Control] = {}
 var _loot_panels: Dictionary[InventoryModel, Control] = {}
+
+## Lo que el jugador carga. Lo inyecta la UI (que lo toma del Player) porque
+## este nodo vive en la escena de la interfaz y el inventario en la del Player.
+var carried: PlayerCarriedInventories
 
 # Estado del arrastre (todo null = no se está arrastrando)
 var _drag_item: ItemInstance
@@ -27,8 +31,20 @@ var _hover: Control
 
 func _ready() -> void:
 	add_to_group("inventory_ui")
-	carried.models_changed.connect(_sync_player_panels)
 	item_actions.action_selected.connect(_on_action_selected)
+
+
+## La UI le pasa lo que el jugador carga y reparte lo que hace falta:
+## los paneles, la fila de atajos y el modelo de ropa de cada ranura.
+func bind_inventory(carried_inventories: PlayerCarriedInventories) -> void:
+	carried = carried_inventories
+	carried.models_changed.connect(_sync_player_panels)
+	carried.bind_quick_slots(quick_slots)
+	for view in get_tree().get_nodes_in_group("equip_slots"):
+		view.bind_equipment(carried.equipment)
+	for view in get_tree().get_nodes_in_group("hand_slots"):
+		view.bind_carried(carried)
+	_sync_player_panels()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -59,7 +75,6 @@ func remove_item(item: ItemInstance) -> bool:
 			return true
 	return false
 
-@onready var quick_slots: HBoxContainer = %quick_slots
 
 ## Se llama desde EquipSlotView (por grupo "inventory_ui") con clic derecho.
 func unequip(slot: WearableItemDescriptor.EquipSlot) -> void:

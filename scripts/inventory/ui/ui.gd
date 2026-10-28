@@ -1,20 +1,16 @@
 extends Control
 class_name UI
 ## HUD: barras, textos de ayuda, munición e "instructor".
-## El inventario vive en InventoryUIController; acá solo se abre/cierra y se reenvían sus eventos.
+## El inventario vive en el Player; el InventoryUIController solo lo muestra.
 
 signal inventory_open
 signal inventory_close
-signal item_used(item: ItemInstance)
-signal drop_item(item: ItemInstance)
-signal item_success_grab(what: PickableItem)
 
 const INSTRUCTOR = preload("uid://b6idlm6tyvtrx")
 
-@export var player_inventory_model: InventoryModel
-@export var equipment_model: EquipmentModel
+## El jugador al que pertenece esta interfaz. Lo asigna player.tscn.
+@export var player: Player
 
-@onready var carried: PlayerCarriedInventories = %PlayerContainers
 @onready var inventory_ui: InventoryUIController = %InventoryUIController
 @onready var inventory: Control = %Inventory
 @onready var instructor_container: Control = %InstructorContainer
@@ -28,18 +24,13 @@ const INSTRUCTOR = preload("uid://b6idlm6tyvtrx")
 @onready var progress: TextureProgressBar = %progress
 @onready var ammo_count: Label = %ammo_count
 
-var player: Player
-
 @onready var sturggle_progress: TextureProgressBar = %SturggleProgress
 @onready var key_struggle: Label = %key_struggle
 @onready var quick_slots: HBoxContainer = %quick_slots
 
 func _ready() -> void:
-	player = get_parent().owner
-	carried.setup(player_inventory_model, equipment_model)
-	carried.hands.main_weapon_changed.connect(player.equip_weapon)
-	inventory_ui.item_used.connect(item_used.emit)
-	inventory_ui.item_dropped.connect(drop_item.emit)
+	# El inventario lo tiene el Player; la interfaz solo lo observa.
+	inventory_ui.bind_inventory(player.inventory)
 	inventory.hide.call_deferred()
 	var tween = create_tween().set_loops(0)
 	tween.tween_property(sturggle_progress,"scale",Vector2(1.2,1.2),.1)
@@ -102,13 +93,6 @@ func toggle_inventory() -> void:
 
 
 # --- Conexiones desde la escena / otros nodos ------------------------------
-
-func _on_player_grabbed_object(world_obj: PickableItem) -> void:
-	if carried.pick_up(world_obj.item):
-		item_success_grab.emit(world_obj)
-	else:
-		print_debug("No entra en ningún lado")
-
 
 func _on_player_loot_opened(model: InventoryModel, _display: String) -> void:
 	inventory_ui.open_loot(model)

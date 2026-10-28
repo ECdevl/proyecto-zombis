@@ -5,8 +5,12 @@ extends PlayerState
 func enter(previous_state_path: String, data := {}) -> void:
 	viewmodel_sway.bob_speed = 10.0
 	player.body_at_playback.travel("walk_dir")
-	if player.animation_tree:
-		player.animation_tree["parameters/run/blend_amount"] = 1.0
+	var tree := player.viewmodel_animation_tree if player.viewmodel_animation_tree else player.animation_tree
+	if not player.get_current_weapon():
+		if tree:
+			tree["parameters/run/blend_amount"] = 1.0
+	else:
+		player.weapon_controller.weapon_ap.play("run")
 	player.speed = player.sprint_speed
 
 func update(_delta: float) -> void:
@@ -26,7 +30,12 @@ func physics_update(_delta: float) -> void:
 
 func exit(next_state_path:String) -> void:
 	viewmodel_sway.bob_speed = 5.0
-	if player.animation_tree:
-		player.animation_tree["parameters/run/blend_amount"] = 0.0
+	var tree := player.viewmodel_animation_tree if player.viewmodel_animation_tree else player.animation_tree
 	if not player.get_current_weapon():
-		player.playback.travel("idle")
+		if tree:
+			tree["parameters/run/blend_amount"] = 0.0
+	else:
+		player.weapon_controller.weapon_ap.play("idle")
+	if not player.get_current_weapon():
+		if player.playback:
+			player.playback.travel("idle")

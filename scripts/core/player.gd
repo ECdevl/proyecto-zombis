@@ -6,10 +6,22 @@ signal item_consumed(proceed:bool)
 
 const CAM_HEIGHT_STAND  : float = 1.5
 const CAM_HEIGHT_CROUCH : float = 0.75
-const CAM_HEIGHT_PRONE : float = 0.2
+const CAM_HEIGHT_PRONE  : float = 0.2
+const CAM_LERP_TIME     : float = 0.2
+
+func tween_cam_height(target: float, duration: float = CAM_LERP_TIME) -> void:
+	if not is_instance_valid(yaw):
+		return
+	var t := create_tween()
+	t.set_trans(Tween.TRANS_CUBIC)
+	t.set_ease(Tween.EASE_OUT)
+	t.tween_property(yaw, "position:y", target, duration)
+
 @export var player_needs : PlayerNeeds
 @export var player_stats : PlayerStats
 @export var health_component : HealthComponent
+## Lo que el jugador carga. Lo tiene el Player (es estado de juego), no la UI.
+@export var inventory: PlayerCarriedInventories
 @export var can_swing : bool = true
 @export var can_debug : bool = false
 @export_category("To Assign")
@@ -74,6 +86,11 @@ var weapon_AP : AnimationPlayer
 
 @onready var weapon_controller: WeaponController = %WeaponController
 
+## Viewmodel unificado (arma + brazos juntos)
+var current_viewmodel: Node3D
+var viewmodel_ap: AnimationPlayer
+var viewmodel_animation_tree: AnimationTree
+var viewmodel_playback: AnimationNodeStateMachinePlayback
 
 
 var arms_ap: AnimationPlayer 
@@ -98,6 +115,8 @@ var speed : float = 3.0
 func _ready() -> void:
 	health_component = health_component.duplicate()
 	#ui.inventory_manager.connect("equip_weapon",Callable(self,"equip_weapon"))
+	inventory.hands.main_weapon_changed.connect(equip_weapon)
+	grabbed_object.connect(_on_grabbed_object)
 	arms_ap = armsy.get_node("AnimationPlayer")
 	arms_mesh = armsy.find_child("PiernaIzquierda",true,false)
 	playback = animation_tree.get("parameters/player_sm/playback")
@@ -108,7 +127,8 @@ func _ready() -> void:
 	camera_sensitivity = camera_sensitivity / 1000
 	yaw.position.y = CAM_HEIGHT_STAND
 	speed = walk_speed
-	arms_ap.play("idle")
+	if arms_ap:
+		arms_ap.play("idle")
 	body_at_playback = body_at["parameters/body/playback"]
 
 	
@@ -212,6 +232,7 @@ func drop_item(item: ItemInstance) -> void:
 	get_tree().current_scene.add_child(object)
 	object.global_position = camera.global_position
 	object.apply_central_force(-camera.global_transform.basis.z * 1000)
+	weapon_controller.update_inventory_ammo(item)
 
 
 
@@ -228,7 +249,25 @@ func get_current_weapon() -> EquippableDescriptor:
 	
 
 
-func _on_item_success_grab(what: PickableItem) -> void:
+## La UI pidió usar un objeto (comida, bebida, medicina): el Player decide qué
+## estado del FSM de brazos corresponde y lo pide.
+func use_item(item: ItemInstance) -> void:
+	await get_tree().process_frame
+	%ArmsFSM.state.finished.emit("consuming", {"item": item})
+
+
+## El jugador agarró un objeto del mundo: entra al inventario y se anima.
+func _on_grabbed_object(world_obj: PickableItem) -> void:
+	if not inventory.pick_up(world_obj.item):
+		print_debug("No entra en ningún lado")
+		return
+	weapon_controller.play_grab_animation()
+	_animate_grab(world_obj)
+	weapon_controller.update_inventory_ammo(world_obj)
+
+
+## Arrastra el objeto del mundo hasta el jugador y lo libera.
+func _animate_grab(what: PickableItem) -> void:
 	var tween = create_tween()
 	tween.tween_property(what,"global_position",global_position,0.15)
 	await tween.finished

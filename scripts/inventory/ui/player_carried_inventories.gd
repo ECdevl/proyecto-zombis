@@ -6,22 +6,37 @@ class_name PlayerCarriedInventories
 ## Cambió el conjunto de contenedores (te pusiste una mochila, la soltaste...).
 signal models_changed
 
-var pockets: InventoryModel
-var equipment: EquipmentModel
+## Los dos contenedores base. Son exports (no parámetros) para que existan
+## desde la instanciación de la escena: así la interfaz puede enlazarse a ellos
+## sin importar en qué orden corran los _ready().
+@export var pockets: InventoryModel
+@export var equipment: EquipmentModel
+
 var hands := HandsModel.new()
 ## Contenedores alcanzables ahora mismo (bolsillos primero).
 var models: Array[InventoryModel] = []
+## La fila de atajos la crea la UI (es un widget); se le pasa por acá.
+var quick_slots: HBoxContainer
 
-@onready var quick_slots: HBoxContainer = %quick_slots
 
-func setup(pockets_model: InventoryModel, equipment_model: EquipmentModel) -> void:
-	pockets = pockets_model
-	equipment = equipment_model
+func _ready() -> void:
+	setup()
+
+
+## Crea la grilla de los bolsillos y arranca a escuchar los cambios.
+func setup() -> void:
 	if pockets.title.is_empty():
 		pockets.title = "Bolsillos"
 	pockets.setup()
-	equipment.changed.connect(_refresh)
+	if not equipment.changed.is_connected(_refresh):
+		equipment.changed.connect(_refresh)
 	_refresh()
+
+## La UI le pasa su HBoxContainer de atajos: este nodo no debe buscar widgets
+## por nombre único porque vive en otra escena.
+func bind_quick_slots(box: HBoxContainer) -> void:
+	quick_slots = box
+	refresh_quick_slots()
 
 func _quick_slot_called(item:ItemInstance) -> void:
 	if item.descriptor is EquippableDescriptor:
@@ -36,6 +51,8 @@ func _quick_slot_called(item:ItemInstance) -> void:
 			hands.equip(item,HandsModel.Hand.RIGHT)
 
 func add_quick_slot() -> void:
+	if quick_slots == null:
+		return
 	const QUICK_SLOT = preload("uid://fs2royy3djt")
 	var slot : QuickSlot = QUICK_SLOT.instantiate()
 	quick_slots.add_child(slot)
@@ -43,6 +60,8 @@ func add_quick_slot() -> void:
 	refresh_quick_slots()
 
 func refresh_quick_slots() -> void:
+	if quick_slots == null:
+		return
 	var number : int = 49
 	for slot in quick_slots.get_children():
 		if slot is QuickSlot:
@@ -95,10 +114,6 @@ func _collect(model: InventoryModel, into: Array[InventoryModel]) -> void:
 	into.append(model)
 	for item: ItemInstance in model.items():
 		_collect(item.container, into)
-
-func _ready() -> void:
-	add_to_group("ammo_source")
-	add_to_group("player_inventory")
 
 func debug_ammo() -> void:
 	print("contenedores: ", models.size())

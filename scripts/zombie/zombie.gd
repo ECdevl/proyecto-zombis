@@ -16,7 +16,7 @@ var bone_hit : Node3D
 var playback : AnimationNodeStateMachinePlayback
 @onready var vision: ZombieVision = %Vision
 @onready var skeleton_3d: Skeleton3D = $ZombiConRig/rig/Skeleton3D
-@export var hit_reaction: ZombieHitReaction
+
 @export var zombie_mesh : MeshInstance3D
 
 var direction : Vector3

@@ -5,3 +5,7 @@
 # Claves SSH locales (no deben estar en el repo)
 key
 key.pub
+
+# Python (herramientas de diagnostico)
+__pycache__/
+*.pyc

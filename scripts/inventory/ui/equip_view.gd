@@ -9,10 +9,25 @@ class_name EquipSlotView
 
 func _ready() -> void:
 	add_to_group("drop_targets")
+	add_to_group("equip_slots")
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	if icon_rect == null:
 		icon_rect = get_child(0) as TextureRect
-	equipment_model.changed.connect(_refresh)
+	# Si el modelo llegó por el inspector se conecta acá; si no, la UI lo inyecta
+	# después con bind_equipment().
+	if equipment_model != null:
+		equipment_model.changed.connect(_refresh)
+		_refresh()
+
+
+## La UI le pasa el modelo de equipo: este nodo no puede buscarlo por nombre
+## único porque el modelo vive en la escena del Player.
+func bind_equipment(model: EquipmentModel) -> void:
+	if model == null:
+		return
+	equipment_model = model
+	if not equipment_model.changed.is_connected(_refresh):
+		equipment_model.changed.connect(_refresh)
 	_refresh()
 
 

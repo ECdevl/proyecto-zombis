@@ -11,6 +11,7 @@
 [ext_resource type="Script" uid="uid://tql2piodu4a0" path="res://scripts/state_machine/player_states/run.gd" id="5_qlg0r"]
 [ext_resource type="Script" uid="uid://ci8pf37ayym1b" path="res://scripts/state_machine/player_states/crouch.gd" id="6_tuyoq"]
 [ext_resource type="Script" uid="uid://cke46qan7lbqy" path="res://scripts/state_machine/player_states/prone.gd" id="7_fjrip"]
+[ext_resource type="Script" uid="uid://cg2alhn207kxn" path="res://scripts/inventory/descriptors/item_descriptor.gd" id="7_gl8cc"]
 [ext_resource type="Script" uid="uid://dbrirwgakwuq6" path="res://scripts/state_machine/player_states/jump.gd" id="8_smehm"]
 [ext_resource type="Script" uid="uid://bxh8kmg275dd7" path="res://scripts/state_machine/player_states/climb.gd" id="10_y4r1p"]
 [ext_resource type="Script" uid="uid://bj2mv7d2vurgy" path="res://scripts/state_machine/arm_states/normal.gd" id="13_f1ej7"]
@@ -28,6 +29,9 @@
 [ext_resource type="Script" uid="uid://bxeowvinwqnk4" path="res://scripts/components/viewmodel_clipping.gd" id="24_l71n6"]
 [ext_resource type="Script" uid="uid://d0p4mk8es2jjf" path="res://scripts/weapons/view_punch.gd" id="25_ke2ow"]
 [ext_resource type="Script" uid="uid://fmmdoklx0pv6" path="res://scripts/components/camera_shake.gd" id="28_pf23h"]
+[ext_resource type="Script" uid="uid://b82qc25arbofl" path="res://scripts/inventory/ui/player_carried_inventories.gd" id="40_pinv"]
+[ext_resource type="Script" uid="uid://cw2gxg62gx4of" path="res://scripts/inventory/model/inventory_model.gd" id="41_imodel"]
+[ext_resource type="Script" uid="uid://d4duou0lvvuqo" path="res://scripts/inventory/model/equipment_model.gd" id="42_emodel"]
 
 [sub_resource type="Resource" id="Resource_oprun"]
 script = ExtResource("2_f1ej7")
@@ -41,6 +45,15 @@ metadata/_custom_type_script = "uid://biay5nfkmn6qe"
 [sub_resource type="Resource" id="Resource_60mlk"]
 script = ExtResource("4_i4ail")
 metadata/_custom_type_script = "uid://desjayqtv12h4"
+
+[sub_resource type="Resource" id="Resource_inv_pockets"]
+script = ExtResource("41_imodel")
+dimensions = Vector2i(7, 2)
+metadata/_custom_type_script = "uid://cw2gxg62gx4of"
+
+[sub_resource type="Resource" id="Resource_inv_equipment"]
+script = ExtResource("42_emodel")
+metadata/_custom_type_script = "uid://d4duou0lvvuqo"
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_wqxis"]
 radius = 0.25
@@ -379,7 +392,6 @@ filter_enabled = true
 filters = ["", "rig/Skeleton3D:f_middle.01.L.001", "rig/Skeleton3D:f_middle.01.L.002", "rig/Skeleton3D:f_middle.01.L.003", "rig/Skeleton3D:f_middle.01.R", "rig/Skeleton3D:f_middle.01.R.001", "rig/Skeleton3D:f_middle.01.R.002", "rig/Skeleton3D:f_middle.01.R.003", "rig/Skeleton3D:forearm_left", "rig/Skeleton3D:forearm_right", "rig/Skeleton3D:hand_left", "rig/Skeleton3D:hand_right", "rig/Skeleton3D:ik_hand_left", "rig/Skeleton3D:ik_hand_right", "rig/Skeleton3D:ik_pole_left", "rig/Skeleton3D:thumb.01.L", "rig/Skeleton3D:thumb.01.R", "rig/Skeleton3D:thumb.02.L", "rig/Skeleton3D:upper_arm_left", "rig/Skeleton3D:upper_arm_right"]
 
 [sub_resource type="AnimationNodeBlendTree" id="AnimationNodeBlendTree_fql2p"]
-graph_offset = Vector2(-560.4132, -17.752068)
 nodes/output/position = Vector2(780, 60)
 nodes/player_sm/node = SubResource("AnimationNodeStateMachine_ua7yo")
 nodes/player_sm/position = Vector2(-300, 80)
@@ -523,12 +535,13 @@ node_connections = [&"output", 0, &"body"]
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_5ow1q"]
 height = 1.1
 
-[node name="player" type="CharacterBody3D" unique_id=583847357 groups=["player"]]
+[node name="player" type="CharacterBody3D" unique_id=583847357 node_paths=PackedStringArray("inventory") groups=["player"]]
 collision_layer = 8
 script = ExtResource("1_g2els")
 player_needs = SubResource("Resource_oprun")
 player_stats = SubResource("Resource_a8ls1")
 health_component = SubResource("Resource_60mlk")
+inventory = NodePath("PlayerContainers")
 forward = &"forward"
 backward = &"back"
 left = &"left"
@@ -540,6 +553,13 @@ prone = &"prone"
 jump_velocity = 6.5
 hang_velocity = 50.0
 metadata/_custom_type_script = "uid://bqqi6elxhlg1"
+
+[node name="PlayerContainers" type="Node" parent="." unique_id=1937465820]
+unique_name_in_owner = true
+script = ExtResource("40_pinv")
+pockets = SubResource("Resource_inv_pockets")
+equipment = SubResource("Resource_inv_equipment")
+metadata/_custom_type_script = "uid://b82qc25arbofl"
 
 [node name="StandingCollisionShape" type="CollisionShape3D" parent="." unique_id=504792037]
 unique_name_in_owner = true
@@ -598,7 +618,7 @@ unique_name_in_owner = true
 unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.07166581)
 
-[node name="Skeleton3D" parent="Yaw/Pitch/WeaponPivot/armsy/rig" parent_id_path=PackedInt32Array(1586675216, 1790906707) index="0" unique_id=351597282]
+[node name="Skeleton3D" parent="Yaw/Pitch/WeaponPivot/armsy/rig" parent_id_path=PackedInt32Array(1586675216, 202459446) index="0" unique_id=412409943]
 bones/0/position = Vector3(0.355911, -0.62553966, -0.08020999)
 bones/0/rotation = Quaternion(0.05944535, 0.059783433, 0.9923101, -0.090625964)
 bones/1/position = Vector3(-0.355911, -0.62553966, -0.08020999)
@@ -624,12 +644,12 @@ bones/22/rotation = Quaternion(3.6805996e-08, 1.1454814e-07, 2.8325286e-07, 1)
 bones/23/rotation = Quaternion(-0.20150815, 0.90610546, 0.34664655, 0.13492045)
 bones/24/rotation = Quaternion(0.13271265, 0.07047917, 0.036727145, 0.98796314)
 
-[node name="PiernaIzquierda" parent="Yaw/Pitch/WeaponPivot/armsy/rig/Skeleton3D" index="0" unique_id=1433040672]
+[node name="PiernaIzquierda" parent="Yaw/Pitch/WeaponPivot/armsy/rig/Skeleton3D" index="0" unique_id=389589377]
 layers = 512
 cast_shadow = 0
 mesh = SubResource("ArrayMesh_ujl30")
 
-[node name="AnimationPlayer" parent="Yaw/Pitch/WeaponPivot/armsy" index="1" unique_id=1895251442]
+[node name="AnimationPlayer" parent="Yaw/Pitch/WeaponPivot/armsy" index="1" unique_id=1364360901]
 callback_mode_process = 0
 playback_default_blend_time = 0.3
 
@@ -660,7 +680,7 @@ hit_from_inside = true
 [node name="FPS_BODY" parent="Yaw" unique_id=174347773 instance=ExtResource("22_a38lo")]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, -0.0062841177, 0)
 
-[node name="Skeleton3D" parent="Yaw/FPS_BODY/rig" parent_id_path=PackedInt32Array(174347773, 1151625937) index="0" unique_id=192272711]
+[node name="Skeleton3D" parent="Yaw/FPS_BODY/rig" parent_id_path=PackedInt32Array(174347773, 269177654) index="0" unique_id=865537488]
 bones/0/position = Vector3(0.0848808, -1.6665177, -0.14350699)
 bones/0/rotation = Quaternion(0.99791044, 0.03761638, 0.04035027, -0.03364224)
 bones/1/position = Vector3(-0.0848808, -1.6665177, -0.14350699)
@@ -673,7 +693,7 @@ bones/12/rotation = Quaternion(0.90866184, 0.060249247, 0.403326, 0.08962079)
 bones/13/rotation = Quaternion(-0.008660371, -0.4425651, 0.052220654, 0.8951727)
 bones/14/rotation = Quaternion(-0.5706436, 0.021708721, -0.024626477, 0.8205414)
 
-[node name="PiernaIzquierda" parent="Yaw/FPS_BODY/rig/Skeleton3D" index="0" unique_id=27541427]
+[node name="PiernaIzquierda" parent="Yaw/FPS_BODY/rig/Skeleton3D" index="0" unique_id=181306783]
 layers = 512
 
 [node name="AnimationTree" type="AnimationTree" parent="." unique_id=1840475181]
@@ -692,8 +712,9 @@ parameters/punch/request = 0
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=198500945]
 
-[node name="UI" parent="CanvasLayer" unique_id=1877997638 instance=ExtResource("13_jej6c")]
+[node name="UI" parent="CanvasLayer" unique_id=1877997638 node_paths=PackedStringArray("player") instance=ExtResource("13_jej6c")]
 unique_name_in_owner = true
+player = NodePath("../..")
 
 [node name="ItemInstruct" type="Area3D" parent="." unique_id=1427228613]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
@@ -843,25 +864,13 @@ camera = NodePath("../Yaw/Pitch/Camera3D")
 random_strength = 10.0
 metadata/_custom_type_script = "uid://ceqqltvq0aeqk"
 
-[connection signal="grabbed_object" from="." to="CanvasLayer/UI" method="_on_player_grabbed_object"]
-[connection signal="grabbed_object" from="." to="WeaponController" method="_on_player_grabbed_object"]
 [connection signal="loot_opened" from="." to="CanvasLayer/UI" method="_on_player_loot_opened"]
-[connection signal="weapon_changed" from="." to="ArmsFSM/normal" method="_on_player_weapon_changed"]
-[connection signal="animation_finished" from="Yaw/Pitch/WeaponPivot/armsy/AnimationPlayer" to="ArmsFSM/normal" method="_on_animation_player_animation_finished"]
-[connection signal="animation_finished" from="AnimationTree" to="ArmsFSM/normal" method="_on_animation_tree_animation_finished"]
-[connection signal="drop_item" from="CanvasLayer/UI" to="." method="drop_item"]
-[connection signal="drop_item" from="CanvasLayer/UI" to="WeaponController" method="update_inventory_ammo"]
-[connection signal="item_success_grab" from="CanvasLayer/UI" to="." method="_on_item_success_grab"]
-[connection signal="item_success_grab" from="CanvasLayer/UI" to="WeaponController" method="update_inventory_ammo"]
-[connection signal="item_used" from="CanvasLayer/UI" to="ArmsFSM/normal" method="_on_ui_item_used"]
 [connection signal="body_entered" from="ItemInstruct" to="CanvasLayer/UI" method="_on_item_instruct_body_entered"]
 [connection signal="body_exited" from="ItemInstruct" to="CanvasLayer/UI" method="_on_item_instruct_body_exited"]
 [connection signal="consumed" from="ArmsFSM/consuming" to="CanvasLayer/UI" method="_on_item_consumed"]
 [connection signal="tick_consumed" from="ArmsFSM/consuming" to="CanvasLayer/UI" method="_on_consuming_tick"]
 [connection signal="progress_changed" from="ArmsFSM/grabbed" to="CanvasLayer/UI" method="_on_grabbed_progress_changed"]
 [connection signal="progress_show" from="ArmsFSM/grabbed" to="CanvasLayer/UI" method="_on_grabbed_progress_show"]
-[connection signal="ammo_consumed" from="WeaponController" to="CanvasLayer/UI" method="_on_remove_item"]
-[connection signal="gun_fired" from="WeaponController" to="CanvasLayer/UI" method="_on_remove_item"]
 
 [editable path="Yaw/Pitch/WeaponPivot/armsy"]
 [editable path="Yaw/FPS_BODY"]

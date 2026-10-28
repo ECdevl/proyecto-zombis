@@ -25,16 +25,25 @@
         `scripts/state_machine/player_states/climb.gd:24` y `hang.gd:20,44`.
         Al entrar en `hang` o `climb` salta
         `Invalid access to property or key 'weapon_grip' on a base object of type 'Player'`.
-  - [ ] **6 conexiones de señal a handlers inexistentes** (confirmado en runtime):
-        | Escena | Señal | Destino | Método ausente |
-        |---|---|---|---|
-        | `scenes/player.tscn:849` | `weapon_changed` | `ArmsFSM/normal` | `_on_player_weapon_changed` |
-        | `scenes/player.tscn:850` | `animation_finished` | `ArmsFSM/normal` | `_on_animation_player_animation_finished` |
-        | `scenes/player.tscn:851` | `animation_finished` | `ArmsFSM/normal` | `_on_animation_tree_animation_finished` |
-        | `scenes/player.tscn:863` | `ammo_consumed` | `CanvasLayer/UI` | `_on_remove_item` |
-        | `scenes/player.tscn:864` | `gun_fired` | `CanvasLayer/UI` | `_on_remove_item` |
-        | `scenes/ui/ui.tscn` | `inventory_close` | `InventoryUIController` | `_on_ui_inventory_close` |
-        Godot no avisa al conectar: solo falla cuando la señal se emite.
+  - [x] **6 conexiones de señal a handlers inexistentes** — **resuelto (C5, 2026-10-22)**.
+        Las 6 se borraron tras verificar que eran vestigiales:
+        | Escena | Señal | Destino | Método ausente | Por qué se borró |
+        |---|---|---|---|---|
+        | `scenes/player.tscn` | `weapon_changed` | `ArmsFSM/normal` | `_on_player_weapon_changed` | El método nunca existió (verificado con `git log -S`); `WeaponController._on_weapon_changed` ya hace la animación |
+        | `scenes/player.tscn` | `animation_finished` | `ArmsFSM/normal` | `_on_animation_player_animation_finished` | El método nunca existió; ningún estado de brazos escucha `animation_finished` |
+        | `scenes/player.tscn` | `animation_finished` | `ArmsFSM/normal` | `_on_animation_tree_animation_finished` | Ídem |
+        | `scenes/player.tscn` | `ammo_consumed` | `CanvasLayer/UI` | `_on_remove_item` | El HUD lee la munición cada frame en `ui.gd::_update_ammo()` |
+        | `scenes/player.tscn` | `gun_fired` | `CanvasLayer/UI` | `_on_remove_item` | Ídem |
+        | `scenes/ui/ui.tscn` | `inventory_close` | `InventoryUIController` | `_on_ui_inventory_close` | `ui.gd::toggle_inventory()` ya llama a `inventory_ui.close_loot()` |
+
+        En todos los casos Godot no avisaba al conectar: la conexión se rechazaba en silencio y
+        solo fallaba al emitir la señal. Borrarlas **no cambia el comportamiento** (eran no-ops).
+        `tools/check_tscn_connections.py` ahora da **0 conexiones rotas** en las 29 escenas.
+
+  - [ ] **`UI.inventory_open` / `UI.inventory_close` no tienen ningún oyente.** Son señales de
+        la UI sin consumir. Se mantienen como API de eventos de la vista; si no se usan,
+        eliminarlas.
+
   - [ ] `resources/clothes/mochila.tres` usa `container_model` (propiedad eliminada);
         la vigente es `container_capability`
   - [ ] `PlayerCarriedInventories.take_ammo()` muta `descriptor.rounds`, que es un
@@ -48,8 +57,9 @@
 - [ ] **T-003 `README.md` desactualizado**: documenta el inventario, la jerarquía de
       descriptores, la IA de zombi y el melee tal como estaban antes de D-001.
 
-- [ ] **T-004 Clave SSH privada commiteada**: `key` y `key.pub` en la raíz del repo.
-      Sacarlas del control de versiones y añadir al `.gitignore`.
+- [x] **T-004 Clave SSH privada commiteada**: `key` y `key.pub` en la raíz del repo.
+      Sacadas del control de versiones y añadidas al `.gitignore` (verificado: `git ls-files`
+      no las lista).
 
 - [ ] **T-005 Assets huérfanos** (importados por Godot pero sin uso en el juego):
       `glock.glb`, `bate.glb`, `pistol_arms.glb`, `casa2_texturizada.glb`,
@@ -64,6 +74,11 @@
 
 ## Hecho
 
+- [x] **Refactor del inventario (D-004, D-005) + C5** — rama `refactor/inventario-en-player`,
+      2026-10-22. El inventario pasó de `ui.tscn` a `player.tscn`; la UI quedó como vista
+      unidireccional que se inyecta; se eliminaron las señales de relevo de `ui.gd` y las
+      6 conexiones rotas. Verificado con `tools/probe_inventario.gd` (TODO OK) y
+      `tools/check_tscn_connections.py` (0 rotas).
 - [x] `AGENTS.md` movido de `.opencode/` a la raíz del proyecto (ruta que opencode carga
       automáticamente).
 - [x] **T-006 Godot accesible desde la terminal**: symlink
@@ -84,15 +99,32 @@
 - `project.godot` no define `run/main_scene`: no hay escena principal asignada. Preexistente.
 - Avisos de "ObjectDB instances were leaked at exit" al terminar el headless: artefacto
   del cierre del proceso, no del proyecto.
+- `godot --headless --path . --import` deja **1 ERROR**, **preexistente en `main`**:
+  `Animation name "stun" already exists in library.` — la biblioteca de animaciones del
+  `zombie_rig.glb` versionado trae la animación `stun` duplicada. El importador reexporta el
+  `.glb` (544432 → 608376 bytes) y al hacerlo elimina el duplicado, por eso el archivo aparece
+  modificado tras importar. **No incluir `assets/models/zombies/zombie_rig.glb` en commits que no
+  sean del asset** (ver `ERRORES.md` E-007).
 - Avisos `FBX: ufbx warning ... Duplicate connection to 128`: vienen de los `.fbx` originales
   (`bate.fbx`, `glock.fbx`, `machete.fbx`, `cuchillo.fbx`), no de la reorganización.
 
-### Herramientas de diagnóstico (fuera del repo, en `/tmp/opencode/`)
+### Herramientas de diagnóstico (en el repo, en `tools/`)
 
-- `check_tscn_connections.py` — analiza todos los `.tscn` y lista las conexiones de señal
-  cuyo handler no existe en el script destino (resuelve escenas instanciadas).
-  Uso: `python3 /tmp/opencode/check_tscn_connections.py`
-- `probe_runtime.gd` / `probe_runtime2.gd` / `probe_runtime3.gd` — sondas headless que
-  montan la escena del jugador en un árbol vivo e inspeccionan propiedades y conexiones
-  reales. Uso: `godot --headless --path . --script /tmp/opencode/probe_runtime3.gd`
-  (los autoloads **sí** están disponibles en este modo).
+- `tools/check_tscn_connections.py` — analiza los 29 `.tscn` del proyecto y lista las
+  conexiones de señal rotas: comprueba que el nodo destino existe, que el método destino está
+  definido en el script de ese nodo (o en sus clases base) y que la señal de origen existe
+  (la declara el script del nodo o es una señal del motor). Expande las escenas instanciadas.
+  Uso: `python3 tools/check_tscn_connections.py`
+  → *Escenas analizadas: 29 | conexiones: 19 — OK: ninguna conexión de señal está rota.*
+- `tools/probe_inventario.gd` — sonda headless que monta `scenes/debug/test.tscn` en un árbol
+  vivo y comprueba: que el inventario lo tiene el `Player`, que la UI quedó enlazada a él, que
+  las 8 ranuras (6 de ropa + 2 de manos) tienen su modelo, que no queda ninguna conexión rota,
+  que `ammo_source` es `player.inventory`, y que los flujos de **recoger** y **usar** un objeto
+  funcionan (el objeto entra al inventario; `use_item` lleva el FSM de `normal` a `consuming`).
+  Uso: `godot --headless --path . --script res://tools/probe_inventario.gd` → *RESULTADO: TODO OK*
+- `tools/dump_engine_signals.gd` — genera `tools/engine_signals.py`: la tabla de señales que
+  declara cada clase del motor usada en el proyecto. Se regenera solo si se agregan clases:
+  `godot --headless --path . --script res://tools/dump_engine_signals.gd`
+
+Nota: en modo `--script` los autoloads todavía no existen cuando se compila la cadena de
+dependencias, así que aparecen errores de compilación falsos. Ver `ERRORES.md` E-004.

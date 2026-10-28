@@ -16,21 +16,13 @@ func enter(previous_state_path: String, data := {}) -> void:
 func check_current_weapon() -> void:
 	if player.weapon_controller.current_weapon is Weapon:
 		pass
-		#if player.weapon_controller.current_weapon.weapon_type == player.weapon_controller.current_weapon.Type.MELEE:
-			#if player.weapon_controller.current_weapon.weapon_handle == player.weapon_controller.current_weapon.Handle.TWO:
-				#player.playback.start("two_hand_draw")
-				#return
-			#else:
-				#player.playback.start("one_hand_idle")
-				#return
 	else:
-		player.playback.travel("idle")
+		if player.playback:
+			player.playback.travel("idle")
 
 func update(_delta: float) -> void:
 	can_transition = !player.weapon_controller.reloading
 	
-@onready var ui: UI = %UI
-
 func handle_input(_event: InputEvent) -> void:
 	if _event.is_action_pressed("M1"):
 		call_deferred("attack")
@@ -41,12 +33,12 @@ func handle_input(_event: InputEvent) -> void:
 		if player.get_current_weapon():
 			finished.emit("aim")
 	if _event.is_action_pressed("reload"):
-		
+
 		player.weapon_controller.reload()
-		
+
 	if _event.is_action_pressed("drop"):
 		if player.weapon_controller.current_weapon:
-			var player_inventory : PlayerCarriedInventories = get_tree().get_first_node_in_group("player_inventory")
+			var player_inventory : PlayerCarriedInventories = player.inventory
 			if player_inventory.hands._held.is_empty():
 				return
 			var held_instance : ItemInstance = player_inventory.hands.get_held(HandsModel.Hand.RIGHT)
@@ -70,18 +62,5 @@ var combo_index : int = 0
 func attack() -> void:
 	if player.weapon_controller.current_weapon is Weapon:
 		player.weapon_controller.shoot()
-	else: 
+	else:
 		player.weapon_controller.swing()
-
-
-
-
-
-
-
-
-
-
-func _on_ui_item_used(item: ItemInstance) -> void:
-	await get_tree().process_frame
-	finished.emit("consuming", {"item": item})

@@ -3,20 +3,20 @@
 [ext_resource type="Script" uid="uid://cg2alhn207kxn" path="res://scripts/inventory/descriptors/item_descriptor.gd" id="1_0l6i6"]
 [ext_resource type="PackedScene" uid="uid://cqmgufy1mebah" path="res://assets/models/weapons/firearm/glock_17.obj" id="2_0l6i6"]
 [ext_resource type="Script" uid="uid://dbklk7rcbx4yy" path="res://scripts/inventory/descriptors/weapon.gd" id="2_rpb6p"]
-[ext_resource type="PackedScene" uid="uid://d1bts76g8d5if" path="res://assets/models/weapons/firearm/viewmodels/pistols/glock.gltf" id="4_0l6i6"]
+[ext_resource type="PackedScene" uid="uid://gsrsnlbvfpbt" path="res://assets/models/weapons/firearm/viewmodels/pistols/glock.glb" id="4_0l6i6"]
 
 [resource]
 script = ExtResource("2_rpb6p")
 ammo_type = 1
 weapon_type = 1
-fire_rate = 0.133
-damage = 9.0
 reload_time = 2.0
-weapon_range = 300.0
 curr_bullets = 17
 max_bullets = 100
 mag_size = 17
 viewmodel_model = ExtResource("4_0l6i6")
+damage = 9.0
+fire_rate = 0.133
+weapon_range = 300.0
 item_name = "Glock-17"
 weight = 2.0
 dimensions = Vector2i(2, 2)
