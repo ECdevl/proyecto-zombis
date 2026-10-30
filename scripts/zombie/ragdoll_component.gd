@@ -43,9 +43,9 @@ func start(is_permanent := false,impulse: Vector3 = Vector3.ZERO,force: float = 
 
 
 func _physics_process(delta: float) -> void:
-	if not is_ragdoll:
+	if not is_ragdoll :
 		_air_time = 0.0 if body.is_on_floor() else _air_time + delta
-		if _air_time >= air_time_to_ragdoll:
+		if _air_time >= air_time_to_ragdoll and body.state_machine.state.name != "recover":
 			start()
 		return
 
@@ -79,6 +79,7 @@ func _find_floor() -> Variant:
 
 
 func _recover() -> void:
+	_air_time = 0
 	var floor_pos: Variant = _find_floor()
 	if floor_pos == null:
 		return

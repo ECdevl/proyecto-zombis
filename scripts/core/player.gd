@@ -110,8 +110,6 @@ var _mouse_delta := Vector2.ZERO
 
 var speed : float = 3.0
 
-
-
 func _ready() -> void:
 	health_component = health_component.duplicate()
 	#ui.inventory_manager.connect("equip_weapon",Callable(self,"equip_weapon"))
@@ -136,7 +134,7 @@ func _ready() -> void:
 
 signal weapon_changed(gun:Resource)
 
-signal grabbed_object(world_obj:PickableItem)
+signal grabbed_object(world_obj:Node3D)
 signal loot_opened(model:InventoryModel,display:String)
 
 func _try_interact(hit_object: Node) -> void:
@@ -146,8 +144,7 @@ func _try_interact(hit_object: Node) -> void:
 		hit_object.interact(self)
 	elif hit_object is Area3D:
 		if hit_object.owner is PickableItem:
-			hit_object = hit_object.owner
-			grabbed_object.emit(hit_object)
+			grabbed_object.emit(hit_object.owner)
 	elif hit_object is DoorComponent:
 		var door : DoorComponent = look_at_component.get_collider()
 		door.check_door(self)
@@ -223,15 +220,37 @@ func __player_movement(delta:float) -> void:
 
 
 
+## Velocidad de salida al soltar un objeto (m/s). Es VELOCIDAD, no fuerza:
+## al fijar la velocidad directamente, el lanzamiento se siente igual
+## cualquier que sea la masa del objeto (una mochila y una lata salen igual).
+const THROW_SPEED: float = 6.0
+## Distancia frente a la cámara donde aparece el objeto soltado.
+const DROP_DISTANCE: float = 0.6
+
+
+## Suelta un objeto del inventario en el mundo físico.
+## Quien llame (UI o estado de brazos) debe sacarlo del inventario ANTES.
+## Si no se puede soltar, el item se devuelve al inventario: nunca se pierde.
 func drop_item(item: ItemInstance) -> void:
-	if item == null or not %normal.can_transition:
+	if item == null:
 		return
-	const PICKABLE_OBJECT = preload("res://scenes/components/pickable_object.tscn")
-	var object: PickableItem = PICKABLE_OBJECT.instantiate()
-	object.item = item
-	get_tree().current_scene.add_child(object)
-	object.global_position = camera.global_position
-	object.apply_central_force(-camera.global_transform.basis.z * 1000)
+	if not %normal.can_transition:  # recargando: no se suelta (y no se pierde)
+		inventory.add_anywhere(item)
+		return
+	var scene: PackedScene = item.descriptor.item_mesh
+	var object: Node = scene.instantiate() if scene else null
+	if object == null or not object is PickableItem:
+		push_warning("drop_item: '%s' no tiene escena agarrable en item_mesh (raíz con el script PickableItem)." % item.descriptor.item_name)
+		if object:
+			object.free()  # nunca entró al árbol: free directo, sin queue_free
+		inventory.add_anywhere(item)  # se devuelve: el item no se pierde
+		return
+	var pickable := object as PickableItem
+	pickable.item = item  # conserva contenido y estado (antes de entrar al árbol)
+	get_tree().current_scene.add_child(pickable)
+	var forward := -camera.global_transform.basis.z
+	pickable.global_position = camera.global_position + forward * DROP_DISTANCE
+	pickable.launch(forward * THROW_SPEED)
 	weapon_controller.update_inventory_ammo(item)
 
 
@@ -257,13 +276,15 @@ func use_item(item: ItemInstance) -> void:
 
 
 ## El jugador agarró un objeto del mundo: entra al inventario y se anima.
-func _on_grabbed_object(world_obj: PickableItem) -> void:
+func _on_grabbed_object(world_obj: Node3D) -> void:
 	if not inventory.pick_up(world_obj.item):
 		print_debug("No entra en ningún lado")
 		return
+
 	weapon_controller.play_grab_animation()
 	_animate_grab(world_obj)
 	weapon_controller.update_inventory_ammo(world_obj)
+	
 
 
 ## Arrastra el objeto del mundo hasta el jugador y lo libera.
@@ -271,7 +292,7 @@ func _animate_grab(what: PickableItem) -> void:
 	var tween = create_tween()
 	tween.tween_property(what,"global_position",global_position,0.15)
 	await tween.finished
-	if what:
+	if is_instance_valid(what):
 		what.queue_free()
 
 signal grab_escaped  # el jugador llenó la barra de escape

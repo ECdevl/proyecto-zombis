@@ -32,10 +32,17 @@ func get_actions() -> Array[String]:
 	return ["soltar"]
 
 
+## Mientras se genera el icono, no volver a entrar: si 'item_mesh' es una escena
+## PickableItem, su _ready llama otra vez a ensure_icon (recursión infinita).
+var _icon_requesting := false
+
+
 ## Genera el icono desde item_mesh la primera vez. 'host' = nodo que ya está en el árbol.
 func ensure_icon(host: Node) -> void:
-	if icon != null or item_mesh == null:
+	if icon != null or item_mesh == null or _icon_requesting:
 		return
+	_icon_requesting = true
 	var creator: SubViewport = ICON_CREATOR.instantiate()
 	host.add_child(creator)
 	icon = await creator.create_texture(item_mesh)
+	_icon_requesting = false

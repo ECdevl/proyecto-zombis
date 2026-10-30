@@ -6,6 +6,7 @@ var radius : float = 0.15
 var attacker : Node3D
 var knockback : float = 0.0
 var push_direction : Vector3 = Vector3.ZERO  # en mundo
+var swing_data_ref: SwingData
 
 
 ## Se llama DESPUÉS de add_child (necesita estar en el árbol para usar la física).
@@ -13,8 +14,11 @@ func setup(melee: Melee, swing: SwingData, by: Node3D) -> void:
 	radius = melee.hitbox_radius
 	knockback = melee.knockback
 	attacker = by
+	swing_data_ref = swing
 	# La dirección del swing está en espacio local de la cámara: Basis * vector la pasa a mundo.
 	push_direction = get_viewport().get_camera_3d().global_basis * swing.direction
+	if push_direction.length_squared() < 0.0001:
+		push_direction = -get_viewport().get_camera_3d().global_basis.z
 	set_projectile(melee.damage, melee.weapon_range)
 
 
@@ -58,15 +62,30 @@ func fire() -> void:
 	for zombie in nearest:
 		var hitbox := nearest[zombie]
 		# intersect_shape no devuelve el punto de contacto: se usa la posición del hueso.
-		_apply_hit(hitbox, hitbox.global_position)
+		_apply_hit_with_dir(hitbox, hitbox.global_position, zombie)
 		# Después del daño: si lo mató, el ragdoll total ya empezó y la reacción no hace nada.
-		if zombie.hit_reaction:
-			zombie.hit_reaction.react(hitbox, push_direction, knockback)
 	queue_free()
 
+func _apply_hit_with_dir(collider: Object, hit_pos: Vector3, zombie: Zombie) -> void:
+	var hitbox := collider as Node
+	print_debug(hitbox)
+	if hitbox == null:
+		return
+	var dmg := _damage_for(hitbox)
+	if dmg <= 0.0:
+		return
+	# Guardar dirección para el ragdoll si muere
+	if hitbox.is_in_group("zombie_head"):
+		zombie.set_meta("melee_hit_dir", push_direction.normalized() if push_direction.length_squared() > 0.0001 else (-get_viewport().get_camera_3d().global_basis.z))
 
-func _damage_for(_hitbox: Node) -> float:
-	return damage
+	zombie.health_component.hurt(dmg, hitbox, _attacker(), hit_pos)
+
+
+func _damage_for(hitbox: Node) -> float:
+	# Solo dañar en la cabeza con melee
+	if hitbox.is_in_group("zombie_head"):
+		return damage
+	return damage / 4
 
 
 func _attacker() -> Node3D:

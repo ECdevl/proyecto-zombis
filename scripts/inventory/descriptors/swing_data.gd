@@ -9,3 +9,4 @@ class_name SwingData extends Resource
 ## Hacia dónde empuja al zombi, en espacio local de la cámara
 ## (X derecha, Y arriba, -Z adelante). Ej: tajo de izquierda a derecha = Vector3.RIGHT.
 @export var direction: Vector3 = Vector3.RIGHT
+@export var recoil_kick : Vector2 = Vector2(0,2)

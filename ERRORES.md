@@ -147,3 +147,70 @@ versionado tal cual y **no incluirlo** en commits ajenos al asset
 (`git checkout -- assets/models/zombies/zombie_rig.glb`).
 Corregir la animación duplicada es trabajo aparte, sobre el `.glb` o sobre el
 `.import`.
+
+---
+
+## E-008 — Al soltar un objeto desde la UI desaparecía en vez de caer al mundo
+
+**Síntoma:** clic derecho sobre un item > "soltar": el item salía del
+inventario y **no aparecía en el mundo físico**. Con la tecla G (arma
+equipada) sí salía.
+
+**Causa real (varias, encadenadas):**
+
+1. `InventoryUIController.item_dropped` **se emitía pero nadie la escucha**:
+   0 conexiones en código y en escenas. Lo mismo le pasaba a `item_used`
+   (el menú "usar" también estaba muerto; solo andaba porque la sonda
+   `tools/probe_inventario.gd` llama `player.use_item` a mano).
+2. El único flujo que andaba (G) dependía de `Player.grabbed_objects_instances`,
+   un `Array[PackedScene]` que se llenaba con `PackedScene.pack()` al recoger.
+   Ese mecanismo:
+   - solo existía para objetos **recogidos del mundo**; un item de un cofre o
+     puesto a mano no tenía escena → `object` quedaba `null` → `add_child(null)`
+     y el item se perdía;
+   - nunca se vaciaba al soltar → **duplicación infinita** del mismo objeto;
+   - usaba `object.get_child(0).apply_central_force(...)`, que con el modelo
+     importado con `-rigid` apunta al `MeshInstance3D`, no a un cuerpo (error);
+     además `apply_central_force` aplicado un solo frame es casi un no-op
+     (es una fuerza **por frame de físico**);
+   - no restauraba `object.item` → una mochila soltada perdía el contenido;
+   - `pack()` solo serializa nodos cuyo `owner` es el nodo empaquetado; los
+     hijos de un modelo importado tienen como `owner` la raíz de la escena que
+     lo instancia, así que el duplicado podía quedar vacío.
+
+**Corrección (ver `DECISIONES.md` D-006):** se elimina el empaquetado. La
+plantilla del mundo es `item.descriptor.item_mesh`; `Player.drop_item()`
+instancia esa escena, le pasa el `ItemInstance` antes de agregarla al árbol,
+la posiciona frente a la cámara y le fija `linear_velocity`. La UI quedó
+conectada al Player (`item_used → use_item`, `item_dropped → drop_item`).
+Si la escena no es agarrable o no se puede soltar, el item **se devuelve al
+inventario**: nunca se pierde.
+
+**Verificación:** `tools/probe_soltar.gd` → *RESULTADO: TODO OK* (flujo UI,
+flujo G y escena no agarrable); `tools/probe_inventario.gd` → *TODO OK*;
+`tools/check_tscn_connections.py` → 0 conexiones rotas.
+
+---
+
+## E-009 — El analizador estático de GDScript rechaza `self is RigidBody3D` en un script que declara `extends Node3D`
+
+**Síntoma:** `Parse Error: Expression is of type "PickableItem" so it can't be
+of type "RigidBody3D"` (y `Invalid cast` para `as`) en `pickable_object.gd`.
+
+**Causa real:** el analizador asume que una instancia del script tiene
+exactamente el tipo nativo que declara (`Node3D`) y no contempla que el
+script pueda estar colgado en runtime de un nodo `RigidBody3D` (el caso del
+modelo importado con `-rigid`). Entre `PickableItem` y `RigidBody3D` no hay
+relación de subtipo en la jerarquía que el analizador conoce, así que
+rechaza tanto el test `is` como el cast `as`.
+
+**Corrección:** pasar por una referencia tipada `Node` (un tipo común de la
+jerarquía) y hacer el test/cast ahí:
+
+```gdscript
+var me: Node = self
+if me is RigidBody3D:
+    return me as RigidBody3D
+```
+
+`Node → RigidBody3D` sí es un downcast válido para el analizador.

@@ -1,13 +1,29 @@
 [gd_resource type="Resource" script_class="Melee" format=3 uid="uid://b1ihtv4u6lxt6"]
 
+[ext_resource type="PackedScene" uid="uid://b44ye2g0hwqgw" path="res://assets/models/weapons/melee/one_hand/cuchillo.fbx" id="1_1jgj1"]
 [ext_resource type="PackedScene" uid="uid://bbrmitlbgp0gf" path="res://assets/models/weapons/melee/one_hand/cuchillo_de_cocina.glb" id="1_nt4gf"]
 [ext_resource type="Script" uid="uid://c5ccot1xni1sw" path="res://scripts/inventory/descriptors/melee.gd" id="2_2ek2h"]
-[ext_resource type="PackedScene" uid="uid://bgrou52740p2b" path="res://scenes/weapons/melee/cuchillo.tscn" id="3_p04vx"]
+[ext_resource type="Script" uid="uid://dskngi7txlhue" path="res://scripts/inventory/descriptors/swing_data.gd" id="3_1jgj1"]
+
+[sub_resource type="Resource" id="Resource_q8wwd"]
+script = ExtResource("3_1jgj1")
+animation = &"swing1"
+direction = Vector3(-1, 0, 0)
+recoil_kick = Vector2(0, -4)
+metadata/_custom_type_script = "uid://dskngi7txlhue"
+
+[sub_resource type="Resource" id="Resource_lu6ae"]
+script = ExtResource("3_1jgj1")
+animation = &"swing2"
+recoil_kick = Vector2(2, 0)
+metadata/_custom_type_script = "uid://dskngi7txlhue"
 
 [resource]
 script = ExtResource("2_2ek2h")
-viewmodel_model = ExtResource("3_p04vx")
+swings = Array[ExtResource("3_1jgj1")]([SubResource("Resource_q8wwd"), SubResource("Resource_lu6ae")])
+viewmodel_model = ExtResource("1_nt4gf")
+weapon_range = 2.0
 item_name = "Cuchillo de cocina"
 dimensions = Vector2i(3, 1)
-item_mesh = ExtResource("1_nt4gf")
+item_mesh = ExtResource("1_1jgj1")
 metadata/_custom_type_script = "uid://c5ccot1xni1sw"

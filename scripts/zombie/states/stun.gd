@@ -4,7 +4,13 @@ extends ZombieState
 @export var max_stun_time : float = 7.0
 
 func enter(previous_state_path: String, data := {}) -> void:
+
+	zombie.look_head.influence = 0.0
+	if data:
+		if data.get("ragdoll"):
+			return
 	can_transition = false
+	
 	var stun_dir : int = data.get("direction")
 	if stun_dir:
 		zombie.zombie_mesh.scale.x = 1

@@ -242,21 +242,26 @@ func _apply_recoil() -> void:
 
 ## Golpe cuerpo a cuerpo: elige un swing al azar, lo anima y espera el momento del golpe.
 func swing() -> bool:
+
 	var melee := current_weapon as Melee
 	if not melee or melee.swings.is_empty():
 		return false
 	if fire_rate.time_left != 0.0:
 		return false
-
+	weapon_ap.speed_scale = 1.5
 
 	var swing_data: SwingData = melee.swings.pick_random()
 
 	if weapon_ap and weapon_ap.has_animation(swing_data.animation):
+		weapon_ap.stop()
 		weapon_ap.play(swing_data.animation,.1)
 	fire_rate.start(melee.fire_rate)
+	
 	await get_tree().create_timer(swing_data.hit_time).timeout
+	view_punch.punch(Vector2(swing_data.recoil_kick.x, swing_data.recoil_kick.y))
 	if weapon_ap and weapon_ap.has_animation("idle"):
-		weapon_ap.play("idle",-1)
+		weapon_ap.playback_default_blend_time = .5
+		weapon_ap.queue("idle")
 
 	if current_weapon != melee:
 		return false  # se cambió de arma durante el swing
@@ -265,6 +270,28 @@ func swing() -> bool:
 	var hit := MeleeProjectile.new()
 	player.add_child(hit)
 	hit.setup(melee, swing_data,player)
+	
+	# --- EJECUCIONES (comentado hasta tener animaciones) ---
+	# # Intentar ejecución sigilosa si está por detrás
+	# var cam := get_viewport().get_camera_3d()
+	# if cam:
+	# 	var space_state := cam.get_world_3d().direct_space_state
+	# 	var origin := cam.global_position
+	# 	var forward := -cam.global_basis.z
+	# 	var query := PhysicsRayQueryParameters3D.create(origin, origin + forward * melee.weapon_range)
+	# 	query.collide_with_areas = true
+	# 	query.collision_mask = 512
+	# 	var res := space_state.intersect_ray(query)
+	# 	if not res.is_empty():
+	# 		var hitbox := res.collider as Node3D
+	# 		if hitbox and hitbox.owner is Zombie:
+	# 			var zombie := hitbox.owner as Zombie
+	# 			var dot := zombie.global_basis.z.dot(forward)
+	# 			if dot > 0.5: # por detrás
+	# 				# # Ejecutar
+	# 				# player.playback.start("execution")
+	# 				# zombie.die(hitbox, melee.damage * 10.0, player, (-zombie.global_basis.z).normalized(), 1000.0)
+	# 				pass
 	return true
 
 @onready var push_hitbox: Area3D = %PushHitbox

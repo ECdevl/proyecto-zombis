@@ -51,6 +51,12 @@
   - [ ] `PlayerNeeds.heal()` no tiene rama `HEALTH` pero `arm_states/consuming.gd:35` la invoca
   - [ ] `inventory_ui_controller.gd:72` y `:223` leen `descriptor.quick_slots`, que solo
         existe en `WearableItemDescriptor` (error de tipo estático en GDScript)
+
+  - [ ] **`zombie/states/idle.gd:12`** — `Invalid access to property or key 'velocity' on a
+        base object of type 'null instance'` en `physics_update`. Aparece en runtime
+        (sondas headless) repetidamente: el estado se procesa con `zombie == null`.
+        Observado el 2026-10-29 al validar el fix de soltado; no investigado a fondo.
+
   - [ ] ~~`item_inventory.gd` (sistema `Item` legacy)~~ — resuelto: el script se eliminó
         en la reorganización (T-001)
 
@@ -71,6 +77,23 @@
       `scenes/weapons/firearm/{glock,desert_eagle}.tscn`,
       `scenes/weapons/melee/machete.tscn`, `scenes/weapons/viewmodel.gdshader`,
       `scenes/components/door_components.tscn`, `scenes/debug/ragdoll_testing.tscn`.
+
+- [ ] **T-007 Pendientes de datos del refactor de pickables con `-rigid`** (D-006, E-008):
+  - [ ] **Repuntar `item_mesh`** de los descriptores a la escena del modelo importado con
+        `-rigid` **con el script `pickable_object.gd` ya colgado en la raíz** (la escena
+        que usted arma al meter el modelo y pegarle el script). Hoy apuntan al modelo
+        crudo sin script (`bate.fbx`, `machete.fbx`, `cuchillo.fbx`, escena inline de
+        `agua.tres`, etc.): `drop_item()` emite warning y devuelve el item al inventario
+        hasta que se repunten.
+  - [x] Poner **capa de colisión 2** al `RigidBody3D` — resuelto en el rework (D-007): el
+        script aplica `body_layer = 2` / `body_mask = 7` al cuerpo en `_ready()` (ajustables
+        por objeto con `@export_flags_3d_physics`), sin tocar las import settings.
+  - [x] Definir el destino de `scenes/components/pickable_object.tscn` — resuelto en el
+        rework (D-007): el `_ready` **reutiliza** el `Area3D` de la capa 2 que ya trae la
+        escena, así que no hay área duplicada. La escena queda como legado; el flujo
+        nuevo es modelo importado + script.
+  - [ ] Mover `new_sphere_shape_3d.tres` (raíz del proyecto, sin versionar) a
+        `resources/` (D-001); el `preload` por `uid://` en `pickable_object.gd` no cambia.
 
 ## Hecho
 

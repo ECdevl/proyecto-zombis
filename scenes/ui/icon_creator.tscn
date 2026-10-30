@@ -10,7 +10,8 @@ script = ExtResource("1_go1vf")
 [node name="Camera3D" type="Camera3D" parent="." unique_id=1399801673]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -1, 0.15, 0)
 projection = 1
-size = 0.5
+fov = 140.625
+frustum_offset = Vector2(-0.02, 0)
 
 [node name="OmniLight3D" type="OmniLight3D" parent="." unique_id=1634696905]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.4023164, 0.41364545, 0.40169424)

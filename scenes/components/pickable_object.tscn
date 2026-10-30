@@ -1,20 +1,11 @@
 [gd_scene format=3 uid="uid://dnwmecb1siwnm"]
 
 [ext_resource type="Script" uid="uid://bu7vbye8nef13" path="res://scripts/components/pickable_object.gd" id="1_jkgyc"]
-
-[sub_resource type="SphereShape3D" id="SphereShape3D_8njf7"]
-radius = 1.0
+[ext_resource type="PackedScene" uid="uid://0pwj6yq3rj5i" path="res://scenes/components/pickup_area.tscn" id="2_uujet"]
 
 [node name="pickable_object" type="RigidBody3D" unique_id=747042647]
 collision_layer = 2
 collision_mask = 7
 script = ExtResource("1_jkgyc")
 
-[node name="Collision" type="CollisionShape3D" parent="." unique_id=2126588117]
-unique_name_in_owner = true
-
-[node name="PickupArea" type="Area3D" parent="." unique_id=1482631678]
-collision_layer = 2
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="PickupArea" unique_id=428531228]
-shape = SubResource("SphereShape3D_8njf7")
+[node name="PickupArea" parent="." unique_id=410788865 instance=ExtResource("2_uujet")]

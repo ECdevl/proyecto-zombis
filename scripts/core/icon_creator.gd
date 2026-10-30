@@ -14,7 +14,7 @@ func create_texture(mesh: PackedScene) -> ImageTexture:
 	# Ajustar cámara según tamaño del modelo
 	var radius := aabb.get_longest_axis_size() * 0.5
 	camera_3d.global_position = Vector3(0, 0, radius * 2.5)
-	camera_3d.look_at(Vector3.ZERO)
+	camera_3d.look_at(display_mesh.global_position)
 
 	await RenderingServer.frame_post_draw
 	var image: Image = get_texture().get_image()

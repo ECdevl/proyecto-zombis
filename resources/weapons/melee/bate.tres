@@ -1,27 +1,29 @@
 [gd_resource type="Resource" script_class="Melee" format=3 uid="uid://1pliys4sarhg"]
 
-[ext_resource type="PackedScene" uid="uid://c6mxffsu2wexr" path="res://assets/models/weapons/melee/bate.obj" id="1_txd18"]
+[ext_resource type="PackedScene" uid="uid://ctwcgdftvcavw" path="res://assets/models/weapons/melee/bate.fbx" id="1_i6vst"]
 [ext_resource type="Script" uid="uid://c5ccot1xni1sw" path="res://scripts/inventory/descriptors/melee.gd" id="2_j4gi4"]
-[ext_resource type="PackedScene" uid="uid://ctwcgdftvcavw" path="res://assets/models/weapons/melee/bate.fbx" id="3_07hgv"]
 [ext_resource type="Script" uid="uid://dskngi7txlhue" path="res://scripts/inventory/descriptors/swing_data.gd" id="3_j4gi4"]
+[ext_resource type="PackedScene" uid="uid://csq7fuyt6hvdq" path="res://assets/models/weapons/melee/bate.glb" id="4_i6vst"]
 
 [sub_resource type="Resource" id="Resource_pf23h"]
 script = ExtResource("3_j4gi4")
 animation = &"swing1"
+recoil_kick = Vector2(0, 10)
 
 [sub_resource type="Resource" id="Resource_dt7fs"]
 script = ExtResource("3_j4gi4")
 animation = &"swing2"
 direction = Vector3(-1, 0, 0)
+recoil_kick = Vector2(0, -10)
 
 [resource]
 script = ExtResource("2_j4gi4")
 swings = Array[ExtResource("3_j4gi4")]([SubResource("Resource_pf23h"), SubResource("Resource_dt7fs")])
 hitbox_radius = 0.75
 weapon_handle = 1
-viewmodel_model = ExtResource("3_07hgv")
+viewmodel_model = ExtResource("4_i6vst")
 damage = 20.0
 item_name = "Bate de beisbol"
 dimensions = Vector2i(3, 1)
-item_mesh = ExtResource("1_txd18")
+item_mesh = ExtResource("1_i6vst")
 metadata/_custom_type_script = "uid://c5ccot1xni1sw"

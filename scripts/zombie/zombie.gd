@@ -18,7 +18,7 @@ var playback : AnimationNodeStateMachinePlayback
 @onready var skeleton_3d: Skeleton3D = $ZombiConRig/rig/Skeleton3D
 
 @export var zombie_mesh : MeshInstance3D
-
+@export var claw_damage : float = 10.0
 var direction : Vector3
 @onready var state_machine: StateMachine = %StateMachine
 
@@ -89,19 +89,23 @@ func handle_gravity(delta:float)-> void:
 	
 
 
-func die(who: Node3D, damage: float, attacker: Node3D,impulse:Vector3 = Vector3.ZERO,force: float = 0) -> void:
+func die(who: Node3D, damage: float, attacker: Node3D,impulse:Vector3 = Vector3.ZERO,force: float = 10) -> void:
 	state_machine.state.finished.emit("death")
-	ragdoll_component.start(true,impulse,force)  # permanente, reemplaza physical_bones_start_simulation()
+	var imp := impulse
+	if imp.length_squared() < 0.0001 and has_meta("melee_hit_dir"):
+		imp = get_meta("melee_hit_dir") as Vector3
+		force = force if force > 0.0 else 800.0
+	ragdoll_component.start(true,imp,force)  # permanente, reemplaza physical_bones_start_simulation()
+	if has_meta("melee_hit_dir"):
+		remove_meta("melee_hit_dir")
 
 
 func _on_ragdoll_component_recovered(face_up: bool) -> void:
-	state_machine.can_change_state = false
-	playback.start("awake_up" if face_up else "awake_down")
-	await at.animation_finished
-	state_machine.can_change_state = true
-	vision.can_see = true
+	state_machine.state.finished.emit("recover",{"animation": "awake_up" if face_up else "awake_down"})
+	
 
 func _on_ragdoll_component_ragdoll_started() -> void:
 	vision.can_see = false
+	state_machine.state.finished.emit("stun",{"ragdoll":true})
 	
 	

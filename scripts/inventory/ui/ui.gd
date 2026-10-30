@@ -31,6 +31,9 @@ const INSTRUCTOR = preload("uid://b6idlm6tyvtrx")
 func _ready() -> void:
 	# El inventario lo tiene el Player; la interfaz solo lo observa.
 	inventory_ui.bind_inventory(player.inventory)
+	# La UI es vista: le avisa al Player, que es la autoridad del inventario (D-004).
+	inventory_ui.item_used.connect(player.use_item)
+	inventory_ui.item_dropped.connect(player.drop_item)
 	inventory.hide.call_deferred()
 	var tween = create_tween().set_loops(0)
 	tween.tween_property(sturggle_progress,"scale",Vector2(1.2,1.2),.1)

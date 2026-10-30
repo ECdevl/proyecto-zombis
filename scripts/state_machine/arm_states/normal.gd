@@ -37,15 +37,16 @@ func handle_input(_event: InputEvent) -> void:
 		player.weapon_controller.reload()
 
 	if _event.is_action_pressed("drop"):
-		if player.weapon_controller.current_weapon:
-			var player_inventory : PlayerCarriedInventories = player.inventory
-			if player_inventory.hands._held.is_empty():
-				return
-			var held_instance : ItemInstance = player_inventory.hands.get_held(HandsModel.Hand.RIGHT)
-			if not held_instance:
-				held_instance = player_inventory.hands.get_held(HandsModel.Hand.LEFT)
-			player_inventory.remove(held_instance)
-			player.drop_item(held_instance)
+		if not can_transition:  # recargando: no se suelta (antes el item se perdía)
+			return
+		var player_inventory : PlayerCarriedInventories = player.inventory
+		if player_inventory.hands.items().is_empty():
+			return
+		var held_instance : ItemInstance = player_inventory.hands.get_held(HandsModel.Hand.RIGHT)
+		if not held_instance:
+			held_instance = player_inventory.hands.get_held(HandsModel.Hand.LEFT)
+		player_inventory.remove(held_instance)
+		player.drop_item(held_instance)
 
 func physics_update(_delta: float) -> void:
 	if !player.is_on_floor():
@@ -61,6 +62,6 @@ func physics_update(_delta: float) -> void:
 var combo_index : int = 0
 func attack() -> void:
 	if player.weapon_controller.current_weapon is Weapon:
-		player.weapon_controller.shoot()
+		await player.weapon_controller.shoot()
 	else:
-		player.weapon_controller.swing()
+		await player.weapon_controller.swing()

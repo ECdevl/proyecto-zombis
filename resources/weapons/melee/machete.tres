@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="Melee" format=3 uid="uid://djhf1p03bo78d"]
 
-[ext_resource type="PackedScene" uid="uid://k0l50lit80ue" path="res://assets/models/weapons/melee/one_hand/machete.obj" id="1_en5fd"]
+[ext_resource type="PackedScene" uid="uid://5hs3xju50d6r" path="res://assets/models/weapons/melee/one_hand/machete.fbx" id="1_1ujgm"]
 [ext_resource type="Script" uid="uid://c5ccot1xni1sw" path="res://scripts/inventory/descriptors/melee.gd" id="2_1ujgm"]
 [ext_resource type="Script" uid="uid://dskngi7txlhue" path="res://scripts/inventory/descriptors/swing_data.gd" id="3_1ujgm"]
 [ext_resource type="PackedScene" uid="uid://dsugcersjogck" path="res://assets/models/weapons/melee/one_hand/machete.glb" id="4_1ujgm"]
@@ -8,18 +8,22 @@
 [sub_resource type="Resource" id="Resource_vau08"]
 script = ExtResource("3_1ujgm")
 animation = &"swing1"
+recoil_kick = Vector2(0, 5)
 
 [sub_resource type="Resource" id="Resource_gnu3u"]
 script = ExtResource("3_1ujgm")
 animation = &"swing2"
-direction = Vector3(-1, 0, 0)
+recoil_kick = Vector2(0, -5)
 
 [resource]
 script = ExtResource("2_1ujgm")
 swings = Array[ExtResource("3_1ujgm")]([SubResource("Resource_vau08"), SubResource("Resource_gnu3u")])
+hitbox_radius = 0.5
 viewmodel_model = ExtResource("4_1ujgm")
-fire_rate = 0.25
+damage = 10.0
+fire_rate = 0.2
+weapon_range = 3.0
 item_name = "Machete"
 dimensions = Vector2i(4, 1)
-item_mesh = ExtResource("1_en5fd")
+item_mesh = ExtResource("1_1ujgm")
 metadata/_custom_type_script = "uid://c5ccot1xni1sw"
