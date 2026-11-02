@@ -68,7 +68,6 @@ func fire() -> void:
 
 func _apply_hit_with_dir(collider: Object, hit_pos: Vector3, zombie: Zombie) -> void:
 	var hitbox := collider as Node
-	print_debug(hitbox)
 	if hitbox == null:
 		return
 	var dmg := _damage_for(hitbox)
@@ -78,14 +77,14 @@ func _apply_hit_with_dir(collider: Object, hit_pos: Vector3, zombie: Zombie) -> 
 	if hitbox.is_in_group("zombie_head"):
 		zombie.set_meta("melee_hit_dir", push_direction.normalized() if push_direction.length_squared() > 0.0001 else (-get_viewport().get_camera_3d().global_basis.z))
 
-	zombie.health_component.hurt(dmg, hitbox, _attacker(), hit_pos)
+	zombie.health_component.hurt(dmg, {"who":hitbox,"attacker":_attacker(),"hit_pos":hit_pos,"impulse":push_direction,"force":20.0})
 
 
 func _damage_for(hitbox: Node) -> float:
 	# Solo dañar en la cabeza con melee
 	if hitbox.is_in_group("zombie_head"):
 		return damage
-	return damage / 4
+	return 0.1
 
 
 func _attacker() -> Node3D:

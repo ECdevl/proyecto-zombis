@@ -8,14 +8,15 @@ class_name WearableItemDescriptor extends ItemDescriptor
 @export var quick_slots : int = 0
 @export var cloth_color : Color = Color(255,10,23)
 
-func _init() -> void:
-	await Engine.get_main_loop().process_frame
-	if random_color:
-		var mesh : Node3D = item_mesh.instantiate()
-		mesh.get_child(0).material_overlay.albedo_color = Color(randf(),randf(),randf())
-		var packed : PackedScene = PackedScene.new()
-		packed.pack(mesh)
-		item_mesh = packed
+## Tinte propio de la prenda: si random_color, cada instancia recibe un color
+## distinto (ícono y objeto soltado al mundo). Corre también en el editor
+## (pickable_object.gd es @tool), así que el color se ve al decorar la escena.
+func decorar_malla(malla: MeshInstance3D) -> void:
+	if not random_color:
+		return
+	var material := StandardMaterial3D.new()
+	material.albedo_color = Color(randf(), randf(), randf())
+	malla.material_overlay = material
 
 		
 enum EquipSlot { HEAD, TORSO, LEGS, FEET, BACK, SHOULDERS }

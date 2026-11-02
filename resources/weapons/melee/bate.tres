@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="Melee" format=3 uid="uid://1pliys4sarhg"]
 
-[ext_resource type="PackedScene" uid="uid://ctwcgdftvcavw" path="res://assets/models/weapons/melee/bate.fbx" id="1_i6vst"]
+[ext_resource type="ArrayMesh" uid="uid://drd17ygmcujib" path="res://assets/models/weapons/melee/one_hand/bate_world.obj" id="1_i6vst"]
 [ext_resource type="Script" uid="uid://c5ccot1xni1sw" path="res://scripts/inventory/descriptors/melee.gd" id="2_j4gi4"]
 [ext_resource type="Script" uid="uid://dskngi7txlhue" path="res://scripts/inventory/descriptors/swing_data.gd" id="3_j4gi4"]
 [ext_resource type="PackedScene" uid="uid://csq7fuyt6hvdq" path="res://assets/models/weapons/melee/bate.glb" id="4_i6vst"]

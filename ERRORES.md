@@ -214,3 +214,130 @@ if me is RigidBody3D:
 ```
 
 `Node → RigidBody3D` sí es un downcast válido para el analizador.
+
+**Actualización (D-009):** `PickableItem` ahora declara
+`extends RigidBody3D` directamente (la escena es una prefabricada fija), así que
+este workaround ya no aplica ahí. La limitación del analizador sigue vigente
+para cualquier script colgado en runtime de un tipo distinto al que declara.
+
+---
+
+## E-010 — Los pickables importados con `-rigid` eran inconsistentes entre objetos
+
+**Síntoma:** con el enfoque `-rigid` de Blender, cada objeto importado se
+comportaba distinto: unos traían colisión y otros no, y la forma no servía
+genérica porque hay objetos circulares y otros no.
+
+**Causa real (varias):**
+
+1. El sufijo `-rigid` **se ignora si el mesh es el nodo raíz** de la escena
+   importada (en Blender el objeto debe quedar bajo una Collection): esos
+   objetos quedaban como malla simple, sin cuerpo.
+2. El `RigidBody3D` generado por el importador queda en la **capa de colisión
+   1** por defecto (no en la 2 del proyecto), salvo que se configure en las
+   Advanced Import Settings.
+3. La colisión convexa que genera el importador **varía por modelo** y no se
+   puede controlar finamente; y una forma genérica (caja/esfera) no encaja
+   objetos de formas muy distintas.
+
+**Corrección (ver `DECISIONES.md` D-008):** se abandona `-rigid`. El modelo se
+importa como **malla `.FBX` cruda** y el script `PickableItem` genera la
+física en runtime: crea el `RigidBody3D` hijo con la capa 2, cuelga las mallas
+debajo y calcula la colisión **desde la propia malla** con
+`Mesh.create_convex_shape()` (un casco convexo real por objeto, no una forma
+genérica). `Player.drop_item()` cuelga el script a la malla cruda al soltarla,
+así que los descriptores apuntan al `.fbx` directo sin escena heredada.
+
+**Verificación:** `tools/probe_soltar.gd` → *TODO OK* (sección 6: malla cruda →
+`PickableItem` con cuerpo hijo y colisión convexa generada).
+
+---
+
+## E-011 — La arquitectura de D-008 no coincidía con el flujo real del proyecto
+
+**Síntoma:** tras el rework de D-008, el usuario señaló dos problemas:
+`pickable_object.gd` quedó demasiado grande (289 líneas) y el flujo de soltado
+era el equivocado — se instanciaba la escena del descriptor y se le "colgaba"
+el script en runtime, cuando la intención es instanciar **la escena
+`pickable_object.tscn`** y que el descriptor aporte **solo el mesh** por
+`item_mesh`. Además faltaba poder ver ese mesh en el editor para decorarlo
+(rotarlo/posicionarlo).
+
+**Causa real:** el diseño de D-008 partió de un supuesto incorrecto: que cada
+descriptor traería su propia escena del modelo como plantilla del mundo. El
+flujo real del proyecto es **una única escena física reutilizable + el mesh del
+recurso**. El script terminó replicando en runtime lo que la escena fija ya
+trae armado (cuerpo, área, colisión) y expuso `@export` de más
+(`body_layer`, `body_mask`, `body_mass`, `collision_mode`, `interact_resource`)
+para configurar valores que pertenecen a la escena.
+
+**Corrección (ver `DECISIONES.md` D-009):** prefabricada fija
+`pickable_object.tscn` (raíz `RigidBody3D` + `Malla` + `Colision` +
+`AreaInteraccion`), `item_mesh: Mesh` (el `ArrayMesh` del FBX), script mínimo
+con `@tool` para ver y decorar el mesh en el editor, y hook `decorar_malla()`
+en `ItemDescriptor` para el look por instancia (la ropa sobreescribe para el
+color aleatorio, antes mutación en `_init`). `drop_item()` solo instancia la
+prefabricada y asigna descriptor + `ItemInstance`.
+
+**Verificación:** `tools/probe_soltar.gd` → *TODO OK* (33 verificaciones);
+`--check-only` limpio en los scripts modificados; `tools/probe_inventario.gd` →
+flujo OK (su único fallo es una conexión rota de `zombie.tscn` perteneciente al
+trabajo en curso sobre zombis, T-008).
+
+## E-012 — Los pickables atravesaban el piso (tunneling) al soltarlos
+
+**Síntoma:** tras validar D-009, el usuario reportó (2026-11-02) que "dentro
+del juego los objetos atraviesan el piso o tienen colisiones muy inconsistentes",
+y que probando a activar Continuous CD el machete ya no atravesaba el piso al
+aparecer, pero al soltarlo sí, "chocando primero el mango". Sospechaba del tipo
+de colisión (casco convexo derivado de la malla).
+
+**Causa real (evidencia de `tools/probe_tunel.gd`, no especulación):**
+
+1. **No es el tipo de colisión.** Una `BoxShape3D` del mismo tamaño atraviesa
+   el piso igual que el casco convexo (ola V3) y el casco convexo descansa
+   sobre un piso de caja sólida en todas las caídas (experimento B).
+2. **Es un fallo de contacto con el piso TRIMESH** (`ConcavePolygonShape3D`
+   de `test.tscn`, caja de 1,725 m de grosor): cuando la **primera
+   penetración de un tick es grande** (≥ ~3 cm; caída ≥ ~0,6 m → impacto
+   ≥ ~4,7 m/s con gravedad 20 a 120 Hz ≈ 3,9 cm/tick), Jolt **no genera
+   ningún contacto**: la velocidad vertical cambia solo por gravedad mientras
+   el objeto se hunde por todo el grosor del piso (traza T1 de la sonda).
+   Caídas ≤ 0,30 m quedan bien en todos los pisos. `backface_collision = true`
+   no cambia nada (experimento C): no es un problema de caras unidireccionales.
+3. **El CCD no estaba en ninguna parte:** antes del fix, `grep continuous_cd`
+   no daba ningún resultado en el proyecto. La prueba de CCD del usuario no
+   quedó guardada (su estado exacto no es verificable); lo más probable es
+   que la hubiera activado solo en la instancia de `test.tscn` — así el objeto
+   puesto en la escena no atravesaba pero la copia soltada (instanciada desde
+   el prefab, sin CCD) sí, que es exactamente el síntoma reportado.
+4. Hallazgos latentes del mismo análisis:
+   - Godot **no soporta escalar cuerpos/formas de colisión** (docs oficiales >
+     Troubleshooting physics issues) y `_sincronizar_colision()` copiaba
+     `malla.transform` **con escala** a `Colision`.
+   - El prefab traía un **casco horneado del machete** con `Malla` vacía:
+     `_aplicar_descriptor()` hacía `return` sin limpiar nada si el descriptor
+     era `null` (y emitía `push_error("NO HAY ITEM")` también en el camino
+     normal, cuando los hijos aún no existen) → objeto invisible con colisión
+     ajena = "colisiones inconsistentes".
+
+**Corrección (ver `DECISIONES.md` D-010):**
+
+1. `continuous_cd = true` en la raíz de `pickable_object.tscn`: toda
+   instancia, incluida la que `drop_item()` crea, hereda CCD.
+2. La transformación de `Malla` se **hornea en los puntos** del casco convexo
+   y `Colision` queda con transformación identidad (si hay escala, vive en
+   los puntos, que sí es soportada).
+3. Sin mesh en `Malla`, `Colision.shape` se **borra** (nunca queda un casco
+   ajeno); se eliminó el casco horneado del `.tscn` y el `push_error` de
+   depuración.
+
+**Verificación:** `tools/probe_tunel.gd` → *RESULTADO: NINGÚN ATRAVIESO*
+(olas V2 y V6 —esta última es la instancia real del juego con su descriptor—
+5/5 escenarios: spawn plano, soltado a 6 m/s, de canto, mango-primero con giro
+y caída de 30 m/s; además aserciones de CCD activo y sin casco horneado en el
+prefab). `tools/probe_soltar.gd` → *TODO OK* (assert actualizado al nuevo
+contrato: `Colision` en identidad con la transformación horneada);
+`--check-only` limpio; `tools/probe_inventario.gd` y
+`tools/check_tscn_connections.py` → solo la falla preexistente de T-008
+(conexión rota de `zombie.tscn`, trabajo de zombis).

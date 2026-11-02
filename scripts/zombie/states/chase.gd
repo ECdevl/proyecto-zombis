@@ -7,7 +7,6 @@ var target : Node3D
 
 @export var grab_time : float = 2.0
 @export var claw_rate : float = .5
-@export var claw_range : float = 2.0
 var to_grab : bool = false
 
 var stop : bool = false
@@ -25,11 +24,7 @@ func enter(previous_state_path: String, data := {}) -> void:
 func physics_update(_delta: float) -> void:
 	zombie.handle_gravity(_delta)
 	
-	if zombie.playback.get_current_node() in ["awake_up","awake_down"] or zombie.ragdoll_component.is_ragdoll:
-		zombie.velocity = Vector3.ZERO
-		return
-	else:
-		zombie.playback.travel("walk")
+	zombie.playback.travel("walk")
 	if target is Node3D:
 		zombie.nav.target_position = target.global_position
 	else:
@@ -37,21 +32,14 @@ func physics_update(_delta: float) -> void:
 		return
 	var target_rot : float = atan2(-zombie.direction.x,-zombie.direction.z)
 	zombie.rotation.y = rotate_toward(zombie.rotation.y, target_rot, deg_to_rad(720) * _delta)
-	
-	if zombie.global_position.distance_squared_to(target.global_position) <= claw_range:
-		
-		if claw_timer.is_stopped():
-			claw_timer.start(claw_rate)
-		
-	else:
-		if not claw_timer.is_stopped():
-			claw_timer.stop()
+	var distance_to_target = zombie.global_position.distance_squared_to(target.global_position)
+
 
 		
 
-	if zombie.global_position.distance_squared_to(target.global_position) < zombie.nav.target_desired_distance:
+	if distance_to_target < zombie.nav.target_desired_distance:
 		stop = false
-		zombie.playback.start("idle1")
+		zombie.playback.travel("idle1")
 		return
 	zombie.nav.get_next_path_position()
 	zombie.direction = zombie.global_position.direction_to(zombie.nav.get_next_path_position())
@@ -63,8 +51,17 @@ func physics_update(_delta: float) -> void:
 
 	zombie.move_and_slide()
 
+func update(_delta: float) -> void:
+
+
+	var distance_to_target = zombie.global_position.distance_squared_to(target.global_position)
+	if distance_to_target <= grab_range * grab_range:
+		print_debug(distance_to_target)
+		attack()
+
 func exit(next_state_path:String) -> void:
-	
+	zombie.at["parameters/grab/request"] = 2
+	zombie.at["parameters/attack/request"] = 2
 	zombie.velocity = Vector3.ZERO
 	claw_timer.stop()
 	var tween = create_tween().set_parallel(true)
@@ -83,39 +80,59 @@ func _on_vision_target_lost(lost: Node3D) -> void:
 		target = player_pos
 	
 
-func claw() -> void:
-	var claw_or_grab : int = randi_range(0,8)
-	claw_or_grab = claw_or_grab % 2
+func attack() -> void:
+	
+	var distance =zombie.global_position.distance_squared_to(target.global_position)
+	if not claw_timer.is_stopped(): 
+		return
+	
+	var claw_or_grab : int
+	claw_or_grab = randi_range(0,1)
+	
+	if distance >= grab_range:
+		claw_or_grab = 0
+	
+	
 	if claw_or_grab == 0:
-		if claw_timer.time_left <= 0.0 :
-
-			var random_attack : Vector2i = Vector2i(randi_range(-1,1),randi_range(-1,1))
-			zombie.at["parameters/attack_var/blend_position"] = random_attack
-			zombie.at["parameters/attack/request"] = 1
-			await zombie.at.animation_started
-			await get_tree().create_timer(0.46).timeout
-			hurt_target()
-			return
+		claw_timer.start(claw_rate)
+		if zombie.zombie_ap.current_animation.contains("attack"):
+			await zombie.at.animation_finished
+		var random_attack : Vector2i = Vector2i(randi_range(-1,1),randi_range(-1,1))
+		zombie.at["parameters/attack_var/blend_position"] = random_attack
+		zombie.at["parameters/attack/request"] = 1
+		await zombie.at.animation_started
+		await get_tree().create_timer(0.46).timeout
+		hurt_target()
+		return
 	else:
+		claw_timer.start(claw_rate)
+		if zombie.zombie_ap.current_animation.contains("attack"):
+			await zombie.at.animation_finished
 		var d2 := zombie.global_position.distance_squared_to(target.global_position)
 		if d2 <= grab_range * grab_range:
 			zombie.at["parameters/grab/request"] = 1
-			await get_tree().create_timer(0.5).timeout
+			await get_tree().create_timer(0.4).timeout
 			hurt_target(true)
 			
 			return
+	
+@onready var hit_box: Area3D = %HitBox
 
 func hurt_target(grab:bool = false) -> void:
+	
 	if target:
 		var d2 := zombie.global_position.distance_squared_to(target.global_position)
-		if d2 <= grab_range * grab_range:
-			if target is Player:
-				if grab:
+		if target is Player:
+			if grab:
+				if d2 <= grab_range * grab_range:
 					zombie.at["parameters/grab/request"] = 3
 					finished.emit("grab")
 					return
-				else:
-					target.health_component.hurt(zombie.claw_damage)
+			else:
+				if hit_box.get_overlapping_bodies().is_empty():
+					return
+				if hit_box.get_overlapping_bodies()[0] is CharacterBody3D:
+					hit_box.get_overlapping_bodies()[0].health_component.hurt(zombie.claw_damage)
 
 func _on_nav_target_reached() -> void:
 	if target is Marker3D:

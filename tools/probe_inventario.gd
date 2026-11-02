@@ -193,6 +193,6 @@ func _find_player(n: Node) -> Player:
 
 func _crear_pickable(descriptor: ItemDescriptor) -> PickableItem:
 	var packed: PackedScene = load("res://scenes/components/pickable_object.tscn")
-	var n = packed.instantiate()
-	n.item = ItemInstance.new(descriptor)
+	var n: PickableItem = packed.instantiate()
+	n.item_descriptor = descriptor
 	return n

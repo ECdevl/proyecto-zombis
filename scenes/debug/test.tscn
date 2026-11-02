@@ -3,10 +3,12 @@
 [ext_resource type="PackedScene" uid="uid://3gnsls7jtuxo" path="res://scenes/player.tscn" id="1_37kl0"]
 [ext_resource type="Texture2D" uid="uid://bc0povc2pw7x8" path="res://assets/textures/sky/06_down.png" id="1_ibfy0"]
 [ext_resource type="Texture2D" uid="uid://ce2rcj4jb7dmi" path="res://assets/textures/dev/dev_blue.png" id="2_7rf62"]
+[ext_resource type="Resource" uid="uid://1pliys4sarhg" path="res://resources/weapons/melee/bate.tres" id="3_2rjyo"]
+[ext_resource type="Resource" uid="uid://b1ihtv4u6lxt6" path="res://resources/weapons/melee/cuchillo.tres" id="3_mx0de"]
+[ext_resource type="Texture2D" uid="uid://cqhcv00l1pewv" path="res://assets/textures/dev/dev_green.png" id="4_5cao6"]
 [ext_resource type="PackedScene" uid="uid://dftxseqmmjo35" path="res://scenes/zombies/zombie.tscn" id="4_ppyta"]
-[ext_resource type="Script" uid="uid://bu7vbye8nef13" path="res://scripts/components/pickable_object.gd" id="6_hn7ej"]
-[ext_resource type="PackedScene" uid="uid://ctwcgdftvcavw" path="res://assets/models/weapons/melee/bate.fbx" id="9_2rjyo"]
-[ext_resource type="Resource" uid="uid://1pliys4sarhg" path="res://resources/weapons/melee/bate.tres" id="15_i5s65"]
+[ext_resource type="PackedScene" uid="uid://dnwmecb1siwnm" path="res://scenes/components/pickable_object.tscn" id="6_hn7ej"]
+[ext_resource type="Resource" uid="uid://djhf1p03bo78d" path="res://resources/weapons/melee/machete.tres" id="12_i5s65"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_hc2b7"]
 sky_cover = ExtResource("1_ibfy0")
@@ -17,7 +19,6 @@ sky_material = SubResource("ProceduralSkyMaterial_hc2b7")
 [sub_resource type="Environment" id="Environment_6uqi0"]
 background_mode = 2
 sky = SubResource("Sky_8uh7m")
-fog_enabled = true
 fog_light_color = Color(0.35713527, 0.38817412, 0.43646485, 1)
 fog_density = 0.05
 fog_depth_curve = 0.30778608
@@ -27,20 +28,43 @@ vertices = PackedVector3Array(-0.75, 0.400316, -1.7290039, 1.25, 0.400316, -1.72
 polygons = [PackedInt32Array(2, 1, 0), PackedInt32Array(0, 3, 2), PackedInt32Array(2, 3, 4), PackedInt32Array(4, 3, 5), PackedInt32Array(3, 6, 5), PackedInt32Array(2, 8, 1), PackedInt32Array(1, 8, 7), PackedInt32Array(9, 7, 8), PackedInt32Array(9, 8, 10), PackedInt32Array(10, 8, 12), PackedInt32Array(10, 12, 11), PackedInt32Array(11, 13, 10), PackedInt32Array(17, 16, 14), PackedInt32Array(14, 16, 15), PackedInt32Array(21, 20, 18), PackedInt32Array(18, 20, 19), PackedInt32Array(22, 13, 11), PackedInt32Array(22, 11, 23), PackedInt32Array(23, 11, 25), PackedInt32Array(23, 25, 24), PackedInt32Array(24, 26, 23), PackedInt32Array(29, 28, 27), PackedInt32Array(29, 27, 6), PackedInt32Array(6, 27, 5), PackedInt32Array(5, 27, 30), PackedInt32Array(28, 26, 27), PackedInt32Array(27, 26, 24)]
 agent_radius = 1.0
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ibfy0"]
-albedo_texture = ExtResource("2_7rf62")
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5cao6"]
+albedo_texture = ExtResource("4_5cao6")
+uv1_triplanar = true
+uv2_triplanar = true
 
 [sub_resource type="BoxMesh" id="BoxMesh_q8wwd"]
-material = SubResource("StandardMaterial3D_ibfy0")
+material = SubResource("StandardMaterial3D_5cao6")
 size = Vector3(50, 1.725, 36)
 
 [sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_q8wwd"]
 data = PackedVector3Array(-24.175, 0.86249995, 17.9585, 24.175, 0.86249995, 17.9585, -24.175, -0.86249995, 17.9585, 24.175, 0.86249995, 17.9585, 24.175, -0.86249995, 17.9585, -24.175, -0.86249995, 17.9585, 24.175, 0.86249995, -17.9585, -24.175, 0.86249995, -17.9585, 24.175, -0.86249995, -17.9585, -24.175, 0.86249995, -17.9585, -24.175, -0.86249995, -17.9585, 24.175, -0.86249995, -17.9585, 24.175, 0.86249995, 17.9585, 24.175, 0.86249995, -17.9585, 24.175, -0.86249995, 17.9585, 24.175, 0.86249995, -17.9585, 24.175, -0.86249995, -17.9585, 24.175, -0.86249995, 17.9585, -24.175, 0.86249995, -17.9585, -24.175, 0.86249995, 17.9585, -24.175, -0.86249995, -17.9585, -24.175, 0.86249995, 17.9585, -24.175, -0.86249995, 17.9585, -24.175, -0.86249995, -17.9585, 24.175, 0.86249995, 17.9585, -24.175, 0.86249995, 17.9585, 24.175, 0.86249995, -17.9585, -24.175, 0.86249995, 17.9585, -24.175, 0.86249995, -17.9585, 24.175, 0.86249995, -17.9585, -24.175, -0.86249995, 17.9585, 24.175, -0.86249995, 17.9585, -24.175, -0.86249995, -17.9585, 24.175, -0.86249995, 17.9585, 24.175, -0.86249995, -17.9585, -24.175, -0.86249995, -17.9585)
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mx0de"]
+albedo_texture = ExtResource("2_7rf62")
+uv1_triplanar = true
+uv1_world_triplanar = true
+uv2_world_triplanar = true
+
 [sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_mx0de"]
 data = PackedVector3Array(-5.147888, -3.0267944, 2.3208008, -5.147888, -3.0267944, -2.3208008, -5.147888, 3.0267944, -2.3208008, 5.147888, -3.0267944, -2.3208008, -5.147888, -3.0267944, -2.3208008, -5.147888, -3.0267944, 2.3208008, -5.147888, 3.0267944, -2.3208008, -5.147888, -3.0267944, -2.3208008, 5.147888, -3.0267944, -2.3208008, -5.147888, 3.0267944, -2.3208008, -5.147888, 3.0267944, 2.3208008, -5.147888, -3.0267944, 2.3208008, -5.147888, -3.0267944, 2.3208008, -5.147888, 3.0267944, 2.3208008, 5.147888, 3.0267944, 2.3208008, 5.147888, 3.0267944, 2.3208008, -5.147888, 3.0267944, 2.3208008, -5.147888, 3.0267944, -2.3208008, -5.147888, -3.0267944, 2.3208008, 5.147888, -3.0267944, 2.3208008, 5.147888, -3.0267944, -2.3208008, 5.147888, 3.0267944, 2.3208008, 5.147888, -3.0267944, 2.3208008, -5.147888, -3.0267944, 2.3208008, 5.147888, -3.0267944, -2.3208008, 5.147888, -3.0267944, 2.3208008, 5.147888, 3.0267944, 2.3208008, 5.147888, -3.0267944, -2.3208008, 5.147888, 3.0267944, -2.3208008, -5.147888, 3.0267944, -2.3208008, -5.147888, 3.0267944, -2.3208008, 5.147888, 3.0267944, -2.3208008, 5.147888, 3.0267944, 2.3208008, 5.147888, 3.0267944, 2.3208008, 5.147888, 3.0267944, -2.3208008, 5.147888, -3.0267944, -2.3208008)
 
 [node name="test" type="Node3D" unique_id=1207918251]
+
+[node name="machete" parent="." unique_id=747042647 instance=ExtResource("6_hn7ej")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.2911944, 1.5109104, -2.633137)
+collision_layer = 3
+item_descriptor = ExtResource("12_i5s65")
+
+[node name="bate" parent="." unique_id=1272183585 instance=ExtResource("6_hn7ej")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.2911944, 1.5109104, -1.5980365)
+collision_layer = 3
+item_descriptor = ExtResource("3_2rjyo")
+
+[node name="cuchillo" parent="." unique_id=483477858 instance=ExtResource("6_hn7ej")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.2911944, 1.5109104, -0.16953707)
+collision_layer = 3
+item_descriptor = ExtResource("3_mx0de")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1629053163]
 environment = SubResource("Environment_6uqi0")
@@ -64,20 +88,18 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.73718405, 3.770996)
 mesh = SubResource("BoxMesh_q8wwd")
 
 [node name="StaticBody3D" type="StaticBody3D" parent="NavigationRegion3D/floor" unique_id=1302470355]
+collision_layer = 65535
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="NavigationRegion3D/floor/StaticBody3D" unique_id=525096317]
 shape = SubResource("ConcavePolygonShape3D_q8wwd")
+debug_color = Color(1, 0, 0, 1)
 
 [node name="CSGBox3D" type="CSGBox3D" parent="NavigationRegion3D" unique_id=134708480]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.647888, 2.5267944, 1.8208008)
 size = Vector3(10.295776, 6.053589, 4.6416016)
+material = SubResource("StandardMaterial3D_mx0de")
 
 [node name="StaticBody3D" type="StaticBody3D" parent="NavigationRegion3D/CSGBox3D" unique_id=1470433497]
 
 [node name="CSGBakedCollisionShape3D" type="CollisionShape3D" parent="NavigationRegion3D/CSGBox3D/StaticBody3D" unique_id=1914985239]
 shape = SubResource("ConcavePolygonShape3D_mx0de")
-
-[node name="bate" parent="." unique_id=324948794 instance=ExtResource("9_2rjyo")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.218311, 0.17355512, -2.0916853)
-script = ExtResource("6_hn7ej")
-item_descriptor = ExtResource("15_i5s65")

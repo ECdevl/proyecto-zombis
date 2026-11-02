@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="Melee" format=3 uid="uid://djhf1p03bo78d"]
 
-[ext_resource type="PackedScene" uid="uid://5hs3xju50d6r" path="res://assets/models/weapons/melee/one_hand/machete.fbx" id="1_1ujgm"]
+[ext_resource type="ArrayMesh" uid="uid://c8tmtnuk8jdat" path="res://assets/models/weapons/melee/one_hand/machete_world.obj" id="1_1ujgm"]
 [ext_resource type="Script" uid="uid://c5ccot1xni1sw" path="res://scripts/inventory/descriptors/melee.gd" id="2_1ujgm"]
 [ext_resource type="Script" uid="uid://dskngi7txlhue" path="res://scripts/inventory/descriptors/swing_data.gd" id="3_1ujgm"]
 [ext_resource type="PackedScene" uid="uid://dsugcersjogck" path="res://assets/models/weapons/melee/one_hand/machete.glb" id="4_1ujgm"]

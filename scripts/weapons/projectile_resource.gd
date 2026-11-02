@@ -39,7 +39,7 @@ func _apply_hit(collider: Object, hit_pos: Vector3) -> void:
 	if hitbox == null or not (hitbox.owner is Zombie):
 		return
 	var zombie := hitbox.owner as Zombie
-	zombie.health_component.hurt(_damage_for(hitbox), hitbox, _attacker(), hit_pos)
+	zombie.health_component.hurt(_damage_for(hitbox),{"who":hitbox,"attacker":_attacker(),"hit_pos":hit_pos})
 
 
 ## TEMPORAL (igual que antes): solo la cabeza hace daño, el resto 0.

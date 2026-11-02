@@ -1,46 +1,24 @@
 extends SubViewport
 @onready var camera_3d: Camera3D = $Camera3D
 
-func create_texture(mesh: PackedScene) -> ImageTexture:
+## Captura `malla` (una MeshInstance3D con su mesh y sus materiales ya puestos)
+## como textura de ícono. Libera la malla y este viewport al terminar.
+func create_texture(malla: MeshInstance3D) -> ImageTexture:
 	render_target_update_mode = SubViewport.UPDATE_ONCE
-	var display_mesh: Node3D = mesh.instantiate()
-	add_child(display_mesh)
+	add_child(malla)
 
-	# AABB combinado de todos los MeshInstance3D hijos
-	var aabb := _get_combined_aabb(display_mesh)
-	var center := aabb.get_center()
-	display_mesh.global_position -= center
+	# AABB del mesh (la malla llega con transformación identidad).
+	var aabb := malla.get_aabb()
+	malla.global_position -= aabb.get_center()
 
 	# Ajustar cámara según tamaño del modelo
 	var radius := aabb.get_longest_axis_size() * 0.5
 	camera_3d.global_position = Vector3(0, 0, radius * 2.5)
-	camera_3d.look_at(display_mesh.global_position)
+	camera_3d.look_at(malla.global_position)
 
 	await RenderingServer.frame_post_draw
 	var image: Image = get_texture().get_image()
 	var texture := ImageTexture.create_from_image(image)
-	display_mesh.queue_free()
+	malla.queue_free()
 	queue_free()
 	return texture
-
-func _get_combined_aabb(node: Node3D) -> AABB:
-	var result := AABB()
-	var first := true
-	for child in node.get_children():
-		if child is VisualInstance3D:
-			var box: AABB = child.get_aabb()
-			box = child.transform * box
-			if first:
-				result = box
-				first = false
-			else:
-				result = result.merge(box)
-		if child is Node3D:
-			var sub := _get_combined_aabb(child)
-			if sub.size != Vector3.ZERO:
-				if first:
-					result = sub
-					first = false
-				else:
-					result = result.merge(sub)
-	return result

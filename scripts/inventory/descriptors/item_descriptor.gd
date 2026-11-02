@@ -10,7 +10,11 @@ const ICON_CREATOR = preload("uid://w8pon5lrn51x")
 @export var weight: float
 @export var max_stack: int = 1
 @export var dimensions := Vector2i(1, 1)
-@export var item_mesh: PackedScene
+## Malla del objeto en el mundo (el ArrayMesh del modelo importado, FBX).
+## Al soltarlo, PickableItem la vuelca en su hijo "Malla"; para decorarla
+## (rotarla, posicionarla) se puede ver en el editor asignando el descriptor
+## a una instancia de pickable_object.tscn (script con @tool).
+@export var item_mesh: Mesh
 ## Plantilla de contenedor (mochila, bolso). null = no es contenedor.
 ## Cada ItemInstance recibe su PROPIA copia.
 @export var container_capability: InventoryModel
@@ -32,8 +36,8 @@ func get_actions() -> Array[String]:
 	return ["soltar"]
 
 
-## Mientras se genera el icono, no volver a entrar: si 'item_mesh' es una escena
-## PickableItem, su _ready llama otra vez a ensure_icon (recursión infinita).
+## Mientras se genera el icono, no volver a entrar (el _ready del objeto que
+## llama puede disparar ensure_icon otra vez).
 var _icon_requesting := false
 
 
@@ -44,5 +48,17 @@ func ensure_icon(host: Node) -> void:
 	_icon_requesting = true
 	var creator: SubViewport = ICON_CREATOR.instantiate()
 	host.add_child(creator)
-	icon = await creator.create_texture(item_mesh)
+	# Malla temporal con el mismo look que tendrá en el mundo (decorar_malla).
+	var malla := MeshInstance3D.new()
+	malla.mesh = item_mesh
+	decorar_malla(malla)
+	icon = await creator.create_texture(malla)
 	_icon_requesting = false
+
+
+## Hook de decoración: cada tipo de objeto puede darle un look propio a la
+## malla de ESTA instancia (la ropa elige color, por ejemplo). Se llama con la
+## malla ya asignada y antes de mostrarla: en el editor, en el ícono y en el
+## mundo. Implementación base: no hace nada.
+func decorar_malla(_malla: MeshInstance3D) -> void:
+	pass

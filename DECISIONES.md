@@ -91,3 +91,138 @@ importado al juego:
 nuevo no la necesita, pero la sonda `probe_inventario.gd` la sigue usando sin
 duplicar áreas). Verificado con `tools/probe_soltar.gd` → TODO OK
 (21 verificaciones, incluida la reutilización del área y la capa del cuerpo).
+
+## D-008 — Se abandona `-rigid`: la colisión de los pickables se genera desde la malla (2026-10-30)
+
+**Contexto:** el enfoque `-rigid` resultó **inconsistente entre objetos** (ver
+`ERRORES.md` E-010). Además, el flujo real del proyecto es importar el modelo
+de Blender como **malla `.FBX` cruda** (sin sufijo) y arrastrarla a la escena;
+los descriptores ya apuntan con `item_mesh` a esos `.fbx` crudos (`bate.fbx`,
+la escena inline de `agua.tres`, etc.). El bloqueo era la **colisión**: no se
+podía usar una forma genérica (caja/esfera) porque hay objetos circulares y
+otros no, y cada uno necesita su forma real. El usuario pidió reworkear los
+pickables generando el `CollisionShape3D` **desde la propia malla**.
+
+**Decisión:**
+
+1. **El script `PickableItem` (`scripts/components/pickable_object.gd`) arma
+   solo toda la física.** Sigue declarando `extends Node3D` (se cuela donde
+   caiga) y en `_ready()`:
+   - **Cuerpo físico:** si la raíz ES un `RigidBody3D` lo usa; si no, **crea un
+     `RigidBody3D` hijo** (capa `body_layer = 2`, mask `body_mask = 7`,
+     `body_mass`). Un nodo no puede cambiar de tipo en runtime, por eso el
+     cuerpo es un hijo cuando la raíz es la malla.
+   - **Adopción de mallas:** cuelga las `MeshInstance3D` del modelo debajo del
+     cuerpo (`reparent()` conservando la transformación global) para que sigan
+     la física. Caso especial: si la raíz misma es la malla, la copia a un hijo
+     del cuerpo y vacía la raíz (mismo dibujo, misma transformación).
+   - **Colisión desde la malla:** por cada malla,
+     `Mesh.create_convex_shape(true, false)` → un `ConvexPolygonShape3D` con el
+     **casco convexo real de ese objeto** (la lata con forma de lata, el bate
+     con forma de bate). Se posiciona en el espacio local del cuerpo con
+     `_transform_in()` (composición de transformaciones locales, sin depender
+     del caché global recién agregado). El convexo es **obligatorio** para un
+     cuerpo dinámico; el trimesh (`create_trimesh_shape()`, cóncavo) solo sirve
+     bien en cuerpos estáticos, queda como opción (`CollisionMode.TRIMESH`) y
+     `CollisionMode.NONE` permite colisión armada a mano.
+2. **`Player.drop_item()` convierte la malla cruda en agarrable:** si
+   `item_mesh` no tiene el script pero su raíz es un `Node3D`, le cuelga
+   `PickableItem` en runtime (`set_script`) y le pasa el `ItemInstance`. Así
+   los descriptores pueden apuntar al `.fbx` crudo **sin escena heredada**.
+3. **`PickableItem.resolve(n)`** sube del cuerpo físico (hijo) al nodo raíz con
+   el script. `ui.gd::_on_item_instruct_body_entered` lo usa porque el cuerpo
+   que entra en el `ItemInstruct` (máscara 2) ya no ES el `PickableItem`, sino
+   su hijo `RigidBody3D`.
+
+**Consecuencia:** los descriptores **no necesitan** repuntar `item_mesh` a una
+escena heredada con el script: basta con que apunten a la malla/FBX del modelo
+(T-007 se reduce). El `-rigid` queda descartado. `pickable_object.tscn` sigue
+siendo solo legado. Verificado con `tools/probe_soltar.gd` → *TODO OK* (nueva
+sección 6: malla cruda → `PickableItem` con cuerpo hijo y colisión convexa
+generada desde la malla), `tools/probe_inventario.gd` → *TODO OK*,
+`tools/check_tscn_connections.py` → 0 conexiones rotas.
+
+## D-009 — Prefab física fija de pickable + `item_mesh: Mesh` y `@tool` para decorar (2026-11-01)
+
+**Contexto:** el usuario corrigió el rumbo de D-008 (ver E-011): el script
+`pickable_object.gd` había quedado demasiado grande (289 líneas) generando en
+runtime el cuerpo, la adopción de mallas, la colisión y el área, cuando la
+intención es más simple: **al soltar se instancia SIEMPRE la escena
+`pickable_object.tscn`** (una prefabricada física fija) y el descriptor solo
+aporta el mesh, por `item_mesh`. Además se pidió ver ese mesh en el editor para
+poder rotarlo/posicionarlo y decorar así cada objeto.
+
+**Decisión:**
+
+1. **`pickable_object.tscn` es una prefabricada fija** (raíz `RigidBody3D`,
+   capa 2 / mask 7, con el script) de hijos fijos: `Malla` (`MeshInstance3D`),
+   `Colision` (`CollisionShape3D`) y `AreaInteraccion` (`Area3D` capa 2 con
+   esfera de radio 1, inline). `Player.drop_item()` instancia SIEMPRE esta
+   escena (`PICKABLE_SCENE`); si el descriptor no tiene `item_mesh`, el item
+   vuelve al inventario: nunca se pierde.
+2. **`ItemDescriptor.item_mesh` pasa de `PackedScene` a `Mesh`** (el `ArrayMesh`
+   del FBX). El script vuelca ese mesh en el hijo `Malla`. El hook
+   `decorar_malla()` (no-op en la base) deja que cada tipo decore la malla de
+   SU instancia; `WearableItemDescriptor` lo sobreescribe para el color
+   aleatorio, que antes mutaba `item_mesh` en `_init` (compartido por todas las
+   copias de la prenda).
+3. **Script mínimo con `@tool` (~90 líneas, antes 289):** `extends RigidBody3D`
+   (elimina el workaround del E-009 y toda la maquinaria de creación de
+   cuerpos). Al asignar el descriptor en el editor se ve el mesh en `Malla`
+   (rotable/posicionable/escalable para decorar) y `_process` regenera el casco
+   convexo (`Mesh.create_convex_shape(true, false)`) SOLO cuando la malla o su
+   transformación cambian, copiándole la transformación a `Colision` para que
+   el collider quede pegado a lo que se ve. `drop_item()` asigna descriptor e
+   `ItemInstance` antes de entrar al árbol; `_ready` los resuelve si faltan.
+4. **Íconos:** `ensure_icon()` construye una `MeshInstance3D` temporal con el
+   mesh y `decorar_malla()` (mismo look que en el mundo) y `icon_creator.gd`
+   la captura: `create_texture()` ahora recibe la malla ya preparada, no una
+   escena a instanciar.
+5. **`test.tscn`:** el bate, el cuchillo y el machete pasan de
+   FBX-con-script-adentro a instancias de `pickable_object.tscn` con
+   `item_descriptor` asignado (el flujo de decoración en el mundo).
+
+**Consecuencia (migración de datos, T-007):** los `.tres` con `item_mesh`
+apuntando a un `.tscn` quedan con el campo en null y deben repuntar al
+`ArrayMesh` del FBX en el editor (10 archivos: remera, pantalon_largo, mochila,
+zapatillas, cuchillo, bate, machete, desert_eagle, glock-17, agua).
+`pickup_area.tscn` y `new_sphere_shape_3d.tres` quedan huérfanos (el área y la
+esfera ahora viven inline en la prefabricada). Verificado con
+`tools/probe_soltar.gd` → *TODO OK* (33 verificaciones, incluida la asignación
+del descriptor en el árbol y el seguimiento colisión↔malla decorada),
+`--check-only` limpio en los scripts modificados y
+`tools/probe_inventario.gd` → flujo OK (el único fallo es una conexión rota de
+`zombie.tscn` perteneciente al trabajo en curso sobre zombis, no a este
+refactor).
+
+## D-010 — Pickables con Continuous CD y colisión sin escala en el nodo (2026-11-02)
+
+**Contexto:** E-012 — los objetos atraviesan el piso. La sonda
+`tools/probe_tunel.gd` demostró que la causa es un fallo de contacto con el
+piso trimesh cuando la primera penetración por tick supera ~3 cm (no el tipo
+de colisión), y que con Continuous CD todos los escenarios quedan.
+
+**Decisión:**
+
+1. **`continuous_cd = true` en la raíz de `pickable_object.tscn`.** Es la
+   corrección que la documentación oficial recomienda para tunneling y la
+   sonda lo confirma: 5/5 escenarios (hasta 30 m/s) quedan sobre el piso
+   trimesh del juego. Al vivir en el prefab, lo hereda toda instancia (spawn
+   y `drop_item()`); no hay que tocar cada escena ni el script. Costo: solo
+   los cuerpos con CCD hacen el test barrido, y los pickables son pocos.
+2. **La transformación de `Malla` se hornea en los puntos del casco** y
+   `Colision` queda en identidad. Motivo: Godot no soporta escalar cuerpos
+   ni formas de colisión (docs > Troubleshooting physics issues); una escala
+   en el nodo era un bug latente. Horneada la escala en los puntos, decorar
+   la malla a mano (rotar/posicionar/escalar) sigue funcionando y la colisión
+   queda superpuesta al mesh.
+3. **Sin mesh no hay colisión:** si `Malla.mesh` queda en `null`,
+   `Colision.shape` se borra. El prefab ya no horneaba casco: una instancia
+   sin descriptor no puede quedarse con la silueta de otro objeto.
+4. **Se descartan como solución única:** engrosar la forma (ola V4: sigue
+   atravesando), subir los ticks de física (no hace falta con CCD) y cambiar
+   el piso a caja sólida (funciona — experimento B — pero es un arreglo del
+   escenario, no del objeto; si algún otro cuerpo rápido atraviesa, considerar
+   `BoxShape3D` en el piso: queda anotado como hallazgo).
+
+**Verificación:** ver E-012.

@@ -21,11 +21,12 @@ func check_current_weapon() -> void:
 			player.playback.travel("idle")
 
 func update(_delta: float) -> void:
+	if Input.is_action_pressed("M1"):
+		call_deferred("attack")
 	can_transition = !player.weapon_controller.reloading
 	
 func handle_input(_event: InputEvent) -> void:
-	if _event.is_action_pressed("M1"):
-		call_deferred("attack")
+
 
 
 	if _event.is_action_pressed("M2"):

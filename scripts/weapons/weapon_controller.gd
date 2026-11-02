@@ -151,6 +151,7 @@ func _input(event: InputEvent) -> void:
 				tree["parameters/punch/request"]  = AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE
 		else:
 			weapon_ap.play("punch")
+			weapon_ap.queue("idle")
 
 		push()
 		push_time.start()
@@ -247,6 +248,8 @@ func swing() -> bool:
 	if not melee or melee.swings.is_empty():
 		return false
 	if fire_rate.time_left != 0.0:
+		return false
+	if weapon_ap.current_animation.contains("swing"):
 		return false
 	weapon_ap.speed_scale = 1.5
 

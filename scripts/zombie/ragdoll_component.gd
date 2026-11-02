@@ -3,13 +3,14 @@ class_name ZombieRagdoll extends Node
 ## y se levanta cuando la pelvis queda quieta cerca del piso.
 
 signal ragdoll_started
+signal animation_face(face_up: bool)
 signal recovered(face_up: bool)  # true = boca arriba
 
 @export var body: CharacterBody3D
 @export var simulator: PhysicalBoneSimulator3D
 @export var pelvis: PhysicalBone3D
 ## Segundos en el aire antes de caer en ragdoll (evita falsos positivos en escalones).
-@export var air_time_to_ragdoll := 0.25
+@export var air_time_to_ragdoll := 0.5
 ## Tiempo mínimo en ragdoll antes de poder levantarse.
 @export var min_ragdoll_time := 2.0
 ## Velocidad (m/s) por debajo de la cual la pelvis cuenta como "quieta".
@@ -32,7 +33,8 @@ func _ready() -> void:
 
 
 func start(is_permanent := false,impulse: Vector3 = Vector3.ZERO,force: float = 0.0) -> void:
-	permanent = permanent or is_permanent
+	simulator.influence = 1.0
+	permanent = is_permanent
 	if is_ragdoll:
 		return
 	is_ragdoll = true
@@ -43,9 +45,11 @@ func start(is_permanent := false,impulse: Vector3 = Vector3.ZERO,force: float = 
 
 
 func _physics_process(delta: float) -> void:
-	if not is_ragdoll :
+
+	if not is_ragdoll:
 		_air_time = 0.0 if body.is_on_floor() else _air_time + delta
-		if _air_time >= air_time_to_ragdoll and body.state_machine.state.name != "recover":
+		if _air_time >= air_time_to_ragdoll:
+			
 			start()
 		return
 
@@ -62,6 +66,7 @@ func _physics_process(delta: float) -> void:
 
 func _is_resting() -> bool:
 	# length_squared() evita la raíz cuadrada: v² < rest² equivale a v < rest.
+	print_debug(pelvis.linear_velocity.length_squared())
 	return pelvis.linear_velocity.length_squared() < rest_speed * rest_speed \
 			and _find_floor() != null
 
@@ -78,6 +83,7 @@ func _find_floor() -> Variant:
 	return hit.position
 
 
+
 func _recover() -> void:
 	_air_time = 0
 	var floor_pos: Variant = _find_floor()
@@ -86,10 +92,11 @@ func _recover() -> void:
 	# Boca arriba si el vientre apunta hacia arriba (dot > 0).
 	var front: Vector3 = pelvis.global_basis * front_axis
 	var face_up := front.dot(Vector3.UP) > 0.0
-
 	simulator.physical_bones_stop_simulation()
 	body.global_position = floor_pos  # los pies al piso, no a la altura de la pelvis
+	
 	if face_up:
 		pass
 	is_ragdoll = false
 	recovered.emit(face_up)
+	

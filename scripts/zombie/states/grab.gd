@@ -17,15 +17,9 @@ func _land_grab() -> void:
 	player.get_grabbed(zombie, grab_anchor)
 
 	
-@export var loop_length := 1.8333  # la duración del paso 1
-var _t := 0.0
 
-func physics_update(delta: float) -> void:
-	_t += delta
-	if _t >= loop_length:
-		_t -= loop_length
-		zombie.playback.start("grab")
-		player.playback.start("grabbed")
+
+
 func _on_escaped() -> void:
 	zombie.push(zombie.global_position - player.global_position)  # dispara su stagger
 

@@ -43,13 +43,5 @@ mesh = SubResource("QuadMesh_8njf7")
 shape = SubResource("ConcavePolygonShape3D_ihcbt")
 
 [node name="zombie" parent="." unique_id=495252481 instance=ExtResource("1_q2pm7")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00037956238, 1.0921745, -1.1919378)
-ragdoll_text = true
-
-[node name="zombie2" parent="." unique_id=1205266242 instance=ExtResource("1_q2pm7")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.0855644, 1.0921745, -1.1919378)
-ragdoll_text = true
-
-[node name="zombie3" parent="." unique_id=1137315813 instance=ExtResource("1_q2pm7")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.13144612, 237.03844, 0.72054005)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5920577, 3.297799, 0.7782906)
 ragdoll_text = true

@@ -117,8 +117,10 @@ func _on_item_consumed(item: ItemInstance) -> void:
 
 func _on_item_instruct_body_entered(body: Node3D) -> void:
 	var label: String
-	if body is PickableItem:
-		label = body.item_descriptor.item_name
+	# El cuerpo que entra en el área ES el PickableItem (raíz RigidBody3D, D-009).
+	var pickable := body as PickableItem
+	if pickable and pickable.item_descriptor:
+		label = pickable.item_descriptor.item_name
 	elif body is ContainerInteractable:
 		label = body.name
 	else:

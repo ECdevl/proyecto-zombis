@@ -48,16 +48,18 @@ func _input(event: InputEvent) -> void:
 		ragdoll_component.start(true)
 
 
-func hurted(who: Node3D, damage: float, attacker: Node3D, hit_pos := Vector3.INF) -> void:
+func hurted(damage:float, info:Dictionary) -> void:
 	var random_x = randf_range(-1.0,1.0)
 	var random_y = randf_range(-1.0,1.0)
 	at["parameters/flinch_var/blend_position"] = Vector2(random_x,random_y)
 	at["parameters/flinch/request"] = 1
-
+	
+	var who = info.get("who")
+	var hit_pos = info.get("hit_pos")
 	if not hit_pos.is_finite():
 		hit_pos = who.global_position  # respaldo si no llega el punto
 	
-	var to_attacker := hit_pos.direction_to(attacker.global_position)
+	var to_attacker = hit_pos.direction_to(info.get("attacker").global_position)
 	GameManager.blood_splatter(hit_pos, to_attacker, who)
 	_spawn_decals(hit_pos, to_attacker)
 	if who.is_in_group("zombie_legs_left"):
@@ -66,12 +68,14 @@ func hurted(who: Node3D, damage: float, attacker: Node3D, hit_pos := Vector3.INF
 	elif who.is_in_group("zombie_legs_right"):
 		print_debug("OH MY LEG")
 		state_machine.state.finished.emit("stun",{"direction":0})
-		
+	
 
 func _spawn_decals(pos: Vector3, to_attacker: Vector3) -> void:
 	var fx: BloodSplatter = BLOOD_SPLATTER.instantiate()
 	get_tree().current_scene.add_child(fx)
 	fx.splash(pos, to_attacker, -to_attacker)  # (punto, normal, dirección de la bala)
+
+
 
 func stagger(attacker:Node3D) -> void:
 	if not attacker:
@@ -89,22 +93,20 @@ func handle_gravity(delta:float)-> void:
 	
 
 
-func die(who: Node3D, damage: float, attacker: Node3D,impulse:Vector3 = Vector3.ZERO,force: float = 10) -> void:
+func die(amage: float,info:Dictionary) -> void:
 	state_machine.state.finished.emit("death")
-	var imp := impulse
+	var imp := info.get("impulse")
+	var force : float = 0.0
 	if imp.length_squared() < 0.0001 and has_meta("melee_hit_dir"):
 		imp = get_meta("melee_hit_dir") as Vector3
-		force = force if force > 0.0 else 800.0
+		force = info.get("force") if info.get("force") > 0.0 else 800.0
 	ragdoll_component.start(true,imp,force)  # permanente, reemplaza physical_bones_start_simulation()
 	if has_meta("melee_hit_dir"):
 		remove_meta("melee_hit_dir")
 
 
-func _on_ragdoll_component_recovered(face_up: bool) -> void:
-	state_machine.state.finished.emit("recover",{"animation": "awake_up" if face_up else "awake_down"})
-	
-
 func _on_ragdoll_component_ragdoll_started() -> void:
+	print_debug("RAGDOLL")
 	vision.can_see = false
 	state_machine.state.finished.emit("stun",{"ragdoll":true})
 	

@@ -83,6 +83,7 @@ var weapon_AP : AnimationPlayer
 @onready var collision_standing   : CollisionShape3D = %StandingCollisionShape
 @onready var collision_prone : CollisionShape3D = %ProneCollisionShape
 @onready var armsy: Node3D = %armsy
+@onready var view_punch: ViewPunch = %ViewPunch
 
 @onready var weapon_controller: WeaponController = %WeaponController
 
@@ -112,6 +113,7 @@ var speed : float = 3.0
 
 func _ready() -> void:
 	health_component = health_component.duplicate()
+	health_component.hurted.connect(hurted,)
 	#ui.inventory_manager.connect("equip_weapon",Callable(self,"equip_weapon"))
 	inventory.hands.main_weapon_changed.connect(equip_weapon)
 	grabbed_object.connect(_on_grabbed_object)
@@ -137,6 +139,9 @@ signal weapon_changed(gun:Resource)
 signal grabbed_object(world_obj:Node3D)
 signal loot_opened(model:InventoryModel,display:String)
 
+func hurted(damage:float,info:Dictionary) -> void:
+	view_punch.punch(Vector2(damage,0))
+	
 func _try_interact(hit_object: Node) -> void:
 	if hit_object is ContainerInteractable:
 		emit_signal("loot_opened",hit_object.inventory_model,hit_object.display_name)
@@ -228,6 +233,11 @@ const THROW_SPEED: float = 6.0
 const DROP_DISTANCE: float = 0.6
 
 
+## Escena prefabricada del objeto agarrable (D-009): al soltar se instancia
+## SIEMPRE ésta; el descriptor solo aporta el mesh (ItemDescriptor.item_mesh).
+const PICKABLE_SCENE := preload("res://scenes/components/pickable_object.tscn")
+
+
 ## Suelta un objeto del inventario en el mundo físico.
 ## Quien llame (UI o estado de brazos) debe sacarlo del inventario ANTES.
 ## Si no se puede soltar, el item se devuelve al inventario: nunca se pierde.
@@ -237,15 +247,12 @@ func drop_item(item: ItemInstance) -> void:
 	if not %normal.can_transition:  # recargando: no se suelta (y no se pierde)
 		inventory.add_anywhere(item)
 		return
-	var scene: PackedScene = item.descriptor.item_mesh
-	var object: Node = scene.instantiate() if scene else null
-	if object == null or not object is PickableItem:
-		push_warning("drop_item: '%s' no tiene escena agarrable en item_mesh (raíz con el script PickableItem)." % item.descriptor.item_name)
-		if object:
-			object.free()  # nunca entró al árbol: free directo, sin queue_free
+	if item.descriptor.item_mesh == null:
+		push_warning("drop_item: '%s' no tiene item_mesh." % item.descriptor.item_name)
 		inventory.add_anywhere(item)  # se devuelve: el item no se pierde
 		return
-	var pickable := object as PickableItem
+	var pickable: PickableItem = PICKABLE_SCENE.instantiate()
+	pickable.item_descriptor = item.descriptor
 	pickable.item = item  # conserva contenido y estado (antes de entrar al árbol)
 	get_tree().current_scene.add_child(pickable)
 	var forward := -camera.global_transform.basis.z

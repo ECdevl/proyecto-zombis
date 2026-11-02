@@ -78,24 +78,48 @@
       `scenes/weapons/melee/machete.tscn`, `scenes/weapons/viewmodel.gdshader`,
       `scenes/components/door_components.tscn`, `scenes/debug/ragdoll_testing.tscn`.
 
-- [ ] **T-007 Pendientes de datos del refactor de pickables con `-rigid`** (D-006, E-008):
-  - [ ] **Repuntar `item_mesh`** de los descriptores a la escena del modelo importado con
-        `-rigid` **con el script `pickable_object.gd` ya colgado en la raíz** (la escena
-        que usted arma al meter el modelo y pegarle el script). Hoy apuntan al modelo
-        crudo sin script (`bate.fbx`, `machete.fbx`, `cuchillo.fbx`, escena inline de
-        `agua.tres`, etc.): `drop_item()` emite warning y devuelve el item al inventario
-        hasta que se repunten.
-  - [x] Poner **capa de colisión 2** al `RigidBody3D` — resuelto en el rework (D-007): el
-        script aplica `body_layer = 2` / `body_mask = 7` al cuerpo en `_ready()` (ajustables
-        por objeto con `@export_flags_3d_physics`), sin tocar las import settings.
-  - [x] Definir el destino de `scenes/components/pickable_object.tscn` — resuelto en el
-        rework (D-007): el `_ready` **reutiliza** el `Area3D` de la capa 2 que ya trae la
-        escena, así que no hay área duplicada. La escena queda como legado; el flujo
-        nuevo es modelo importado + script.
-  - [ ] Mover `new_sphere_shape_3d.tres` (raíz del proyecto, sin versionar) a
-        `resources/` (D-001); el `preload` por `uid://` en `pickable_object.gd` no cambia.
+- [ ] **T-007 Pendientes de datos del refactor de pickables** (D-006, D-008, D-009, E-011):
+  - [x] **Repuntar `item_mesh` a una escena heredada con el script en la raíz** —
+        **OBSOLETO (D-008/D-009)**: la escena heredada ya no existe en el flujo:
+        `drop_item()` instancia la prefabricada `pickable_object.tscn` y el
+        descriptor aporta solo el mesh (`item_mesh: Mesh`).
+  - [x] Poner **capa de colisión 2** al `RigidBody3D` — **OBSOLETO (D-009)**: la capa
+        2 / mask 7 vive directo en la raíz de `pickable_object.tscn`; el script ya no
+        aplica ni exporta capas.
+  - [x] Definir el destino de `scenes/components/pickable_object.tscn` — **resuelto
+        (D-009)**: es LA escena física fija del flujo (raíz `RigidBody3D` + `Malla` +
+        `Colision` + `AreaInteraccion` inline).
+  - [ ] **Migrar `item_mesh` de cada descriptor al `ArrayMesh` del FBX (D-009):**
+        el campo pasó de `PackedScene` a `Mesh`, así que los `.tres` quedan con el
+        campo en null. Archivos: `resources/clothes/{remera, pantalon_largo, mochila,
+        zapatillas}.tres`, `resources/weapons/melee/{cuchillo, bate, machete}.tres`,
+        `resources/weapons/firearm/{desert_eagle, glock-17}.tres`,
+        `resources/consumables/agua.tres`. En el editor: abrir el `.fbx`, arrastrar
+        la malla del `MeshInstance3D` al campo **Item Mesh** del descriptor. Después,
+        en una instancia de `pickable_object.tscn` verificar escala/rotación del
+        hijo `Malla` (se puede decorar a mano; la colisión lo sigue).
+  - [ ] **`pickup_area.tscn` y `new_sphere_shape_3d.tres` quedaron huérfanos (D-009):**
+        el área y la esfera ahora viven inline en `pickable_object.tscn`. Decidir si
+        se borran (la tarea de mover `new_sphere_shape_3d.tres` a `resources/`
+        queda obsoleta).
+
+- [ ] **T-008 Conexión rota en `zombie.tscn` (trabajo en curso de zombis, no del
+      refactor de inventario):** `StateMachine/chase/claw_timer.timeout →
+      StateMachine/chase.claw` apunta a un método que ya no existe en
+      `scripts/zombie/states/chase.gd` (detectado por `probe_inventario.gd`
+      sección 4 y `check_tscn_connections.py`). Revisar al retomar el trabajo
+      de zombis (Claude).
 
 ## Hecho
+
+- [x] **T-009 Tunneling de los pickables al soltarlos** (2026-11-02, E-012, D-010):
+      `continuous_cd = true` en la raíz de `pickable_object.tscn`, transformación
+      de `Malla` horneada en los puntos del casco (sin escala en `Colision`) y
+      limpieza de `Colision.shape` cuando no hay mesh (se eliminó el casco
+      horneado obsoleto del prefab). Validado con la nueva sonda
+      `tools/probe_tunel.gd` → *NINGÚN ATRAVIESO* (incluida la ola V6, la
+      instancia real del juego), `probe_soltar.gd` → *TODO OK* y `--check-only`
+      limpio.
 
 - [x] **Refactor del inventario (D-004, D-005) + C5** — rama `refactor/inventario-en-player`,
       2026-10-22. El inventario pasó de `ui.tscn` a `player.tscn`; la UI quedó como vista
@@ -139,6 +163,16 @@
   (la declara el script del nodo o es una señal del motor). Expande las escenas instanciadas.
   Uso: `python3 tools/check_tscn_connections.py`
   → *Escenas analizadas: 29 | conexiones: 19 — OK: ninguna conexión de señal está rota.*
+- `tools/probe_tunel.gd` — sonda headless de tunneling (E-012): cae un objeto
+  delgado (el casco real del machete, derivado del descriptor como lo hace el
+  juego) sobre el piso trimesh del juego en 5 escenarios (spawn plano, soltado
+  a 6 m/s, de canto, mango-primero con giro, caída de 30 m/s) con variantes:
+  V1 CCD off (línea base), V2 CCD on, V3 `BoxShape3D`, V4 casco engrosado,
+  V5 forma escalada y **V6 la instancia real del prefab con descriptor** —
+  solo V2 y V6 cuentan en el resultado. Incluye trayectorias tick a tick y un
+  barrido de alturas para hallar el umbral de la primera penetración (~3 cm).
+  Uso: `godot --headless --path . --script res://tools/probe_tunel.gd`
+  → *RESULTADO: NINGÚN ATRAVIESO*.
 - `tools/probe_inventario.gd` — sonda headless que monta `scenes/debug/test.tscn` en un árbol
   vivo y comprueba: que el inventario lo tiene el `Player`, que la UI quedó enlazada a él, que
   las 8 ranuras (6 de ropa + 2 de manos) tienen su modelo, que no queda ninguna conexión rota,
