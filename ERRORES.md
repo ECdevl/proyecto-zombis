@@ -341,3 +341,47 @@ contrato: `Colision` en identidad con la transformación horneada);
 `--check-only` limpio; `tools/probe_inventario.gd` y
 `tools/check_tscn_connections.py` → solo la falla preexistente de T-008
 (conexión rota de `zombie.tscn`, trabajo de zombis).
+
+---
+
+## E-013 — `PhysicsRayQueryParameters3D.exclude` no admite `null`
+
+**Síntoma:** en runtime, por cada golpe de arma se imprimen dos errores:
+
+```
+ERROR: Attempted to set a variable of type 'Nil' into a TypedArray of type 'RID'.
+   at: _internal_validate (./core/variant/container_type_validate.h:73)
+ERROR: Condition "!_p->typed.validate(value, "set")" is true.
+   at: set (core/variant/array.cpp:520)
+```
+
+**Causa:** `Projectile._camera_raycast()` hacía
+`query.exclude = [owner, get_parent()]`. `exclude` es `Array[RID]`, y el
+`owner` de un proyectil recién instanciado (`PROJECTILE.instantiate()` en
+`weapon_controller.gd`, o `.new()` en el melee) es `null` — verificado con
+sonda: `root del proyectil instanciado -> owner=<Object#null>`, y sigue en
+`null` después de `add_child()`. Meter `null` en un `Array[RID]` es un error
+de tipos.
+
+La asignación no se aborta del todo: queda `[RID(0), <rid del padre>]`, así
+que el efecto real es **solo el ruido de error** en cada disparo.
+
+**Corrección:** armar el array excluyendo solo lo que aporta un RID:
+
+```gdscript
+var excluded: Array[RID] = []
+for obj in [owner, get_parent()]:
+	if obj is CollisionObject3D:
+		excluded.append((obj as CollisionObject3D).get_rid())
+query.exclude = excluded
+```
+
+`CollisionObject3D.get_rid()` está verificado en Godot 4.7.2 (la sonda imprime
+el mismo RID que devuelve la conversión al asignar el cuerpo). Además, en la
+práctica no hace falta excluir nada: el jugador está en la capa 8 y el zombi en
+la 2, y la máscara es `WORLD_MASK | HITBOX_MASK` (1 | 512), así que ninguno de
+los dos se puede golpear.
+
+**Verificación:** `godot --headless --path . res://scenes/debug/test.tscn
+--quit-after 90` → sin esos errores (queda solo el fallo de autoload
+`icon_creator.tscn`, preexistente y ajeno: reproduce igual en el commit previo).

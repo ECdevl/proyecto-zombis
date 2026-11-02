@@ -108,7 +108,20 @@
       StateMachine/chase.claw` apunta a un método que ya no existe en
       `scripts/zombie/states/chase.gd` (detectado por `probe_inventario.gd`
       sección 4 y `check_tscn_connections.py`). Revisar al retomar el trabajo
-      de zombis (Claude).
+      de zombis (Claude). Sigue rota tras el commit del 2026-11-02:
+      `chase.gd` tiene `attack()`, `hurt_target()` y arranca `claw_timer`, pero
+      ninguna `func claw`.
+
+- [ ] **T-010 Apuntar a extremidades en el melee** (D-011, 2026-11-02):
+      el hitbox ya es un rayo y pega exactamente en la extremidad que se apunta
+      (validado con `tools/probe_melee.tscn`). Falta convertirlo en jugada:
+      - [ ] Tabla de daño/efecto por zona (hoy: cabeza = daño completo,
+            resto = 0.1; la pierna ya deja `stun` vía `Zombie.hurted`).
+      - [ ] Feedback de apunte: decirle al jugador qué extremidad tiene en la
+            mira antes de golpear (crosshair/indicador).
+      - [ ] Ajustar tiempos de stun y ventaja de la "combo" pierna → cabeza
+            (`min_stun_time` / `max_stun_time` de `stun.gd`).
+      - [ ] Decidir si `WORLD_MASK` corta el golpe (hoy atraviesa paredes).
 
 ## Hecho
 
@@ -179,6 +192,15 @@
   que `ammo_source` es `player.inventory`, y que los flujos de **recoger** y **usar** un objeto
   funcionan (el objeto entra al inventario; `use_item` lleva el FSM de `normal` a `consuming`).
   Uso: `godot --headless --path . --script res://tools/probe_inventario.gd` → *RESULTADO: TODO OK*
+- `tools/probe_melee.tscn` + `tools/probe_melee.gd` — sonda del golpe cuerpo a
+  cuerpo (D-011): monta un piso, una cámara y un zombi real, y apunta
+  `MeleeProjectile` (machete) a una extremidad concreta. Comprueba que el rayo
+  pega en ESA hitbox (se registra `health_component.hurted` y se compara
+  `info.who`): pierna → 0.1 de daño + estado `stun`; cabeza → daño completo +
+  meta `melee_hit_dir`; vacío → nada. **Corre como escena, no con `--script`**
+  (`zombie.gd` necesita el autoload `GameManager`, inexistente en ese modo; ver
+  E-004). Uso: `godot --headless --path . res://tools/probe_melee.tscn`
+  → *RESULTADO: TODO OK*
 - `tools/dump_engine_signals.gd` — genera `tools/engine_signals.py`: la tabla de señales que
   declara cada clase del motor usada en el proyecto. Se regenera solo si se agregan clases:
   `godot --headless --path . --script res://tools/dump_engine_signals.gd`

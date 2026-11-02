@@ -6,7 +6,9 @@ const MAX_SWINGS := 2
 
 ## Se elige uno al azar en cada golpe.
 @export var swings: Array[SwingData]
-## Radio del volumen de golpe (lo usará MeleeProjectile).
+## Radio del volumen de golpe. HOY NO SE USA: el golpe es un rayo fino
+## (`MeleeProjectile.fire()`). Queda reservado por si el hitbox vuelve a ser un
+## volumen (barrido por extremidades, por ejemplo).
 @export var hitbox_radius: float = 0.15
 
 

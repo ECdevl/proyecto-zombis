@@ -1,8 +1,13 @@
 class_name MeleeProjectile extends Projectile
-## Golpe cuerpo a cuerpo. En vez de un rayo, usa una CÁPSULA que va desde la cámara
-## hasta `range` metros hacia adelante, y daña el primer hueso tocado de cada zombi.
+## Golpe cuerpo a cuerpo: un RAYO desde la cámara hacia adelante, de `range`
+## metros, que daña el primer hitbox que toca. Al ser un rayo fino, la extremidad
+## que se pega es la que se apunta (cabeza = daño total, pierna = stun; ver
+## `Zombie.hurted` y los grupos `zombie_head` / `zombie_legs_*`).
+##
+## Nota: la máscara sigue siendo solo la de hitboxes (lo mismo que la cápsula
+## anterior), así que el golpe atraviesa paredes. Para que el mundo lo corte,
+## hay que sumar `WORLD_MASK` a `collision_mask`.
 
-var radius : float = 0.15
 var attacker : Node3D
 var knockback : float = 0.0
 var push_direction : Vector3 = Vector3.ZERO  # en mundo
@@ -11,7 +16,6 @@ var swing_data_ref: SwingData
 
 ## Se llama DESPUÉS de add_child (necesita estar en el árbol para usar la física).
 func setup(melee: Melee, swing: SwingData, by: Node3D) -> void:
-	radius = melee.hitbox_radius
 	knockback = melee.knockback
 	attacker = by
 	swing_data_ref = swing
@@ -27,43 +31,28 @@ func fire() -> void:
 	var cam := get_viewport().get_camera_3d()
 	var origin := cam.global_position
 	var forward := -cam.global_basis.z
+	_ray_end = origin + forward * range
 
-	# La cápsula mide `range` de punta a punta (height incluye las dos semiesferas).
-	var capsule := CapsuleShape3D.new()
-	capsule.radius = radius
-	capsule.height = maxf(range, radius * 2.0)
-
-	# La cápsula nace parada (eje Y). Se la gira -90° sobre X para que el eje Y
-	# apunte hacia adelante de la cámara, y se centra a media altura.
-	var query := PhysicsShapeQueryParameters3D.new()
-	query.shape = capsule
-	query.transform = Transform3D(
-		cam.global_basis * Basis(Vector3.RIGHT, -PI / 2.0),
-		origin + forward * (capsule.height * 0.5))
+	# Un solo rayo: el primer hitbox que toca es el que recibe el golpe.
+	# collide_with_bodies = false, igual que la cápsula anterior: solo interesan
+	# los hitboxes del zombi, así que ni el jugador ni el mundo tapan el rayo.
+	var query := PhysicsRayQueryParameters3D.create(origin, _ray_end)
 	query.collision_mask = HITBOX_MASK
 	query.collide_with_areas = true
 	query.collide_with_bodies = false
 
-	var hits := cam.get_world_3d().direct_space_state.intersect_shape(query)
+	var result := cam.get_world_3d().direct_space_state.intersect_ray(query)
+	if result.is_empty():
+		queue_free()
+		return
 
-	# Un zombi tiene muchos hitboxes: se queda con el más cercano a la cámara
-	# (el primero que el arma toca), así no recibe daño varias veces por golpe.
-	var nearest : Dictionary[Zombie, Node3D] = {}
-	for hit in hits:
-		var hitbox := hit.collider as Node3D
-		if hitbox == null or not (hitbox.owner is Zombie):
-			continue
-		var zombie := hitbox.owner as Zombie
-		if not nearest.has(zombie) \
-				or forward.dot(hitbox.global_position - origin) \
-				< forward.dot(nearest[zombie].global_position - origin):
-			nearest[zombie] = hitbox
+	var hitbox := result.collider as Node
+	if hitbox == null or not (hitbox.owner is Zombie):
+		queue_free()
+		return
 
-	for zombie in nearest:
-		var hitbox := nearest[zombie]
-		# intersect_shape no devuelve el punto de contacto: se usa la posición del hueso.
-		_apply_hit_with_dir(hitbox, hitbox.global_position, zombie)
-		# Después del daño: si lo mató, el ragdoll total ya empezó y la reacción no hace nada.
+	# intersect_ray sí devuelve el punto de contacto: se usa para la sangre.
+	_apply_hit_with_dir(hitbox, result.position, hitbox.owner as Zombie)
 	queue_free()
 
 func _apply_hit_with_dir(collider: Object, hit_pos: Vector3, zombie: Zombie) -> void:
@@ -81,7 +70,8 @@ func _apply_hit_with_dir(collider: Object, hit_pos: Vector3, zombie: Zombie) -> 
 
 
 func _damage_for(hitbox: Node) -> float:
-	# Solo dañar en la cabeza con melee
+	# Cabeza = daño completo. El resto recibe un daño mínimo (0.1) que no mata
+	# pero sí dispara `Zombie.hurted()`, que es lo que activa el stun de pierna.
 	if hitbox.is_in_group("zombie_head"):
 		return damage
 	return 0.1

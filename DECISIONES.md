@@ -226,3 +226,42 @@ de colisión), y que con Continuous CD todos los escenarios quedan.
    `BoxShape3D` en el piso: queda anotado como hallazgo).
 
 **Verificación:** ver E-012.
+
+## D-011 — El golpe cuerpo a cuerpo es un rayo fino, no un volumen (2026-11-02)
+
+**Contexto:** `MeleeProjectile` usaba una cápsula de `hitbox_radius`
+(0.15–0.75 m) que barría todo lo que tocaba y se quedaba con el hitbox más
+cercano de cada zombi: el golpe pegaba en cualquier extremidad que cayera
+dentro del volumen y el jugador no podía elegir dónde apuntar.
+
+**Decisión:**
+
+1. **El hitbox del melee es un `intersect_ray` desde la cámara hacia adelante,
+   de `weapon_range` metros**, con `collide_with_areas = true`,
+   `collide_with_bodies = false` y máscara `HITBOX_MASK` — exactamente los
+   parámetros de la cápsula, cambia solo la forma del test. El primer hitbox
+   que toca es el único que recibe el golpe: no hay selección "por zombi" ni
+   daño múltiple por swing.
+2. **Al ser un rayo, apuntar es elegir la extremidad.** La cabeza
+   (`zombie_head`) recibe el daño completo y guarda `melee_hit_dir` para el
+   ragdoll; cualquier otra hitbox recibe 0.1, que es lo mínimo para que
+   `Zombie.hurted()` se ejecute y dispare el stun de pierna
+   (`zombie_legs_left` / `zombie_legs_right`). Ese flujo ya existía: lo que
+   faltaba era la precisión, y la aporta el rayo.
+3. **`Melee.hitbox_radius` queda reservado y sin uso** (el comentario del
+   descriptor lo dice explícitamente). El dato se conserva en `bate.tres` y
+   `machete.tres` por si el hitbox vuelve a ser un volumen.
+4. **Por ahora el mundo no corta el golpe:** la máscara no incluye
+   `WORLD_MASK`, así que el melee atraviesa paredes (comportamiento previo de
+   la cápsula, que tampoco chocaba con cuerpos). Cambiarlo es sumar
+   `WORLD_MASK` a `collision_mask` en `MeleeProjectile.fire()`; queda anotado
+   en el comentario del script.
+
+**Alternativa descartada:** cono/cuña de detección (más fiel al arco del arma)
+y barrido de varios rayos. Se descartan por ahora: el rayo simple ya habilita
+apuntar por extremidad y no hay feedback visual del arco que lo justifique.
+
+**Verificación:** `tools/probe_melee.tscn` → *RESULTADO: TODO OK* (9
+aserciones): apuntar a la pierna pega en `thight_left` con 0.1 de daño y deja
+al zombi en `stun`; apuntar a la cabeza pega en el hitbox de cabeza con el
+daño completo y guarda `melee_hit_dir`; apuntar al vacío no hace nada.

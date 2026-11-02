@@ -73,6 +73,15 @@ func _camera_raycast(max_range: float, _by: Node3D = null) -> Dictionary:
 
 	var query := PhysicsRayQueryParameters3D.create(origin, _ray_end)
 	query.collide_with_areas = true
-	query.exclude = [owner, get_parent()]
+	# `owner` suele ser null (la escena del proyectil se instancia con
+	# `instantiate()` y nadie le pone owner): meter null en un `Array[RID]`
+	# tira un error de tipos en runtime, así que solo se excluye lo que aporta
+	# un RID (ver ERRORES.md E-013). Además no hace falta excluir al jugador
+	# (capa 8) ni al zombi (capa 2): ninguno de los dos está en esta máscara.
+	var excluded: Array[RID] = []
+	for obj in [owner, get_parent()]:
+		if obj is CollisionObject3D:
+			excluded.append((obj as CollisionObject3D).get_rid())
+	query.exclude = excluded
 	query.collision_mask = WORLD_MASK | HITBOX_MASK
 	return space_state.intersect_ray(query)
