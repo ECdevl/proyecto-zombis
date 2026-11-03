@@ -112,9 +112,14 @@
       `chase.gd` tiene `attack()`, `hurt_target()` y arranca `claw_timer`, pero
       ninguna `func claw`.
 
-- [ ] **T-010 Apuntar a extremidades en el melee** (D-011, 2026-11-02):
-      el hitbox ya es un rayo y pega exactamente en la extremidad que se apunta
-      (validado con `tools/probe_melee.tscn`). Falta convertirlo en jugada:
+- [ ] **T-010 Apuntar a extremidades en el melee** (D-011 / D-012,
+      2026-11-02): el golpe es un abanico de rayos estilo L4D2
+      (`sweep_angle` / `sweep_rays` en `SwingData`) con prioridad al rayo
+      central, que sigue pegasando en la extremidad que se apunta (validado
+      con `tools/probe_melee.tscn`, 14 aserciones). Falta convertirlo en
+      jugada:
+      - [ ] Etapa 2 (opcional): barrido por tick durante la ventana del
+            swing, como L4D2, para no errar objetivos en movimiento.
       - [ ] Tabla de daño/efecto por zona (hoy: cabeza = daño completo,
             resto = 0.1; la pierna ya deja `stun` vía `Zombie.hurted`).
       - [ ] Feedback de apunte: decirle al jugador qué extremidad tiene en la
@@ -122,6 +127,7 @@
       - [ ] Ajustar tiempos de stun y ventaja de la "combo" pierna → cabeza
             (`min_stun_time` / `max_stun_time` de `stun.gd`).
       - [ ] Decidir si `WORLD_MASK` corta el golpe (hoy atraviesa paredes).
+      - [ ] Revisar rangos: machete 3.0 m vs `melee_range` de L4D2 ≈ 1.78 m.
 
 ## Hecho
 

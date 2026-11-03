@@ -265,3 +265,60 @@ apuntar por extremidad y no hay feedback visual del arco que lo justifique.
 aserciones): apuntar a la pierna pega en `thight_left` con 0.1 de daño y deja
 al zombi en `stun`; apuntar a la cabeza pega en el hitbox de cabeza con el
 daño completo y guarda `melee_hit_dir`; apuntar al vacío no hace nada.
+
+## D-012 — El golpe es un abanico de rayos estático estilo L4D2, con prioridad del rayo central (2026-11-02)
+
+**Contexto:** D-011 dejó un solo rayo de apunte. Un solo rayo es frágil:
+con `hit_time` = 0.3 s, el zombi y la cámara se mueven durante el swing, y
+cualquier desvío mínimo hace fallar el golpe. En Left 4 Dead 2 el melee tira
+muchos rayos durante toda la animación (`melee_show_swing 1` de la guía
+comunitaria *Melee weapon detailed analysis v1.5*, hecha con scripts
+extraídos del `.vpk`; no hay documentación oficial de Valve). Se analizó su
+mecánica y se adopta su **barrido**, no su regla de daño.
+
+**Fuentes:** guía de Steam (id 412007318), foro de Steam/Reddit sobre la
+queja *"el golpe pega en otra parte del cuerpo de la que apuntabas"*. Datos
+de L4D2: rayo por *tick* desde la posición de los ojos, `melee_range` =
+70 HU ≈ 1.78 m, `startdir`/`enddir` por arma, "Already Hit" (un objetivo ya
+golpeado recibe 0 de los rayos siguientes) y **gana el primer hitgroup de
+todo el barrido**.
+
+**Decisión:**
+
+1. **Etapa 1 (implementada): abanico estático en el instante de `hit_time`.**
+   `SwingData` gana `sweep_angle` (0.6 rad ≈ 34°) y `sweep_rays` (7).
+   `MeleeProjectile.fire()` tira `N` rayos con separación uniforme dentro
+   del cono, con eje `u = normalize(A × S)`, donde `A` es la mira y
+   `S = Basis_cámara · SwingData.direction` la dirección del tajo (rotar `A`
+   alrededor de `u` barre exactamente el plano del swing; si `u` es
+   degenerado se usa un eje de respaldo).
+2. **Prioridad al rayo central (a diferencia de L4D2).** El orden de
+   disparo es central primero, luego laterales crecientes por |ángulo|
+   (`_ray_order`): si dos rayos pegan en el mismo zombi, gana el más cercano
+   a la mira, así el rayo central sigue eligiendo la extremidad del zombi
+   apuntado (cabeza/pierna de D-011). **No se copia** la regla "gana el
+   primer hitgroup de todo el barrido" de L4D2: destruiría el apunte
+   deliberado a extremidades, que es la mecánica que diferencia al juego.
+3. **Un golpe por zombi por swing** (diccionario `ya_golpeado`, equivalente
+   al "Already Hit" de L4D2). Un solo rayo toca como máximo a un zombi;
+   varios rayos del mismo swing pueden pegarle a varios zombis (base del
+   cleave futuro, cuando exista spawner de hordas).
+4. **Los laterales solo agregan:** otros zombis y perdón de puntería; no
+   roban la extremidad al zombi apuntado.
+5. **Dibujo de debug** con `ImmediateMesh` + `PRIMITIVE_LINES` durante 0.5 s
+   (`DRAW_DEBUG_RAYS`, solo en builds de debug), equivalente al
+   `melee_show_swing 1` de L4D2, para calibrar `sweep_angle`.
+6. **Costo despreciable:** 7 consultas por golpe (µs cada una).
+
+**Alternativas descartadas:** copia literal de L4D2 (barrido por *tick* +
+"primer hitgroup gana") — se reserva el barrido temporal para una Etapa 2
+futura; cono/cápsula volumétrica — ya descartada en D-011.
+
+**Verificación:** `tools/probe_melee.tscn` ampliado → *RESULTADO: TODO OK*
+(14 aserciones, 3 corridas seguidas). Caso nuevo: apuntar a 12 cm de lado
+delante de la cabeza hace errar al rayo central pero pega un lateral
+(`hurt_count == 1`, sigue siendo un solo golpe por zombi). Detalle de la
+sonda: el esqueleto del zombi (brazos) puede interponerse entre la cámara y
+la extremidad, así que `_aim` barre 16 ángulos alrededor del eje Y y elige
+uno desde el que el rayo central llega limpio al hitbox apuntado
+(`_find_clear_dir` / `_reaches`, misma consulta de rayo que el golpe).
