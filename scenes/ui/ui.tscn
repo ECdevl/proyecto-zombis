@@ -1,7 +1,6 @@
 [gd_scene format=3 uid="uid://01e8m6xuuak5"]
 
 [ext_resource type="Script" uid="uid://nbf8mh53g4mq" path="res://scripts/inventory/ui/ui.gd" id="1_nt7q6"]
-[ext_resource type="Script" uid="uid://cg2alhn207kxn" path="res://scripts/inventory/descriptors/item_descriptor.gd" id="3_8dubc"]
 [ext_resource type="Script" uid="uid://bsopu1qttaw0" path="res://scripts/inventory/controller/inventory_ui_controller.gd" id="4_gdt2y"]
 [ext_resource type="PackedScene" uid="uid://5v7bcrkk5m62" path="res://scenes/ui/inventory_view.tscn" id="6_8dubc"]
 [ext_resource type="Script" uid="uid://dalhqhdgs4pkw" path="res://scripts/inventory/ui/equip_view.gd" id="6_p7vwb"]
@@ -46,6 +45,19 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_nt7q6")
+
+[node name="hurt_flash" type="ColorRect" parent="." unique_id=1997764759]
+unique_name_in_owner = true
+visible = false
+z_index = 389
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 0, 0, 0.09803922)
 
 [node name="progress" type="TextureProgressBar" parent="." unique_id=1089592638]
 unique_name_in_owner = true
@@ -517,4 +529,3 @@ grow_horizontal = 2
 grow_vertical = 0
 text = "¡Liberate!"
 horizontal_alignment = 1
-

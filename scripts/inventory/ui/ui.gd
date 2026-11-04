@@ -27,8 +27,12 @@ const INSTRUCTOR = preload("uid://b6idlm6tyvtrx")
 @onready var sturggle_progress: TextureProgressBar = %SturggleProgress
 @onready var key_struggle: Label = %key_struggle
 @onready var quick_slots: HBoxContainer = %quick_slots
+@onready var hurt_flash: ColorRect = %hurt_flash
+
+var hurt_flash_alpha : float
 
 func _ready() -> void:
+	hurt_flash_alpha = hurt_flash.modulate.a
 	# El inventario lo tiene el Player; la interfaz solo lo observa.
 	inventory_ui.bind_inventory(player.inventory)
 	# La UI es vista: le avisa al Player, que es la autoridad del inventario (D-004).
@@ -38,6 +42,14 @@ func _ready() -> void:
 	var tween = create_tween().set_loops(0)
 	tween.tween_property(sturggle_progress,"scale",Vector2(1.2,1.2),.1)
 	tween.tween_property(sturggle_progress,"scale",Vector2(1,1),.1)
+
+func flash_hurt() -> void:
+	hurt_flash.show()
+	hurt_flash.modulate.a = hurt_flash_alpha
+	var tween = create_tween()
+	tween.tween_property(hurt_flash,"modulate:a",0.0,.25)
+	await tween.finished
+	hurt_flash.hide()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("toggle_inventory"):

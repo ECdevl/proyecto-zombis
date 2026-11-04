@@ -443,3 +443,94 @@ sigue en *TODO OK*.
 rotas en `addons/ragdoll_wizard/ragdoll_wizard_panel.tscn`
 (`CreateButton`/`ClearSlotsButton`/`CopyBoneNameButton`) — del addon nuevo
 del rework, sin tocar (ver T-011); más la preexistente T-008.
+
+## E-015 — `hurted()` y `die()` truenaban con la `info` real que mandan las balas (2026-11-04)
+
+**Síntoma.** `tools/probe_zombie.tscn` (sonda nueva) daba **3 errores de
+script reales** al matar/lastimar un zombi con la `info` que el juego
+manda de verdad:
+
+```
+SCRIPT ERROR: Trying to assign value of type 'Nil' to a variable of type 'float'.
+SCRIPT ERROR: Invalid access to property or key 'global_position' on a base object of type 'Nil'.  (×2)
+```
+
+**Causa raíz.** `Zombie.die()` y `Zombie.hurted()` leían `info` como si
+siempre trajera todas las claves, pero **`Projectile._apply_hit()` arma la
+bala solo con `who`, `attacker` y `hit_pos`** — no trae `impulse` ni
+`force`:
+
+1. `die()`: `var force : float = info.get("force")` → `info.get()` devuelve
+   `null` cuando la clave no existe, y asignar `null` a un `float` truena y
+   **aborta la función**: el ragdoll no arrancaba.
+2. `hurted()`: `info["attacker"].global_position` y `info["who"]...` →
+   `Invalid access ... on a base object of type 'Nil'` cuando falta esa
+   clave (arañazos, golpes sin atacante registrado).
+
+En Godot un error de script **no detiene la escena**, solo aborta la
+función, así que estos errores eran silenciosos en juego: la muerte
+perdía el impulso y el sangrado.
+
+**Corrección** (en `scripts/zombie/zombie.gd`, D-014):
+
+- `_vec3(info, key)` / `_num(info, key)` — leen `info` tolerando claves
+  ausentes o de tipo equivocado (`Vector3.ZERO` / `0.0` como respaldo).
+- `_resolve_hit_pos(info, who)` — usa `hit_pos` si es un `Vector3` finito;
+  si no, `who.global_position`; y si no hay `who`, `global_position`.
+- `_find_hit_bone(info)` — devuelve `null` si falta el hitbox o el
+  simulador, en vez de truenar.
+- `hurted()` sale temprano con `info.is_empty()` y solo salpica si hay
+  `attacker`; el flinch y el chequeo de piernas se ejecutan igual.
+
+**Verificación:** `godot --headless --path . res://tools/probe_zombie.tscn`
+→ *RESULTADO: TODO OK* (7 aserciones, sin `SCRIPT ERROR`), incluido el caso
+1) `die()` con la `info` exacta de una bala llega hasta arrancar el
+ragdoll.
+
+**Relacionado:** E-014 (la cadena del impulso melee). E-015 es la causa
+más profunda de la misma familia: `info` incompleta leída sin guardar.
+
+## E-016 — Se perdió `_on_nav_target_reached()` y con ella el manejo del "objetivo perdido" (2026-11-04)
+
+**Síntoma.** `tools/check_tscn_connections.py` reportó **5** conexiones
+rotas cuando `HEAD` tiene **4**:
+
+```
+ROTA scenes/zombies/zombie.tscn: Nav.target_reached -> StateMachine/chase._on_nav_target_reached (el metodo no existe en el script)
+```
+
+**Investigación.** Comparado contra una copia limpia de `HEAD` con
+`git archive` (4 rotas: las 3 de `ragdoll_wizard_panel.tscn` + la T-008),
+la quinta era nueva. La función existía en `HEAD` (`chase.gd:137`) y fue
+eliminada en el rework en curso, pero **la conexión se mantuvo en
+`zombie.tscn`**.
+
+Godot **no avisa en runtime** de esta desconexión: no hay línea de error
+en la salida de las sondas, la señal simplemente no hace nada.
+
+**Impacto real.** `_on_vision_target_lost()` crea un `Marker3D` con la
+última posición vista del jugador y lo pone como `target`. El método
+perdido era **el único sitio que lo liberaba**:
+
+```gdscript
+if target is Marker3D:
+    target.queue_free()
+    finished.emit("idle")
+```
+
+Sin él: (1) el `Marker3D` se fuga (nunca se libera), (2) el zombi queda
+perseguindo ese marcador para siempre sin volver nunca a `idle`.
+
+**Corrección:** restaurar `_on_nav_target_reached()` en
+`scripts/zombie/states/chase.gd`, idéntica a `HEAD`, con un comentario que
+explica por qué existe (la conexión vive en la escena y era la única
+salida del flujo de objetivo perdido).
+
+**Verificación:** `python3 tools/check_tscn_connections.py` → vuelve a
+**4 rotas** (las preexistentes). Regresión completa: `probe_zombie` (7),
+`probe_avoidance` (12), `probe_melee` (14) y `probe_hitdir` (9) → todas
+*RESULTADO: TODO OK*, sin `SCRIPT ERROR`.
+
+**Lección:** al borrar un handler hay que buscar la conexión en los
+`.tscn` — `check_tscn_connections.py` la detecta, pero Godot no la
+menciona.

@@ -32,15 +32,19 @@ func _ready() -> void:
 	simulator.physical_bones_add_collision_exception(body.get_rid())
 
 
-func start(is_permanent := false,impulse: Vector3 = Vector3.ZERO,force: float = 0.0) -> void:
+func start(is_permanent := false,impulse: Vector3 = Vector3.ZERO,force: float = 0.0,bone:PhysicalBone3D = null) -> void:
 	simulator.influence = 1.0
 	permanent = is_permanent
 	if is_ragdoll:
 		return
 	is_ragdoll = true
+	
 	_ragdoll_time = 0.0
 	simulator.physical_bones_start_simulation()
-	pelvis.apply_central_impulse(impulse * force)
+	if not bone:
+		pelvis.apply_central_impulse(impulse * force)
+	else:
+		bone.apply_central_impulse(impulse*force)
 	ragdoll_started.emit()
 	print_debug(force)
 

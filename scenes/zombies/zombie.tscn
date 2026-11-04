@@ -333,34 +333,34 @@ zombie_mesh = NodePath("ZombiConRig/rig/Skeleton3D/Cuerpo")
 
 [node name="Skeleton3D" parent="ZombiConRig/rig" parent_id_path=PackedInt32Array(1288087123, 2101351265) index="0" unique_id=1656541098]
 bones/0/position = Vector3(0.25703108, 1.15787, -0.34851316)
-bones/1/position = Vector3(0.17112687, 0.7796894, 0.17345482)
-bones/1/rotation = Quaternion(-0.4537103, 0.06606724, 0.88397276, -0.09151182)
+bones/1/position = Vector3(0.13750619, 0.79002696, 0.15645958)
+bones/1/rotation = Quaternion(-0.43745917, 0.13026145, 0.88938016, 0.025777537)
 bones/2/position = Vector3(0.15920088, 0.16795729, 0.06986621)
 bones/2/rotation = Quaternion(0.9983392, -0.0061305026, -0.05533842, -0.014800461)
 bones/4/position = Vector3(-0.25703102, 1.1578704, -0.34851316)
-bones/5/position = Vector3(-0.20850503, 0.7861596, 0.13309604)
-bones/5/rotation = Quaternion(0.43371442, 0.11451514, 0.8937108, 0.007689082)
+bones/5/position = Vector3(-0.2536541, 0.7815366, 0.13309455)
+bones/5/rotation = Quaternion(0.4487505, 0.09013399, 0.8867392, 0.06474951)
 bones/6/position = Vector3(-0.15920088, 0.16795729, 0.06986622)
 bones/6/rotation = Quaternion(0.9983391, 0.0061305305, 0.055338286, -0.014800293)
 bones/8/position = Vector3(8.572993e-09, 0.0073075816, -0.14601253)
 bones/8/rotation = Quaternion(-0.71045417, -5.959688e-08, -1.7450503e-08, 0.7037435)
 bones/9/position = Vector3(5.1880427e-08, -0.10603939, 0.83989537)
 bones/9/rotation = Quaternion(0.7933531, 2.9569513e-08, -3.1563232e-08, 0.6087618)
-bones/10/rotation = Quaternion(-0.0250894, -0.03657924, -0.0038165944, 0.9990085)
-bones/11/rotation = Quaternion(0.1955556, 0.0031426311, 0.01713314, 0.9805379)
-bones/12/rotation = Quaternion(0.26898557, 0.0013442201, 0.0104015665, 0.9630872)
+bones/10/rotation = Quaternion(-0.01415454, -0.017489253, 0.0023735499, 0.99974406)
+bones/11/rotation = Quaternion(0.16701299, 0.029780174, -0.00072325737, 0.9855046)
+bones/12/rotation = Quaternion(0.307177, -0.031479906, 0.029850481, 0.9506631)
 bones/13/position = Vector3(-4.340972e-14, 0.061831232, -2.4234413e-07)
-bones/13/rotation = Quaternion(0.009129657, 0.031378947, -0.038622092, 0.99871933)
+bones/13/rotation = Quaternion(0.018266179, 0.011213021, -0.013801292, 0.9996751)
 bones/14/rotation = Quaternion(0.56675345, 0.40758362, 0.52526987, -0.48657757)
-bones/15/rotation = Quaternion(0.17190577, 0.6754863, -0.6536696, 0.29475912)
-bones/16/rotation = Quaternion(0.07163824, 0.03716041, 0.009447727, 0.9966935)
-bones/17/rotation = Quaternion(-0.079364695, -0.19174318, 0.10082486, 0.9730212)
+bones/15/rotation = Quaternion(0.19463326, 0.6994793, -0.6413513, 0.2480226)
+bones/16/rotation = Quaternion(0.1358904, 0.025369236, 0.0034190626, 0.99039316)
+bones/17/rotation = Quaternion(-0.009610447, -0.2058297, 0.06531721, 0.9763583)
 bones/18/rotation = Quaternion(0.14909536, 0.9848463, 0.018360928, -0.086667836)
 bones/19/rotation = Quaternion(0.20150848, 0.9061052, 0.34664702, -0.13492045)
 bones/21/rotation = Quaternion(0.56675357, -0.40758356, -0.52526987, -0.48657757)
-bones/22/rotation = Quaternion(0.1810798, -0.759765, 0.5540253, 0.28813744)
-bones/23/rotation = Quaternion(0.22365125, -0.03653001, -0.0019056182, 0.9739826)
-bones/24/rotation = Quaternion(-0.028007848, 0.19267301, -0.074179105, 0.97805434)
+bones/22/rotation = Quaternion(0.1220177, -0.76261634, 0.55485153, 0.3093022)
+bones/23/rotation = Quaternion(0.15892334, -0.048127215, -0.007827673, 0.9860862)
+bones/24/rotation = Quaternion(-0.0073284246, 0.18448752, -0.094121486, 0.9782903)
 bones/25/rotation = Quaternion(-0.18072163, 0.98212856, 0.015550538, 0.05021299)
 bones/28/rotation = Quaternion(0.91990167, 0.038567185, -0.24259609, 0.30568072)
 bones/29/rotation = Quaternion(0.2159596, 0.18224691, 0.06340311, 0.9571456)
@@ -422,7 +422,6 @@ metadata/_custom_type_script = "uid://x4q5vux02ext"
 [node name="chase" type="Node" parent="StateMachine" unique_id=2112885450]
 script = ExtResource("6_gqrt2")
 grab_range = 1.0
-grab_time = 10.0
 claw_rate = 0.75
 metadata/_custom_type_script = "uid://dlwnlq8kgxa0k"
 
@@ -457,7 +456,6 @@ metadata/_custom_type_script = "uid://dlwnlq8kgxa0k"
 [node name="Nav" type="NavigationAgent3D" parent="." unique_id=1055674229]
 unique_name_in_owner = true
 avoidance_enabled = true
-use_3d_avoidance = true
 debug_enabled = true
 
 [node name="Vision" type="Node" parent="." unique_id=638560868 node_paths=PackedStringArray("eye")]
@@ -477,7 +475,7 @@ rest_speed = 0.8
 [node name="HITBOXES" type="Node3D" parent="." unique_id=684569482]
 
 [node name="Physical Bone spine" type="BoneAttachment3D" parent="HITBOXES" unique_id=2093495140]
-transform = Transform3D(-0.9972948, -0.009461158, 0.07289438, -0.023899782, 0.97953576, -0.19984508, -0.0695119, -0.20104657, -0.97711205, -0.00024587798, 0.97934747, -0.041442327)
+transform = Transform3D(-0.999377, 0.0042507434, 0.0350367, -0.0036379886, 0.97502565, -0.22206157, -0.035105612, -0.22205064, -0.9744028, -0.00024587798, 0.97934747, -0.041442327)
 bone_name = "spine"
 bone_idx = 10
 use_external_skeleton = true
@@ -494,7 +492,7 @@ shape = SubResource("BoxShape3D_a1fd2")
 debug_color = Color(1, 0, 0, 1)
 
 [node name="Physical Bone neck" type="BoneAttachment3D" parent="HITBOXES" unique_id=1504161012 groups=["zombie_head"]]
-transform = Transform3D(-0.9986807, 0.015984898, -0.04879875, 0.05109536, 0.40388307, -0.9133822, 0.005108632, -0.9146705, -0.40416694, 0.01823222, 1.4348493, -0.29543325)
+transform = Transform3D(-0.99931103, 0.03646966, -0.0068716663, 0.01894636, 0.3421386, -0.939458, -0.031910665, -0.9389411, -0.3425939, 0.0057325936, 1.4368507, -0.2931496)
 bone_name = "head"
 bone_idx = 13
 use_external_skeleton = true
@@ -511,7 +509,7 @@ shape = SubResource("BoxShape3D_txc5v")
 debug_color = Color(1, 0, 0, 1)
 
 [node name="Physical Bone upper_arm_left" type="BoneAttachment3D" parent="HITBOXES" unique_id=1129562122]
-transform = Transform3D(0.3328897, 0.22250864, -0.91633743, 0.04384038, -0.97436213, -0.2206718, -0.94194585, 0.033286955, -0.33410993, 0.21189475, 1.3563349, -0.15822542)
+transform = Transform3D(0.3453537, 0.23713617, -0.9080182, 0.031561643, -0.9699365, -0.24130228, -0.9379414, 0.054676257, -0.34245554, 0.20770957, 1.3570399, -0.17631714)
 bone_name = "upper_arm_right"
 bone_idx = 22
 use_external_skeleton = true
@@ -528,7 +526,7 @@ shape = SubResource("CapsuleShape3D_565wg")
 debug_color = Color(1, 0, 0, 1)
 
 [node name="Physical Bone forearm_left" type="BoneAttachment3D" parent="HITBOXES" unique_id=642462362]
-transform = Transform3D(0.21797663, 0.12529713, 0.96787703, -0.052547663, -0.9887785, 0.13983727, 0.9745376, -0.081340946, -0.20894666, -0.20023504, 1.1058786, -0.19683504)
+transform = Transform3D(0.22719306, 0.23339166, 0.9454688, -0.045048695, -0.9672986, 0.24960542, 0.9728066, -0.099300824, -0.20924966, -0.21014047, 1.1097989, -0.17452383)
 bone_name = "forearm_left"
 bone_idx = 16
 use_external_skeleton = true
@@ -545,7 +543,7 @@ shape = SubResource("CapsuleShape3D_25ber")
 debug_color = Color(1, 0, 0, 1)
 
 [node name="Physical Bone hand_left" type="BoneAttachment3D" parent="HITBOXES" unique_id=707128649]
-transform = Transform3D(0.5715789, -0.1018723, 0.8141982, -0.22177586, -0.9745123, 0.033759072, 0.7900075, -0.1998655, -0.5796039, -0.16592339, 0.83510965, -0.21910961)
+transform = Transform3D(0.615518, 0.16011304, 0.77168715, -0.068039395, -0.9646944, 0.25442904, 0.7851797, -0.20911084, -0.58289295, -0.14622799, 0.8449121, -0.20171657)
 bone_name = "hand_left"
 bone_idx = 17
 use_external_skeleton = true
@@ -562,7 +560,7 @@ shape = SubResource("CapsuleShape3D_jr12g")
 debug_color = Color(1, 0, 0, 1)
 
 [node name="Physical Bone upper_arm_right" type="BoneAttachment3D" parent="HITBOXES" unique_id=1024307202]
-transform = Transform3D(0.3328897, 0.22250864, -0.91633743, 0.04384038, -0.97436213, -0.2206718, -0.94194585, 0.033286955, -0.33410993, 0.21189475, 1.3563349, -0.15822542)
+transform = Transform3D(0.3453537, 0.23713617, -0.9080182, 0.031561643, -0.9699365, -0.24130228, -0.9379414, 0.054676257, -0.34245554, 0.20770957, 1.3570399, -0.17631714)
 bone_name = "upper_arm_right"
 bone_idx = 22
 use_external_skeleton = true
@@ -579,7 +577,7 @@ shape = SubResource("CapsuleShape3D_cwcu1")
 debug_color = Color(1, 0, 0, 1)
 
 [node name="Physical Bone forearm_right" type="BoneAttachment3D" parent="HITBOXES" unique_id=656886412]
-transform = Transform3D(0.26311237, -0.20329997, -0.94310176, 0.04774629, -0.9736035, 0.22319572, -0.9635828, -0.103755, -0.24646027, 0.26857287, 1.1081425, -0.14974639)
+transform = Transform3D(0.25249776, -0.060101934, -0.9657289, 0.038919292, -0.9966305, 0.07220106, -0.9668142, -0.055815935, -0.24930778, 0.26811364, 1.1099747, -0.16238977)
 bone_name = "forearm_right"
 bone_idx = 23
 use_external_skeleton = true
@@ -596,7 +594,7 @@ shape = SubResource("CapsuleShape3D_ocred")
 debug_color = Color(1, 0, 0, 1)
 
 [node name="Physical Bone hand_right" type="BoneAttachment3D" parent="HITBOXES" unique_id=47655123]
-transform = Transform3D(0.6239014, -0.08677781, -0.7766701, 0.11226322, -0.97355664, 0.19895753, -0.77339745, -0.21132119, -0.59766144, 0.21290086, 0.8415294, -0.17815885)
+transform = Transform3D(0.58932865, 0.03417121, -0.8071701, 0.19584863, -0.9753461, 0.10170178, -0.78379494, -0.21801877, -0.5814917, 0.25165525, 0.83705586, -0.17767453)
 bone_name = "hand_right"
 bone_idx = 24
 use_external_skeleton = true
@@ -699,6 +697,7 @@ debug_color = Color(0.9734866, 0, 0.4302362, 1)
 [connection signal="animation_finished" from="AT" to="StateMachine/stagger" method="_on_at_animation_finished"]
 [connection signal="timeout" from="StateMachine/chase/claw_timer" to="StateMachine/chase" method="claw"]
 [connection signal="target_reached" from="Nav" to="StateMachine/chase" method="_on_nav_target_reached"]
+[connection signal="velocity_computed" from="Nav" to="StateMachine/chase" method="_on_nav_velocity_computed"]
 [connection signal="target_lost" from="Vision" to="StateMachine/chase" method="_on_vision_target_lost"]
 [connection signal="target_spotted" from="Vision" to="StateMachine/idle" method="_on_vision_target_spotted"]
 [connection signal="animation_face" from="RagdollComponent" to="StateMachine/stun" method="_on_ragdoll_component_animation_face"]

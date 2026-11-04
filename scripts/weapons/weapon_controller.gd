@@ -150,7 +150,8 @@ func _input(event: InputEvent) -> void:
 			if tree:
 				tree["parameters/punch/request"]  = AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE
 		else:
-			weapon_ap.play("punch")
+			weapon_ap.stop()
+			weapon_ap.play("punch",-1)
 			weapon_ap.queue("idle")
 
 		push()
@@ -242,6 +243,7 @@ func _apply_recoil() -> void:
 
 
 ## Golpe cuerpo a cuerpo: elige un swing al azar, lo anima y espera el momento del golpe.
+var swing_index : int = 0
 func swing() -> bool:
 
 	var melee := current_weapon as Melee
@@ -252,9 +254,11 @@ func swing() -> bool:
 	if weapon_ap.current_animation.contains("swing"):
 		return false
 	weapon_ap.speed_scale = 1.5
-
-	var swing_data: SwingData = melee.swings.pick_random()
-
+	
+	if swing_index >= melee.swings.size():
+		swing_index = 0
+	var swing_data: SwingData = melee.swings[swing_index]
+	swing_index+=1
 	if weapon_ap and weapon_ap.has_animation(swing_data.animation):
 		weapon_ap.stop()
 		weapon_ap.play(swing_data.animation,.1)

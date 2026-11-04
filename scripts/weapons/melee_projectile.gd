@@ -14,7 +14,7 @@ class_name MeleeProjectile extends Projectile
 
 ## Dibuja los rayos del swing durante 0.5 s, como el `melee_show_swing 1` de
 ## L4D2. Se dibuja solo en builds de debug.
-const DRAW_DEBUG_RAYS := true
+const DRAW_DEBUG_RAYS := false
 
 var attacker : Node3D
 var knockback : float = 0.0

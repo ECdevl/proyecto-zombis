@@ -15,6 +15,7 @@ metadata/_custom_type_script = "uid://dskngi7txlhue"
 [sub_resource type="Resource" id="Resource_lu6ae"]
 script = ExtResource("3_1jgj1")
 animation = &"swing2"
+direction = Vector3(0, 1, 0)
 sweep_angle = 0.0
 recoil_kick = Vector2(2, 0)
 metadata/_custom_type_script = "uid://dskngi7txlhue"
@@ -23,6 +24,7 @@ metadata/_custom_type_script = "uid://dskngi7txlhue"
 script = ExtResource("2_2ek2h")
 swings = Array[ExtResource("3_1jgj1")]([SubResource("Resource_q8wwd"), SubResource("Resource_lu6ae")])
 viewmodel_model = ExtResource("1_nt4gf")
+damage = 20.0
 weapon_range = 1.0
 item_name = "Cuchillo de cocina"
 dimensions = Vector2i(3, 1)

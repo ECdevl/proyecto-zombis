@@ -8,21 +8,23 @@
 [sub_resource type="Resource" id="Resource_vau08"]
 script = ExtResource("3_1ujgm")
 animation = &"swing1"
-recoil_kick = Vector2(0, 5)
+direction = Vector3(-1, 0, 0)
+recoil_kick = Vector2(0, 1)
 
 [sub_resource type="Resource" id="Resource_gnu3u"]
 script = ExtResource("3_1ujgm")
 animation = &"swing2"
-recoil_kick = Vector2(0, -5)
+recoil_kick = Vector2(0, -1)
 
 [resource]
 script = ExtResource("2_1ujgm")
 swings = Array[ExtResource("3_1ujgm")]([SubResource("Resource_vau08"), SubResource("Resource_gnu3u")])
 hitbox_radius = 0.5
 viewmodel_model = ExtResource("4_1ujgm")
-damage = 10.0
+damage = 100.0
 fire_rate = 0.2
-weapon_range = 3.0
+weapon_range = 2.0
+knockback = 50.0
 item_name = "Machete"
 dimensions = Vector2i(4, 1)
 item_mesh = ExtResource("1_1ujgm")

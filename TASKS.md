@@ -36,9 +36,32 @@
   - [ ] `check_tscn_connections.py`:3 conexiones rotas en
         `addons/ragdoll_wizard/ragdoll_wizard_panel.tscn`
         (`CreateButton`/`ClearSlotsButton`/`CopyBoneNameButton`) + la
-        preexistente T-008.
+        preexistente T-008. **Se mantiene en 4 tras el rework de zombis**
+        (E-016: se restauró `_on_nav_target_reached()`).
   - [ ] Decidir cómo commitear: el fix de E-014 vive dentro de `zombie.tscn`,
         que además contiene todo el rework.
+
+- [x] **T-012 Rework de `scripts/zombie/`: modularidad + evitación mutua**
+      (2026-11-04, D-014 / D-015 / E-015 / E-016)
+  - [x] `zombie.gd`: hooks `_on_hurted()` / `_on_died()` para zombis
+        especiales, guardas contra `info` incompleta, referencias `%` en
+        vez de rutas hardcodeadas, `nav.max_speed = speed`, contrato de
+        escena documentado en el encabezado.
+  - [x] `chase.gd`: eliminar la doble multiplicación por `speed` (era
+        `speed²`), quitar la condición muerta `zombie.direction`, guarda
+        `state != self` en el callback del RVO, no girar con velocidad ~0.
+  - [x] Restaurar `_on_nav_target_reached()` — se había perdido y con ella
+        el manejo del `Marker3D` de "objetivo perdido" (E-016).
+  - [x] `zombie.tscn`: **sin cambios** (los parámetros de Nav por defecto
+        están verificados contra la doc de Godot 4.7; ver D-015).
+  - [x] Sondas nuevas `tools/probe_zombie.tscn` (7 aserciones) y
+        `tools/probe_avoidance.tscn` (12 aserciones, con control ciego
+        `avoidance_mask = 0`).
+  - [x] Regresión: `probe_zombie`, `probe_avoidance`, `probe_melee`,
+        `probe_hitdir` → todas *TODO OK*; `check_tscn_connections.py` →
+        4 rotas (las preexistentes).
+  - [ ] Probar en el editor/juego: hordas grandes, que el avoidance no
+        se note caro en rendimiento (el RVO cuesta con muchos agentes).
 
 ## Pendientes (detectado, no ejecutado)
 
@@ -239,6 +262,27 @@
   da impulso (el caso "zombi de espaldas con la misma cámara" se imprime sin
   aserción, es diagnóstico). Uso:
   `godot --headless --path . res://tools/probe_hitdir.tscn`
+  → *RESULTADO: TODO OK*
+- `tools/probe_zombie.tscn` + `tools/probe_zombie.gd` — sonda de robustez de
+  `Zombie` (D-014 / E-015): comprueba que `die()` e `hurted()` no truenan con
+  la `info` real de una bala (sin `impulse`/`force`), con `info` vacía, con
+  hitbox de pierna sin atacante, con `hit_pos` no finito y con `attacker` sin
+  `who`; y que los hooks `_on_hurted()` / `_on_died()` existen. **Corre como
+  escena, no con `--script`** (E-004). Uso:
+  `godot --headless --path . res://tools/probe_zombie.tscn`
+  → *RESULTADO: TODO OK*
+- `tools/probe_avoidance.tscn` + `tools/probe_avoidance.gd` — sonda de la
+  evitación mutua (D-015): monta piso + `NavigationRegion3D` con un navmesh
+  armado a mano (cuadrado 24×24 m, sin hornear) + objetivo real
+  (`player.tscn`), y corre `states/chase.gd` en tres escenarios con los
+  mismos spawns: **A)** un zombi solo (control sin vecinos), **B)** cuatro
+  con `avoidance_mask = 0` (**control ciego**: el RVO ignora a los demás
+  pero sigue emitiendo `velocity_computed`), **C)** cuatro con avoidance
+  real. Mide la velocidad (detecta el bug de doble `×speed`), el desvío
+  lateral sobre `safe_velocity` (no sobre la velocidad final, para no
+  mezclarlo con las colisiones), la distancia mínima entre pares y la
+  llegada al objetivo. **Corre como escena.** Uso:
+  `godot --headless --path . res://tools/probe_avoidance.tscn`
   → *RESULTADO: TODO OK*
 - `tools/dump_engine_signals.gd` — genera `tools/engine_signals.py`: la tabla de señales que
   declara cada clase del motor usada en el proyecto. Se regenera solo si se agregan clases:

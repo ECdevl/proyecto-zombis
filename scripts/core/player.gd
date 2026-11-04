@@ -110,10 +110,12 @@ var direction : Vector3
 var _mouse_delta := Vector2.ZERO
 
 var speed : float = 3.0
+@onready var ui: UI = %UI
 
 func _ready() -> void:
 	health_component = health_component.duplicate()
-	health_component.hurted.connect(hurted,)
+	health_component.hurted.connect(hurted)
+
 	#ui.inventory_manager.connect("equip_weapon",Callable(self,"equip_weapon"))
 	inventory.hands.main_weapon_changed.connect(equip_weapon)
 	grabbed_object.connect(_on_grabbed_object)
@@ -141,6 +143,7 @@ signal loot_opened(model:InventoryModel,display:String)
 
 func hurted(damage:float,info:Dictionary) -> void:
 	view_punch.punch(Vector2(damage,0))
+	ui.flash_hurt()
 	
 func _try_interact(hit_object: Node) -> void:
 	if hit_object is ContainerInteractable:

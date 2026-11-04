@@ -4,8 +4,8 @@ var target : Node3D
 
 @export var forget_time : float = 3.0
 @export var grab_range : float = 1.5
+@export var can_grab : bool = false
 
-@export var grab_time : float = 2.0
 @export var claw_rate : float = .5
 var to_grab : bool = false
 
@@ -24,30 +24,25 @@ func enter(previous_state_path: String, data := {}) -> void:
 func physics_update(_delta: float) -> void:
 	zombie.handle_gravity(_delta)
 	
-	zombie.playback.travel("walk")
+	
 	if target is Node3D:
 		zombie.nav.target_position = target.global_position
 	else:
 		finished.emit("idle")
 		return
-	var target_rot : float = atan2(-zombie.direction.x,-zombie.direction.z)
-	zombie.rotation.y = rotate_toward(zombie.rotation.y, target_rot, deg_to_rad(720) * _delta)
-	var distance_to_target = zombie.global_position.distance_squared_to(target.global_position)
 
+	# `get_next_path_position()` hay que llamarla en CADA frame de física
+	# para que el agente avance su lógica de camino, aunque esté parado.
+	var siguiente := zombie.nav.get_next_path_position()
 
-		
-
-	if distance_to_target < zombie.nav.target_desired_distance:
-		stop = false
-		zombie.playback.travel("idle1")
-		return
-	zombie.nav.get_next_path_position()
-	zombie.direction = zombie.global_position.direction_to(zombie.nav.get_next_path_position())
-
-	if zombie.direction != Vector3.ZERO:
-		zombie.velocity.x = zombie.direction.x * zombie.speed
-		zombie.velocity.z = zombie.direction.z * zombie.speed
-
+	# Velocidad deseada para el RVO. `set_velocity` recibe la velocidad
+	# REAL en m/s: el resultado que devuelve `velocity_computed` ya está en
+	# m/s y NO se vuelve a multiplicar por `speed` (ver D-015: eso duplicaba
+	# la velocidad, speed² en vez de speed).
+	var deseada := Vector3.ZERO
+	if not stop:
+		deseada = zombie.global_position.direction_to(siguiente) * zombie.speed
+	zombie.nav.set_velocity(deseada)
 
 	zombie.move_and_slide()
 
@@ -56,8 +51,13 @@ func update(_delta: float) -> void:
 
 	var distance_to_target = zombie.global_position.distance_squared_to(target.global_position)
 	if distance_to_target <= grab_range * grab_range:
-		print_debug(distance_to_target)
 		attack()
+		stop = true
+		zombie.playback.travel("idle1")
+	else:
+		stop = false
+		zombie.playback.travel("walk")
+		
 
 func exit(next_state_path:String) -> void:
 	zombie.at["parameters/grab/request"] = 2
@@ -89,7 +89,7 @@ func attack() -> void:
 	var claw_or_grab : int
 	claw_or_grab = randi_range(0,1)
 	
-	if distance >= grab_range:
+	if distance >= grab_range or not can_grab:
 		claw_or_grab = 0
 	
 	
@@ -134,6 +134,32 @@ func hurt_target(grab:bool = false) -> void:
 				if hit_box.get_overlapping_bodies()[0] is CharacterBody3D:
 					hit_box.get_overlapping_bodies()[0].health_component.hurt(zombie.claw_damage)
 
+
+## Callback del RVO: `Nav` devuelve la velocidad ya desviada para no chocar
+## con los demás agentes. Es la única fuente de movimiento del zombi mientras
+## persigue, así que esta función es la que aplica la velocidad a la escena.
+func _on_nav_velocity_computed(safe_velocity: Vector3) -> void:
+	# La señal está cableada en la escena, así que sigue llegando aunque el
+	# zombi haya salido de `chase` (stun, death, stagger...). Si no somos el
+	# estado activo no pisamos la velocidad que esté usando el otro estado.
+	if zombie.state_machine.state != self:
+		return
+
+	# `safe_velocity` ya viene en m/s: no se multiplica por `speed` otra vez.
+	zombie.velocity.x = safe_velocity.x
+	zombie.velocity.z = safe_velocity.z
+
+	# Quieto no hay hacia qué girar (y evita que el zombi patine en el sitio).
+	if safe_velocity.length_squared() < 0.0001:
+		return
+	var target_rot: float = atan2(-safe_velocity.x, -safe_velocity.z)
+	zombie.rotation.y = rotate_toward(zombie.rotation.y, target_rot,
+		deg_to_rad(720.0) * get_physics_process_delta_time())
+
+
+## `Nav.target_reached` → la escena la tiene cableada. Es el único sitio que
+## libera el `Marker3D` que deja `_on_vision_target_lost()` cuando el jugador
+## se pierde de vista: sin él el zombi perseguiría el marcador para siempre.
 func _on_nav_target_reached() -> void:
 	if target is Marker3D:
 		target.queue_free()
@@ -141,4 +167,3 @@ func _on_nav_target_reached() -> void:
 	else:
 		stop = true
 		claw_timer.start(claw_rate)
-		

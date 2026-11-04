@@ -355,3 +355,99 @@ se invierta con el *facing* del zombi, haría falta otra regla (mezclar con el
 **Verificación:** `tools/probe_hitdir.tscn` (sonda nueva) →
 *RESULTADO: TODO OK* (9 aserciones), incluido el descriptor real
 `machete.tres`.
+
+## D-014 — La modularidad de `Zombie` se consigue con hooks y guardas, no con una arquitectura nueva (2026-11-04)
+
+**Contexto:** el usuario pidió hacer la clase `Zombie` "más modular para
+futuros zombis especiales". Al revisarlo, la arquitectura ya era modular:
+`StateMachine` con estados que son **nodos hijos** (se agregan o quitan desde
+el editor) + componentes (`HealthComponent`, `ZombieVision`,
+`ZombieRagdoll`, `LookAtModifier3D`). Lo que frenaba a un zombi especial no
+era la estructura sino tres cosas concretas.
+
+**Decisión:** rework de **limpieza + hooks**, sin cambiar la arquitectura.
+Ningún resource-archetype ni sistema de plantillas: sería sobre-ingeniería
+para el caso de uso actual (la escena ya es el arquetipo, y se hereda en el
+editor).
+
+1. **Dos hooks de personalización** en `Zombie`, al final de `hurted()` y
+   `die()`:
+
+   ```gdscript
+   func _on_hurted(_damage: float, _info: Dictionary) -> void: pass
+   func _on_died(_damage: float, _info: Dictionary) -> void: pass
+   ```
+
+   Una subclase `extends Zombie` los sobreescribe y, si quiere conservar lo
+   común, llama a `super`. Lo compartido (flinch, sangre, chequeo de piernas,
+   ragdoll, cambio a `death`) queda en el base y no se repite.
+
+2. **Guardas contra `info` incompleto** (ver E-015): `hurted()` y `die()`
+   ya no truenan si `info` no trae `attacker`, `who`, `hit_pos`, `impulse`
+   ni `force`. Helpers nuevos: `_resolve_hit_pos()`, `_find_hit_bone()`,
+   `_vec3()`, `_num()`.
+
+3. **Rutas `%` en lugar de rutas hardcodeadas**: `%Nav`, `%Vision`, `%AT`,
+   `%StateMachine`, `%LookHead`, `%RagdollComponent`. Antes había una ruta
+   hardcodeada `$ZombiConRig/rig/Skeleton3D` que quedó muerta. El contrato
+   de escena está documentado en el encabezado de `zombie.gd`.
+
+**Qué NO se tocó:** `zombie.tscn` y los estados. La escena ya define el
+zombi; un especial nuevo parte de ella y cambia malla, exportados y estados.
+
+**Verificación:** `tools/probe_zombie.tscn` (sonda nueva) → *RESULTADO:
+TODO OK* (7 aserciones): los 6 casos de robustez de `hurted()`/`die()` más
+la existencia de los hooks.
+
+## D-015 — La evitación mutua entre zombis usa el RVO que ya traía `NavigationAgent3D`, corregiendo tres defectos (2026-11-04)
+
+**Contexto:** el usuario pidió que los zombis se eviten entre sí. El
+avoidance **ya estaba cableado** en `zombie.tscn`
+(`avoidance_enabled = true`, señal `velocity_computed →
+StateMachine/chase._on_nav_velocity_computed`), pero era defectuoso.
+
+**Decisión:** usar el RVO del motor (ya era el diseño) y corregir:
+
+1. **Doble multiplicación por `speed`.** `chase.gd` hacía
+   `set_velocity(dir * speed)` y luego `velocity.x = safe_velocity.x *
+   speed`: la velocidad resultante era `speed²`. Con `speed = 1.5` el zombi
+   iba a 2.25 m/s; con `speed = 2.0`, a 4.0. `set_velocity()` recibe
+   **velocidad deseada en m/s** y `velocity_computed` devuelve **velocidad
+   segura en m/s**: no se multiplica otra vez.
+2. **`nav.max_speed = speed` en `_ready()`.** El RVO usa `max_speed` como
+   tope de su simulación; sin sincronizarlo, calculaba con el default de
+   10.0 m/s aunque el zombi fuera a 1.5.
+3. **Condición muerta eliminada.** El handler chequeaba
+   `zombie.direction != Vector3.ZERO`, variable que **nunca se asignaba**
+   en el flujo nuevo. Ahora la única fuente de movimiento en `chase` es el
+   callback del RVO, con guarda `state != self` (la señal está cableada en
+   la escena y sigue llegando desde `stun`/`death`/`stagger`).
+
+**Parámetros de Nav: sin cambios.** Los defaults están verificados contra
+la documentación de Godot 4.7 (`radius = 0.5`, `neighbor_distance = 50.0`,
+`max_neighbors = 10`, `time_horizon_agents = 1.0`, `avoidance_layers` /
+`avoidance_mask = 1` → mutuo por defecto, `use_3d_avoidance = false` →
+evita en el plano XZ, correcto para un zombi terrestre). Por eso
+`zombie.tscn` **no se tocó**.
+
+**Medición (no umbral inventado):** la sonda corre tres escenarios con los
+mismos spawns — A) un zombi solo, B) cuatro con `avoidance_mask = 0`
+(**control ciego**: el RVO sigue emitiendo `velocity_computed` — la
+documentación dice que la señal depende de `avoidance_enabled`, no de la
+máscara — pero ignora a los demás), C) cuatro con avoidance real. El
+desvío lateral se mide sobre `safe_velocity` (lo que decide el RVO), no
+sobre la velocidad final (que mezclaría el RVO con las colisiones físicas),
+y la aserción compara **C contra B**, no contra un número fijo:
+
+| escenario | desvío lateral | dist mín entre pares |
+|---|---|---|
+| A) un zombi | 0.000 m/s | — |
+| B) control ciego (mask 0) | 0.003 m/s | 0.56 m (se tocan) |
+| C) avoidance real | **0.373 m/s** | **1.00 m** |
+
+El RVO duplica la separación (0.56 → 1.00 m) y añade el desvío lateral,
+con la velocidad correcta (2.00 m/s, no 4.00) y los 4 llegando al objetivo.
+
+**Verificación:** `tools/probe_avoidance.tscn` (sonda nueva) →
+*RESULTADO: TODO OK* (12 aserciones); regresión `probe_zombie` (7),
+`probe_melee` (14) y `probe_hitdir` (9) → todas *TODO OK*.
