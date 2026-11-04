@@ -42,6 +42,7 @@ func start(is_permanent := false,impulse: Vector3 = Vector3.ZERO,force: float = 
 	simulator.physical_bones_start_simulation()
 	pelvis.apply_central_impulse(impulse * force)
 	ragdoll_started.emit()
+	print_debug(force)
 
 
 func _physics_process(delta: float) -> void:

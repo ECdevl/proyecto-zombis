@@ -15,5 +15,5 @@ class_name SwingData extends Resource
 @export var sweep_angle: float = 0.6
 ## Cantidad de rayos del abanico. El central es el de la mira: con valor impar
 ## hay uno exactamente en el centro.
-@export var sweep_rays: int = 7
+@export var sweep_rays: int = 14
 @export var recoil_kick : Vector2 = Vector2(0,2)

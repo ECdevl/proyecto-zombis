@@ -26,7 +26,6 @@
 [ext_resource type="PackedScene" uid="uid://chqdnuixtuv5j" path="res://assets/models/player/fps_body.glb" id="22_a38lo"]
 [ext_resource type="Script" uid="uid://cmeo2lkibif4y" path="res://scripts/weapons/ads_controller.gd" id="23_4ni07"]
 [ext_resource type="Script" uid="uid://d108rro8ajjnn" path="res://scripts/components/lean_controller.gd" id="23_l71n6"]
-[ext_resource type="Script" uid="uid://bxeowvinwqnk4" path="res://scripts/components/viewmodel_clipping.gd" id="24_l71n6"]
 [ext_resource type="Script" uid="uid://d0p4mk8es2jjf" path="res://scripts/weapons/view_punch.gd" id="25_ke2ow"]
 [ext_resource type="Script" uid="uid://fmmdoklx0pv6" path="res://scripts/components/camera_shake.gd" id="28_pf23h"]
 [ext_resource type="Script" uid="uid://b82qc25arbofl" path="res://scripts/inventory/ui/player_carried_inventories.gd" id="40_pinv"]
@@ -667,10 +666,6 @@ ads_speed = 8.0
 [node name="LeanController" type="Node" parent="." unique_id=498656863]
 script = ExtResource("23_l71n6")
 lean_amount = 0.5
-
-[node name="ViewmodelClipping" type="Node" parent="." unique_id=721971604 node_paths=PackedStringArray("roots")]
-script = ExtResource("24_l71n6")
-roots = [NodePath("../Yaw/Pitch/WeaponPivot")]
 
 [node name="ViewPunch" type="Node" parent="." unique_id=672497276 node_paths=PackedStringArray("camera", "camera2")]
 unique_name_in_owner = true

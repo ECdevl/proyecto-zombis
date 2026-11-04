@@ -322,3 +322,36 @@ sonda: el esqueleto del zombi (brazos) puede interponerse entre la cámara y
 la extremidad, así que `_aim` barre 16 ángulos alrededor del eje Y y elige
 uno desde el que el rayo central llega limpio al hitbox apuntado
 (`_find_clear_dir` / `_reaches`, misma consulta de rayo que el golpe).
+
+## D-013 — La dirección del impulso melee es relativa al jugador, según `SwingData.direction` (2026-11-04)
+
+**Contexto:** el usuario reportó que el ragdoll no respetaba la dirección
+relativa al jugador (ver E-014: la fórmula estaba bien, rota estaba la cadena
+que lleva el impulso hasta la pelvis).
+
+**Decisión (elegida por el usuario):** la dirección del empuje sale de
+`SwingData.direction` interpretado en el espacio de la cámara:
+
+```gdscript
+push_direction = cámara.global_basis * swing.direction
+```
+
+- `direction = Vector3.LEFT` → el ragdoll sale hacia la **izquierda del jugador**;
+- `direction = Vector3.RIGHT` → a la **derecha del jugador**;
+- y gira con el jugador: si usted gira180°, la dirección en el mundo se da la
+  vuelta (verificado, no es un mundo fijo).
+
+Datos actuales: machete = `Vector3.RIGHT` (default), cuchillo y bate =
+`Vector3(-1, 0, 0)`. La fórmula ya existía desde D-011; esta decisión la
+fija como regla válida y agrega la sonda que la comprueba.
+
+**Consecuencia explícita (lo definió la regla elegida):** la dirección sigue
+al **jugador**, no al zombi. Con la cámara quieta, pegarle por la espalda
+manda el ragdoll al mismo lado de la pantalla que pegarle de frente — es
+"la izquierda/derecha del jugador" en ambos casos. Si se quisiera que el lado
+se invierta con el *facing* del zombi, haría falta otra regla (mezclar con el
+`-Z` del zombi); no fue la elegida.
+
+**Verificación:** `tools/probe_hitdir.tscn` (sonda nueva) →
+*RESULTADO: TODO OK* (9 aserciones), incluido el descriptor real
+`machete.tres`.

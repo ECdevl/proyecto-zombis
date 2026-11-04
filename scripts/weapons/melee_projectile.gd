@@ -113,7 +113,7 @@ func _ray_order(n: int) -> PackedInt32Array:
 
 ## Dibuja los rayos del swing 0.5 s (ImmediateMesh con PRIMITIVE_LINES).
 func _draw_swing(origin: Vector3, aim: Vector3, axis: Vector3, angles: PackedFloat32Array) -> void:
-	if not DRAW_DEBUG_RAYS or not OS.is_debug_build():
+	if not DRAW_DEBUG_RAYS :
 		return
 	var parent := get_tree().current_scene
 	if parent == null:
@@ -124,7 +124,7 @@ func _draw_swing(origin: Vector3, aim: Vector3, axis: Vector3, angles: PackedFlo
 	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 
 	var mesh := ImmediateMesh.new()
-	mesh.surface_begin(Mesh.PRIMITIVE_LINES, material)
+	mesh.surface_begin(Mesh.PRIMITIVE_LINES	, material)
 	for angle in angles:
 		var dir := Basis(axis, angle) * aim
 		mesh.surface_add_vertex(origin)
@@ -134,7 +134,7 @@ func _draw_swing(origin: Vector3, aim: Vector3, axis: Vector3, angles: PackedFlo
 	var lines := MeshInstance3D.new()
 	lines.mesh = mesh
 	parent.add_child(lines)
-	get_tree().create_timer(0.5).timeout.connect(lines.queue_free)
+	get_tree().create_timer(3).timeout.connect(lines.queue_free)
 
 
 func _apply_hit_with_dir(collider: Object, hit_pos: Vector3, zombie: Zombie) -> void:
@@ -148,7 +148,7 @@ func _apply_hit_with_dir(collider: Object, hit_pos: Vector3, zombie: Zombie) -> 
 	if hitbox.is_in_group("zombie_head"):
 		zombie.set_meta("melee_hit_dir", push_direction.normalized() if push_direction.length_squared() > 0.0001 else (-get_viewport().get_camera_3d().global_basis.z))
 
-	zombie.health_component.hurt(dmg, {"who":hitbox,"attacker":_attacker(),"hit_pos":hit_pos,"impulse":push_direction,"force":20.0})
+	zombie.health_component.hurt(dmg, {"who":hitbox,"attacker":_attacker(),"hit_pos":hit_pos,"impulse":push_direction,"force":knockback})
 
 
 func _damage_for(hitbox: Node) -> float:

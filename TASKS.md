@@ -17,6 +17,29 @@
   **Pendiente de validación en el editor:** abrir el proyecto con Godot 4.7.2 para
   forzar la reimportación de los assets movidos y confirmar que no hay errores.
 
+- [ ] **T-011 Rework de ragdoll en curso (sin commitear, detectado 2026-11-04)**
+      Trabajo paralelo que no estaba documentado acá ni en `DECISIONES.md`:
+      addon `ragdoll_wizard` nuevo (+ `project.godot`), `ragdoll_generator`
+      borrado, huesos físicos movidos de `zombie.tscn` a la nueva
+      `scenes/zombies/zombie_ragdoll_skelly.tscn`, `MujerZombiConRig.glb`,
+      cambios en `stun.gd`, `zombie.gd` (`die()` lee `info.force` y corrige
+      el typo `amage`), `ragdoll_component.gd`, `bate.tres` (range4.0 +
+      knockback500), `cuchillo.tres` (sweep_angle0 en swing2),
+      `swing_data.gd` (sweep_rays7→14) y `melee_projectile.gd` (debug rays
+      siempre visibles, timer3s, `force:knockback`).
+  - [x] Restaurar `simulator`/`pelvis` en `RagdollComponent` — el rework movió
+        los huesos y no actualizó los `NodePath`; el ragdoll no arrancaba
+        (E-014).
+  - [ ] Afinar `knockback`: `bate.tres` =500 da≈60 m/s de pelvis (¿excesivo?);
+        probar en juego. Machete/cuchillo quedan en20 (default de
+        `EquippableDescriptor`).
+  - [ ] `check_tscn_connections.py`:3 conexiones rotas en
+        `addons/ragdoll_wizard/ragdoll_wizard_panel.tscn`
+        (`CreateButton`/`ClearSlotsButton`/`CopyBoneNameButton`) + la
+        preexistente T-008.
+  - [ ] Decidir cómo commitear: el fix de E-014 vive dentro de `zombie.tscn`,
+        que además contiene todo el rework.
+
 ## Pendientes (detectado, no ejecutado)
 
 - [ ] **T-002 Bugs de runtime** — *verificados en runtime con Godot headless el 2026-10-22*
@@ -206,6 +229,16 @@
   meta `melee_hit_dir`; vacío → nada. **Corre como escena, no con `--script`**
   (`zombie.gd` necesita el autoload `GameManager`, inexistente en ese modo; ver
   E-004). Uso: `godot --headless --path . res://tools/probe_melee.tscn`
+  → *RESULTADO: TODO OK*
+- `tools/probe_hitdir.tscn` + `tools/probe_hitdir.gd` — sonda de la dirección
+  del impulso melee (D-013 / E-014): mata un zombi real con `MeleeProjectile`
+  desde una cámara orientada y mide la velocidad de la pelvis para ver hacia
+  dónde sale volando. Comprueba que `SwingData.direction = +X` vuela a la
+  derecha del jugador, que girar la cámara180° da la vuelta en el mundo, que
+  `-X` vuela a la izquierda, y que el descriptor real `machete.tres` también
+  da impulso (el caso "zombi de espaldas con la misma cámara" se imprime sin
+  aserción, es diagnóstico). Uso:
+  `godot --headless --path . res://tools/probe_hitdir.tscn`
   → *RESULTADO: TODO OK*
 - `tools/dump_engine_signals.gd` — genera `tools/engine_signals.py`: la tabla de señales que
   declara cada clase del motor usada en el proyecto. Se regenera solo si se agregan clases:

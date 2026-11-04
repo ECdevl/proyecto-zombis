@@ -1,0 +1,332 @@
+[gd_scene load_steps=4 format=3 uid="uid://c70g6e304qrmj"]
+
+[ext_resource type="Script" uid="uid://b5di628mghoqs" path="res://addons/ragdoll_wizard/ragdoll_wizard_panel.gd" id="1_ewsqr"]
+[ext_resource type="Script" uid="uid://b7utqmtk6qrlt" path="res://addons/ragdoll_wizard/RagdollBuilder.gd" id="2_w206j"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vy2xc"]
+bg_color = Color(0.404511, 0.404511, 0.404511, 1)
+
+[node name="RagdollWizardPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 7.0
+offset_top = 22.0
+offset_right = 7.0
+offset_bottom = 157.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_ewsqr")
+
+[node name="ScrollContainer" type="ScrollContainer" parent="."]
+layout_mode = 0
+offset_left = -7.0
+offset_right = 674.0
+offset_bottom = 651.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_vy2xc")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ScrollContainer"]
+layout_mode = 2
+theme_override_constants/separation = 55
+
+[node name="Title" type="Label" parent="ScrollContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "Ragdoll Wizard"
+
+[node name="SkeletonSelect" type="Control" parent="ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="SkeletonName" type="Label" parent="ScrollContainer/VBoxContainer/SkeletonSelect"]
+layout_mode = 2
+offset_left = 19.0
+offset_top = -3.0
+offset_right = 209.0
+offset_bottom = 32.0
+theme_override_font_sizes/font_size = 25
+text = "Active: Skeleton3D"
+
+[node name="BoneSlotsLabel" type="Label" parent="ScrollContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "BoneSlots (Drag and drop the bones from the selected skeleton)"
+
+[node name="BoneSlots" type="VBoxContainer" parent="ScrollContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 40
+
+[node name="PelvisBoneSlot" type="LineEdit" parent="ScrollContainer/VBoxContainer/BoneSlots"]
+layout_mode = 2
+placeholder_text = "drag and drop Pelvis Bone"
+alignment = 1
+
+[node name="PelvisLabel" type="Label" parent="ScrollContainer/VBoxContainer/BoneSlots/PelvisBoneSlot"]
+layout_mode = 0
+offset_left = 250.0
+offset_top = -44.0
+offset_right = 333.0
+offset_bottom = -2.0
+theme_override_font_sizes/font_size = 30
+text = "Pelvis"
+
+[node name="leftHipsBoneSlot" type="LineEdit" parent="ScrollContainer/VBoxContainer/BoneSlots"]
+layout_mode = 2
+placeholder_text = "drag and drop left hips Bone"
+alignment = 1
+
+[node name="leftHipsLabel" type="Label" parent="ScrollContainer/VBoxContainer/BoneSlots/leftHipsBoneSlot"]
+layout_mode = 0
+offset_left = 250.0
+offset_top = -44.0
+offset_right = 333.0
+offset_bottom = -2.0
+theme_override_font_sizes/font_size = 30
+text = "Left Hips"
+
+[node name="leftkneeBoneSlot" type="LineEdit" parent="ScrollContainer/VBoxContainer/BoneSlots"]
+layout_mode = 2
+placeholder_text = "drag and drop left knee Bone"
+alignment = 1
+
+[node name="leftkneeLabel" type="Label" parent="ScrollContainer/VBoxContainer/BoneSlots/leftkneeBoneSlot"]
+layout_mode = 0
+offset_left = 250.0
+offset_top = -44.0
+offset_right = 333.0
+offset_bottom = -2.0
+theme_override_font_sizes/font_size = 30
+text = "left knee"
+
+[node name="leftFootBoneSlot" type="LineEdit" parent="ScrollContainer/VBoxContainer/BoneSlots"]
+layout_mode = 2
+placeholder_text = "drag and drop left foot Bone"
+alignment = 1
+
+[node name="leftFootLabel" type="Label" parent="ScrollContainer/VBoxContainer/BoneSlots/leftFootBoneSlot"]
+layout_mode = 0
+offset_left = 250.0
+offset_top = -44.0
+offset_right = 333.0
+offset_bottom = -2.0
+theme_override_font_sizes/font_size = 30
+text = "left foot"
+
+[node name="RightHipsBoneSlot" type="LineEdit" parent="ScrollContainer/VBoxContainer/BoneSlots"]
+layout_mode = 2
+placeholder_text = "drag and drop right hips Bone"
+alignment = 1
+
+[node name="RightHipsLabel" type="Label" parent="ScrollContainer/VBoxContainer/BoneSlots/RightHipsBoneSlot"]
+layout_mode = 0
+offset_left = 250.0
+offset_top = -44.0
+offset_right = 333.0
+offset_bottom = -2.0
+theme_override_font_sizes/font_size = 30
+text = "Right Hips"
+
+[node name="RightKneeBoneSlot" type="LineEdit" parent="ScrollContainer/VBoxContainer/BoneSlots"]
+layout_mode = 2
+placeholder_text = "drag and drop right knee Bone"
+alignment = 1
+
+[node name="RightKneeLabel" type="Label" parent="ScrollContainer/VBoxContainer/BoneSlots/RightKneeBoneSlot"]
+layout_mode = 0
+offset_left = 250.0
+offset_top = -44.0
+offset_right = 333.0
+offset_bottom = -2.0
+theme_override_font_sizes/font_size = 30
+text = "Right knee"
+
+[node name="RightFootBoneSlot" type="LineEdit" parent="ScrollContainer/VBoxContainer/BoneSlots"]
+layout_mode = 2
+placeholder_text = "drag and drop right foot Bone"
+alignment = 1
+
+[node name="RightfootLabel" type="Label" parent="ScrollContainer/VBoxContainer/BoneSlots/RightFootBoneSlot"]
+layout_mode = 0
+offset_left = 250.0
+offset_top = -44.0
+offset_right = 333.0
+offset_bottom = -2.0
+theme_override_font_sizes/font_size = 30
+text = "Right foot"
+
+[node name="leftArmBoneSlot" type="LineEdit" parent="ScrollContainer/VBoxContainer/BoneSlots"]
+layout_mode = 2
+placeholder_text = "drag and drop left arm Bone"
+alignment = 1
+
+[node name="leftArmLabel" type="Label" parent="ScrollContainer/VBoxContainer/BoneSlots/leftArmBoneSlot"]
+layout_mode = 0
+offset_left = 250.0
+offset_top = -44.0
+offset_right = 333.0
+offset_bottom = -2.0
+theme_override_font_sizes/font_size = 30
+text = "left arm"
+
+[node name="leftElbowBoneSlot" type="LineEdit" parent="ScrollContainer/VBoxContainer/BoneSlots"]
+layout_mode = 2
+placeholder_text = "drag and drop left elbow Bone"
+alignment = 1
+
+[node name="leftElbowLabel" type="Label" parent="ScrollContainer/VBoxContainer/BoneSlots/leftElbowBoneSlot"]
+layout_mode = 0
+offset_left = 250.0
+offset_top = -44.0
+offset_right = 333.0
+offset_bottom = -2.0
+theme_override_font_sizes/font_size = 30
+text = "left elbow"
+
+[node name="RightArmBoneSlot" type="LineEdit" parent="ScrollContainer/VBoxContainer/BoneSlots"]
+layout_mode = 2
+placeholder_text = "drag and drop right arm Bone"
+alignment = 1
+
+[node name="RightArmLabel" type="Label" parent="ScrollContainer/VBoxContainer/BoneSlots/RightArmBoneSlot"]
+layout_mode = 0
+offset_left = 250.0
+offset_top = -44.0
+offset_right = 333.0
+offset_bottom = -2.0
+theme_override_font_sizes/font_size = 30
+text = "right arm"
+
+[node name="RightElbowBoneSlot" type="LineEdit" parent="ScrollContainer/VBoxContainer/BoneSlots"]
+layout_mode = 2
+placeholder_text = "drag and drop right elbow Bone"
+alignment = 1
+
+[node name="RightElbowLabel" type="Label" parent="ScrollContainer/VBoxContainer/BoneSlots/RightElbowBoneSlot"]
+layout_mode = 0
+offset_left = 250.0
+offset_top = -44.0
+offset_right = 333.0
+offset_bottom = -2.0
+theme_override_font_sizes/font_size = 30
+text = "Right elbow"
+
+[node name="MiddleSpineBoneSlot" type="LineEdit" parent="ScrollContainer/VBoxContainer/BoneSlots"]
+layout_mode = 2
+placeholder_text = "drag and drop Middle Spine Bone"
+alignment = 1
+
+[node name="MiddleSpineLabel" type="Label" parent="ScrollContainer/VBoxContainer/BoneSlots/MiddleSpineBoneSlot"]
+layout_mode = 0
+offset_left = 250.0
+offset_top = -44.0
+offset_right = 333.0
+offset_bottom = -2.0
+theme_override_font_sizes/font_size = 30
+text = "Middle Spine"
+
+[node name="HeadBoneSlot" type="LineEdit" parent="ScrollContainer/VBoxContainer/BoneSlots"]
+layout_mode = 2
+placeholder_text = "drag and drop Head Bone"
+alignment = 1
+
+[node name="HeadLabel" type="Label" parent="ScrollContainer/VBoxContainer/BoneSlots/HeadBoneSlot"]
+layout_mode = 0
+offset_left = 250.0
+offset_top = -44.0
+offset_right = 333.0
+offset_bottom = -2.0
+theme_override_font_sizes/font_size = 30
+text = "Head"
+
+[node name="TotalMassInputBox" type="LineEdit" parent="ScrollContainer/VBoxContainer/BoneSlots"]
+layout_mode = 2
+placeholder_text = "Total mass of the PhysicalBoneNodes"
+alignment = 1
+
+[node name="TotalMassLabel" type="Label" parent="ScrollContainer/VBoxContainer/BoneSlots/TotalMassInputBox"]
+offset_left = 250.0
+offset_top = -44.0
+offset_right = 333.0
+offset_bottom = -2.0
+theme_override_font_sizes/font_size = 30
+text = "Total Mass"
+
+[node name="StrengthInputBox" type="LineEdit" parent="ScrollContainer/VBoxContainer/BoneSlots"]
+layout_mode = 2
+placeholder_text = "Total Strength of how much the joints can move"
+alignment = 1
+
+[node name="StrengthLabel" type="Label" parent="ScrollContainer/VBoxContainer/BoneSlots/StrengthInputBox"]
+offset_left = 250.0
+offset_top = -44.0
+offset_right = 333.0
+offset_bottom = -2.0
+theme_override_font_sizes/font_size = 30
+text = "strength"
+
+[node name="FallVelocityInputBox" type="LineEdit" parent="ScrollContainer/VBoxContainer/BoneSlots"]
+layout_mode = 2
+placeholder_text = "Total velocity of how fast the ragdoll can fall"
+alignment = 1
+
+[node name="FallVelocityLabel" type="Label" parent="ScrollContainer/VBoxContainer/BoneSlots/FallVelocityInputBox"]
+offset_left = 250.0
+offset_top = -44.0
+offset_right = 333.0
+offset_bottom = -2.0
+theme_override_font_sizes/font_size = 30
+text = "fall velocity"
+
+[node name="BoneTreeLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 686.0
+offset_top = 36.0
+offset_right = 1061.0
+offset_bottom = 147.0
+text = "Bone tree 
+the skeleton node that is selected will 
+display the bones here so you can copy paste bone
+names into the slots"
+horizontal_alignment = 1
+
+[node name="BoneTree" type="Tree" parent="."]
+layout_mode = 0
+offset_left = 719.0
+offset_top = 167.0
+offset_right = 1071.0
+offset_bottom = 640.0
+hide_root = true
+
+[node name="CreateButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 66.0
+offset_top = 670.0
+offset_right = 329.0
+offset_bottom = 736.0
+theme_override_font_sizes/font_size = 30
+text = "Create ragdoll"
+
+[node name="ClearSlotsButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 371.0
+offset_top = 669.0
+offset_right = 634.0
+offset_bottom = 735.0
+theme_override_font_sizes/font_size = 30
+text = "Clear Slots"
+
+[node name="CopyBoneNameButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 740.0
+offset_top = 648.0
+offset_right = 1037.0
+offset_bottom = 715.0
+theme_override_font_sizes/font_size = 25
+text = "CopyBoneName"
+
+[node name="RagdollBuilder" type="Node" parent="."]
+script = ExtResource("2_w206j")
+
+[connection signal="pressed" from="CreateButton" to="." method="_on_create_button_pressed"]
+[connection signal="pressed" from="ClearSlotsButton" to="." method="_on_clear_slots_pressed"]
+[connection signal="pressed" from="CopyBoneNameButton" to="." method="_on_copy_button_pressed"]

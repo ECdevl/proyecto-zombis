@@ -93,10 +93,10 @@ func handle_gravity(delta:float)-> void:
 	
 
 
-func die(amage: float,info:Dictionary) -> void:
+func die(damage: float,info:Dictionary) -> void:
 	state_machine.state.finished.emit("death")
 	var imp := info.get("impulse")
-	var force : float = 0.0
+	var force : float = info.get("force")
 	if imp.length_squared() < 0.0001 and has_meta("melee_hit_dir"):
 		imp = get_meta("melee_hit_dir") as Vector3
 		force = info.get("force") if info.get("force") > 0.0 else 800.0

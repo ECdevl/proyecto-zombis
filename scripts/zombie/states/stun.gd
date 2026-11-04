@@ -20,9 +20,9 @@ func enter(previous_state_path: String, data := {}) -> void:
 			zombie.zombie_mesh.scale.x = -1
 		zombie.playback.start("stun")
 		await get_tree().create_timer(randf_range(min_stun_time,max_stun_time)).timeout
-		can_transition = true
-		
-		finished.emit("recover",{"animation":"stun_recover"})
+		if not zombie.ragdoll_component.is_ragdoll:
+			can_transition = true
+			finished.emit("recover",{"animation":"stun_recover"})
 	else:
 		zombie.at["parameters/TimeScale/scale"] = 0.0
 		can_transition = true
@@ -39,9 +39,15 @@ func exit(next_state_path:String) -> void:
 
 
 func _on_ragdoll_component_recovered(face_up: bool) -> void:
+	can_transition = true
 	finished.emit("recover",{"animation": "awake_up" if face_up else "awake_down"})
 	
 
 
 func _on_ragdoll_component_animation_face(face_up: bool) -> void:
 	zombie.playback.start("awake_up" if face_up else "awake_down")
+
+
+func _on_zombie_pushed(direction: Vector3) -> void:
+	if zombie.state_machine.state == self:
+		zombie.ragdoll_component.start(false,direction,200)

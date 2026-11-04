@@ -10,8 +10,11 @@ enum Handle { ONE, TWO }
 @export var damage: float
 @export var fire_rate: float
 @export var weapon_range: float
-## Fuerza del empuje al golpear (la usa la reacción del zombi).
-@export var knockback: float
+## Fuerza del empuje al golpear: la usa `MeleeProjectile` → `Zombie.die()` →
+## `ragdoll_component.start(..., force)` como magnitud del impulso del ragdoll.
+## Los .tres que no lo guardan usan este valor (antes estaba hardcodeado como
+## 20.0 en el `hurt()` del melee; bate.tres lo sube a500).
+@export var knockback: float = 20.0
 
 
 func get_hands_required() -> int:

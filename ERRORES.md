@@ -385,3 +385,61 @@ los dos se puede golpear.
 **Verificación:** `godot --headless --path . res://scenes/debug/test.tscn
 --quit-after 90` → sin esos errores (queda solo el fallo de autoload
 `icon_creator.tscn`, preexistente y ajeno: reproduce igual en el commit previo).
+
+## E-014 — La dirección del impulso melee no llegaba al ragdoll (2026-11-04)
+
+**Situación (reportada por el usuario):** "el hit direction de las melees no
+funciona: el cuerpo se mueve en dirección del golpe pero la dirección no es
+relativa al jugador; si lo golpeas de frente el ragdoll va a la izquierda,
+pero al golpearlo de atrás va a la misma dirección".
+
+**Investigación: la fórmula de dirección no estaba rota** —
+`MeleeProjectile.setup()` ya calculaba
+`push_direction = cámara.global_basis * SwingData.direction` (relativa al
+jugador, ver D-013). Lo que estaba roto eran los otros dos eslabones de la
+cadena `MeleeProjectile → hurt(force) → Zombie.die() → ragdoll_component.start() → pelvis`:
+
+1. **`RagdollComponent` perdió `simulator` y `pelvis`.** El rework de ragdoll
+   en curso (sin commitear) sacó los `PhysicalBone3D` de `zombie.tscn` a la
+   escena nueva `scenes/zombies/zombie_ragdoll_skelly.tscn`, pero no se
+   actualizaron los `NodePath` del componente: `node_paths` quedó solo con
+   `"body"`. Resultado: `ZombieRagdoll._ready()` y `start()` truenan con
+   `Cannot call method 'physical_bones_add_collision_exception' on a null
+   value` / `Invalid assignment of property or key 'influence' ... on a base
+   object of type 'Nil'` → el ragdoll no arrancaba y el impulso se perdía.
+2. **Impulso con magnitud0.** En el commit `4a08f54`, `Zombie.die()` tenía
+   `var force : float = 0.0` hardcodeado (ignoraba `info.force`); el rework lo
+   arregló (`info.get("force")`) pero `MeleeProjectile` pasó a enviar
+   `"force": knockback`, y `machete.tres` / `cuchillo.tres` no guardan
+   `knockback` (queda0; solo `bate.tres` define500) →
+   `pelvis.apply_central_impulse(dirección * 0)` = cero: el cadáver caía igual
+   siempre, sin importar de dónde viniera el golpe.
+
+**Corrección:**
+
+1. Restaurar en `scenes/zombies/zombie.tscn` los `NodePath` originales (las
+   rutas siguen válidas: los huesos ahora viven en la escena instanciada en
+   la misma posición del árbol):
+
+   ```tscn
+   node_paths=PackedStringArray("body", "simulator", "pelvis")
+   simulator = NodePath("../ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D")
+   pelvis = NodePath("../ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D/Physical Bone pelvis")
+   ```
+
+2. `EquippableDescriptor.knockback` pasa a `@export var knockback: float = 20.0`
+   (el valor que antes estaba hardcodeado como `force:20.0` en el `hurt()` del
+   melee): machete y cuchillo empujan con20, bate conserva su500. No hay otros
+   consumidores de `knockback` en los scripts (verificado con grep).
+
+**Verificación:** `godot --headless --path . res://tools/probe_hitdir.tscn`
+→ *RESULTADO: TODO OK* (9 aserciones): `direction = +X` vuela a la derecha
+del jugador; girando la cámara180° el vuelo gira en el mundo (dirección
+opuesta); `direction = -X` vuela a la izquierda; y el descriptor real
+`machete.tres` también da impulso y va a la derecha. `probe_melee.tscn`
+sigue en *TODO OK*.
+
+**Nota:** `tools/check_tscn_connections.py` ahora marca además3 conexiones
+rotas en `addons/ragdoll_wizard/ragdoll_wizard_panel.tscn`
+(`CreateButton`/`ClearSlotsButton`/`CopyBoneNameButton`) — del addon nuevo
+del rework, sin tocar (ver T-011); más la preexistente T-008.

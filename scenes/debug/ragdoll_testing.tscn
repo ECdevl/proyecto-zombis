@@ -45,3 +45,156 @@ shape = SubResource("ConcavePolygonShape3D_ihcbt")
 [node name="zombie" parent="." unique_id=495252481 instance=ExtResource("1_q2pm7")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5920577, 3.297799, 0.7782906)
 ragdoll_text = true
+
+[node name="Skeleton3D" parent="zombie/ZombiConRig/rig" parent_id_path=PackedInt32Array(495252481, 1288087123, 2101351265) index="0" unique_id=1656541098]
+bones/1/position = Vector3(0.17770638, 0.78010684, 0.17518799)
+bones/1/rotation = Quaternion(-0.45424667, 0.062958546, 0.8832979, -0.09737125)
+bones/5/position = Vector3(-0.20545164, 0.78638107, 0.13310003)
+bones/5/rotation = Quaternion(0.4336358, 0.114634246, 0.8937361, 0.0074075013)
+bones/10/rotation = Quaternion(-0.02834052, -0.035108544, -0.0021464585, 0.99897933)
+bones/11/rotation = Quaternion(0.19545618, 0.0011375876, 0.0165149, 0.9805728)
+bones/12/rotation = Quaternion(0.27047095, 0.0058807684, 0.00427323, 0.96270066)
+bones/13/rotation = Quaternion(0.009254679, 0.031103428, -0.03828297, 0.99873996)
+bones/15/rotation = Quaternion(0.17475133, 0.6706625, -0.6568351, 0.2970548)
+bones/16/rotation = Quaternion(0.049828827, 0.03780607, 0.006376004, 0.9980216)
+bones/17/rotation = Quaternion(-0.07047763, -0.19213957, 0.09710983, 0.9740047)
+bones/22/rotation = Quaternion(0.18214871, -0.75779474, 0.55799955, 0.28496587)
+bones/23/rotation = Quaternion(0.21980874, -0.03609298, -0.0022712818, 0.9748725)
+bones/24/rotation = Quaternion(-0.030879017, 0.19298294, -0.073183656, 0.9779817)
+
+[node name="Physical Bone root" parent="zombie/ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" parent_id_path=PackedInt32Array(495252481, 1186594476) index="0" unique_id=1878561820]
+transform = Transform3D(-1, 1.08862395e-07, 9.769226e-09, 2.4863027e-09, 0.112013415, -0.9937067, -1.0927158e-07, -0.9937067, -0.112013415, 0.00012785196, 0.44210863, -0.09697181)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00012782477, 2.8543174e-05, 0.43755803)
+body_offset = Transform3D(-1, 7.603237e-09, -6.21461e-08, 0, 0.992599, 0.121438906, 6.2609466e-08, 0.1214389, -0.99259895, 0.00012785196, -0.0531649, 0.43431616)
+
+[node name="Physical Bone pelvis" parent="zombie/ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" parent_id_path=PackedInt32Array(495252481, 1186594476) index="1" unique_id=942765315]
+transform = Transform3D(1, -1.04308086e-07, -1.2685675e-10, -2.616229e-08, -0.2496398, -0.96833885, 1.0097391e-07, 0.9683388, -0.24963981, 4.6491623e-06, 0.91218996, -0.03144461)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.649154e-06, 6.8959953e-09, 0.06611179)
+body_offset = Transform3D(1, 3.5527137e-15, -1.2681678e-10, -1.2681411e-10, -5.9604645e-08, -1.0000002, -1.7763568e-14, 1.0000002, -1.0430813e-07, 4.6491623e-06, 0.0661118, 0)
+
+[node name="Physical Bone spine" parent="zombie/ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" parent_id_path=PackedInt32Array(495252481, 1186594476) index="2" unique_id=817668546]
+transform = Transform3D(0.9975256, -0.07002726, -0.0062434208, -0.019768007, -0.19414887, -0.9807729, 0.06746868, 0.97846943, -0.19505276, 0.00063723326, 1.0750413, 0.0046653748)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.7244994e-06, 4.9181523e-05, 0.10076042)
+body_offset = Transform3D(1, -2.0116568e-07, -7.310882e-07, -7.3201954e-07, -0.0005117506, -1.0000001, 2.1606684e-07, 1, -0.0005117655, 4.798174e-06, 0.10076046, 2.3841858e-06)
+
+[node name="Physical Bone chest" parent="zombie/ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" parent_id_path=PackedInt32Array(495252481, 1186594476) index="3" unique_id=1156195408]
+transform = Transform3D(0.9968884, -0.058368243, 0.052979015, 0.011622812, -0.5559097, -0.8311614, 0.077964984, 0.8291909, -0.5535015, -0.006288767, 1.2901568, 0.102439106)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.644532e-06, 0.00025391474, 0.14241481)
+body_offset = Transform3D(1.0000001, -1.3530254e-05, 1.0430813e-07, 1.1920929e-07, -0.0011283457, -0.9999997, 1.3537705e-05, 0.99999976, -0.0011283457, -9.655952e-06, 0.14241505, -9.3221664e-05)
+
+[node name="Physical Bone neck" parent="zombie/ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" parent_id_path=PackedInt32Array(495252481, 1186594476) index="4" unique_id=648001003]
+transform = Transform3D(0.9967087, -0.008749511, 0.08059333, 0.02610812, -0.9065452, -0.4213006, 0.07674767, 0.42201808, -0.90333307, -0.016293168, 1.4202414, 0.20825583)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.544677e-05, 1.18664375e-05, 0.030962821)
+body_offset = Transform3D(1, -2.9802322e-07, -2.6978552e-05, -2.6933849e-05, 0.00037124753, -1.0000002, 2.9802322e-07, 1.0000002, 0.00037136674, -6.4611435e-05, 0.030962825, -2.336502e-05)
+
+[node name="Physical Bone shoulder_left" parent="zombie/ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" parent_id_path=PackedInt32Array(495252481, 1186594476) index="5" unique_id=2047493262]
+transform = Transform3D(0.060470756, 0.1454044, -0.9875226, -0.59058565, 0.80279386, 0.08204026, 0.80470616, 0.5782556, 0.13441929, 0.09448773, 1.367199, 0.14520818)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.737111e-05, -0.0002862928, 0.10752199)
+body_offset = Transform3D(1.0000002, 0.0005657077, 0.0003312081, 0.00033085793, 0.0005604774, -0.99999994, -0.0005659461, 1, 0.000560306, 1.1920929e-05, 0.10752216, 0.00022602081)
+
+[node name="Physical Bone upper_arm_left" parent="zombie/ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" parent_id_path=PackedInt32Array(495252481, 1186594476) index="6" unique_id=1163594921]
+transform = Transform3D(-0.29039317, -0.95690745, -0.00020474887, -0.04174365, 0.0124542, 0.99905074, -0.9559965, 0.29012606, -0.04356142, 0.19695479, 1.23066, 0.13667232)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.504919e-05, 4.974422e-06, 0.12799495)
+body_offset = Transform3D(1.0000002, 0.00039437413, -6.7055225e-08, -4.0978193e-08, 2.1391548e-05, -1.0000005, -0.00039446354, 1.0000001, 2.1412037e-05, 8.505583e-05, 0.12799501, -7.748604e-06)
+
+[node name="Physical Bone forearm_left" parent="zombie/ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" parent_id_path=PackedInt32Array(495252481, 1186594476) index="7" unique_id=64361544]
+transform = Transform3D(-0.21779627, -0.97159606, 0.09255254, -0.058855094, 0.10773092, 0.9924365, -0.9742181, 0.21070178, -0.08064677, 0.18450671, 0.96765614, 0.15332162)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.1947063e-05, 0.00023331038, 0.13741444)
+body_offset = Transform3D(1.0000005, 0.00051549077, -0.00023182482, -0.00023197383, 0.00034368224, -1.0000006, -0.0005155504, 1.0000001, 0.00034388527, 1.9788742e-05, 0.13741446, -0.00028055906)
+
+[node name="Physical Bone hand_left" parent="zombie/ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" parent_id_path=PackedInt32Array(495252481, 1186594476) index="8" unique_id=928417479]
+transform = Transform3D(-0.56921375, -0.81410646, -0.11500606, -0.22901344, 0.022648547, 0.97315973, -0.78965086, 0.58027387, -0.19933316, 0.17777437, 0.7994733, 0.17121702)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0013612348, 0.0018613538, 0.034008354)
+body_offset = Transform3D(1.0000002, -0.0008985996, -0.00015366077, -0.00015327334, 0.00030191243, -1.0000007, 0.0008983016, 0.99999994, 0.00030172616, -0.0013543367, 0.034008026, -0.0018728375)
+
+[node name="Physical Bone thumb_01_L" parent="zombie/ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" parent_id_path=PackedInt32Array(495252481, 1186594476) index="9" unique_id=1531744612]
+transform = Transform3D(0.21931782, 0.7275082, 0.65010124, -0.053202726, -0.65641475, 0.7525219, 0.97420186, -0.19962862, -0.10525803, 0.12766272, 0.7802377, 0.1835429)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00032062526, -0.0010190889, 0.017377894)
+body_offset = Transform3D(1.0000004, 0.00048717856, 0.0002007559, 0.00020095706, -0.00034639426, -1.0000006, -0.00048719347, 1.0000002, -0.00034691207, 0.00031763315, 0.017377615, 0.0010249615)
+
+[node name="Physical Bone shoulder_right" parent="zombie/ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" parent_id_path=PackedInt32Array(495252481, 1186594476) index="10" unique_id=933271120]
+transform = Transform3D(0.17119385, -0.25191262, 0.95248765, 0.59318066, 0.7982574, 0.10450766, -0.78665715, 0.5471061, 0.28608644, -0.11204451, 1.3647408, 0.12904036)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00018493575, 0.00021513284, 0.10540109)
+body_offset = Transform3D(1.0000004, -0.0004236102, -0.0003979802, -0.0003976822, 0.00040270388, -1, 0.00042378902, 1.0000001, 0.00040262938, 0.00022697449, 0.10540092, -0.00025749207)
+
+[node name="Physical Bone upper_arm_right" parent="zombie/ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" parent_id_path=PackedInt32Array(495252481, 1186594476) index="11" unique_id=1040522364]
+transform = Transform3D(-0.33135813, 0.91951495, 0.21140967, 0.045685742, -0.20816875, 0.9770254, 0.9423983, 0.33340374, 0.026969682, -0.24010602, 1.2287173, 0.09754068)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0017698414, -0.00060945266, 0.12792969)
+body_offset = Transform3D(1.0000001, -0.0001487732, -7.245317e-05, -7.225573e-05, 0.00021643844, -1.0000001, 0.0001488924, 1.0000001, 0.00021634437, 0.0017790198, 0.12792969, 0.00058203936)
+
+[node name="Physical Bone forearm_right" parent="zombie/ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" parent_id_path=PackedInt32Array(495252481, 1186594476) index="12" unique_id=1444880326]
+transform = Transform3D(-0.26265225, 0.9423817, -0.20719688, 0.050910216, 0.22797199, 0.9723358, 0.9635465, 0.24483776, -0.10785422, -0.2383407, 0.9712591, 0.10781062)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00070786255, -0.00019632705, 0.13749596)
+body_offset = Transform3D(1.0000001, 9.024143e-05, -3.2037497e-07, -1.2665987e-07, 4.720129e-05, -1.0000001, -9.018183e-05, 1.0000001, 4.714355e-05, 0.00070792437, 0.137496, 0.00018978119)
+
+[node name="Physical Bone hand_right" parent="zombie/ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" parent_id_path=PackedInt32Array(495252481, 1186594476) index="13" unique_id=409485329]
+transform = Transform3D(-0.62359095, 0.7769249, -0.08672948, 0.11276281, 0.19917634, 0.9734544, 0.77357537, 0.5972575, -0.21181281, -0.2065118, 0.79825974, 0.13048756)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.407908e-05, 7.099611e-05, 0.041428518)
+body_offset = Transform3D(0.9999999, -0.00030869246, -0.00038580596, -0.00038577616, -0.00043475628, -1, 0.00030863285, 1, -0.0004349947, -2.8073788e-05, 0.041428566, -5.298853e-05)
+
+[node name="Physical Bone thumb_01_R" parent="zombie/ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" parent_id_path=PackedInt32Array(495252481, 1186594476) index="14" unique_id=905547331]
+transform = Transform3D(0.22804011, -0.5683547, -0.7905508, 0.08879593, -0.7964206, 0.5981886, -0.96959424, -0.20660867, -0.13114823, -0.15518686, 0.79726696, 0.14264011)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.677598e-05, -1.958001e-05, 0.018502021)
+body_offset = Transform3D(1.0000002, -0.000396356, -0.00023706257, -0.0002373755, -0.00026774406, -0.9999998, 0.00039631128, 1.0000002, -0.0002677869, 6.1154366e-05, 0.018501997, 2.4557114e-05)
+
+[node name="Physical Bone thigh_left" parent="zombie/ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" parent_id_path=PackedInt32Array(495252481, 1186594476) index="15" unique_id=187330226]
+transform = Transform3D(0.8793195, -0.42275047, -0.21926995, 0.04239901, -0.3891038, 0.92021775, -0.4743412, -0.8184622, -0.32422233, 0.13648814, 0.6865332, 0.039616466)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.0659024e-06, -1.577059e-05, 0.23426482)
+body_offset = Transform3D(0.9999987, 5.9604645e-08, -2.9802322e-08, -5.9604645e-08, 8.940697e-08, -1.0000001, 0, 0.9999964, 1.4901161e-07, 1.0728836e-06, 0.23426485, 1.5735626e-05)
+
+[node name="Physical Bone shin_L" parent="zombie/ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" parent_id_path=PackedInt32Array(495252481, 1186594476) index="16" unique_id=1816830215]
+transform = Transform3D(0.9936213, -0.109963976, 0.024992272, -0.019790024, 0.048148483, 0.9986441, -0.11101822, -0.9927687, 0.045665164, 0.1830653, 0.27942753, 0.10682988)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.262266e-06, -2.002717e-07, 0.1917865)
+body_offset = Transform3D(0.99999636, 1.1473894e-06, -1.0211952e-06, 9.872019e-08, 1.7359853e-06, -0.9999964, -7.4505806e-08, 1.0000018, 4.462898e-06, -5.066395e-06, 0.19178581, -6.556511e-07)
+
+[node name="Physical Bone thigh_right" parent="zombie/ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" parent_id_path=PackedInt32Array(495252481, 1186594476) index="17" unique_id=1195407084]
+transform = Transform3D(0.8793194, 0.4227507, 0.21926981, -0.04239889, -0.3891036, 0.9202178, 0.47434136, -0.81846213, -0.32422218, -0.13649511, 0.68653417, 0.039441943)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.9929104e-05, -0.000155236, 0.2342089)
+body_offset = Transform3D(1.0000039, 2.9802322e-08, 5.9604645e-08, 1.4901161e-08, -2.9802322e-08, -0.9999976, -5.9604645e-08, 0.9999948, -1.4901161e-07, -8.994341e-05, 0.23420835, 0.0001552701)
+
+[node name="Physical Bone shin_R" parent="zombie/ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" parent_id_path=PackedInt32Array(495252481, 1186594476) index="18" unique_id=45177143]
+transform = Transform3D(0.9936217, 0.10996112, -0.024992775, 0.01979053, 0.048149657, 0.99864405, 0.11101542, -0.992769, 0.045666352, -0.18307617, 0.27945662, 0.10682821)
+joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.069927e-06, -2.2896108e-06, 0.19175628)
+body_offset = Transform3D(1.0000007, -6.251037e-06, 1.3690442e-07, -1.6763806e-07, 4.7311187e-07, -0.9999949, 2.30968e-07, 1.0000008, 2.6151538e-06, -5.096197e-06, 0.1917553, 1.7881393e-06)
+
+[node name="RagdollComponent" parent="zombie" index="6" unique_id=233937444]
+min_ragdoll_time = 11.55
+
+[node name="Physical Bone spine" parent="zombie/HITBOXES" parent_id_path=PackedInt32Array(495252481, 684569482) index="0" unique_id=2093495140]
+transform = Transform3D(-0.9975256, -0.0062785577, 0.0700237, -0.019767249, 0.9808719, -0.1936469, -0.067468464, -0.19455187, -0.978569, -0.00024586916, 0.9793472, -0.041442335)
+
+[node name="Physical Bone neck" parent="zombie/HITBOXES" parent_id_path=PackedInt32Array(495252481, 684569482) index="1" unique_id=1504161012]
+transform = Transform3D(-0.9985233, 0.003722164, -0.054199122, 0.051018592, 0.40706745, -0.9119717, 0.018668167, -0.9133902, -0.40665624, 0.018471777, 1.4363546, -0.29254264)
+
+[node name="Physical Bone upper_arm_left" parent="zombie/HITBOXES" parent_id_path=PackedInt32Array(495252481, 684569482) index="2" unique_id=1129562122]
+transform = Transform3D(0.33151013, 0.2111867, -0.9195114, 0.0456461, -0.97707367, -0.20795047, -0.94234663, 0.026965765, -0.3335496, 0.21278849, 1.3568926, -0.15550262)
+
+[node name="Physical Bone forearm_left" parent="zombie/HITBOXES" parent_id_path=PackedInt32Array(495252481, 684569482) index="3" unique_id=642462362]
+transform = Transform3D(0.2183187, 0.09283592, 0.97145146, -0.059029546, -0.992385, 0.108102396, 0.97409, -0.08094518, -0.21117625, -0.19724143, 1.1071944, -0.1986599)
+
+[node name="Physical Bone hand_left" parent="zombie/HITBOXES" parent_id_path=PackedInt32Array(495252481, 684569482) index="4" unique_id=707128649]
+transform = Transform3D(0.5684644, -0.114847586, 0.81465197, -0.22918299, -0.97311705, 0.022736393, 0.79014075, -0.1996293, -0.5795038, -0.17181897, 0.8354378, -0.22082603)
+
+[node name="Physical Bone upper_arm_right" parent="zombie/HITBOXES" parent_id_path=PackedInt32Array(495252481, 684569482) index="5" unique_id=1024307202]
+transform = Transform3D(0.33151013, 0.2111867, -0.9195114, 0.0456461, -0.97707367, -0.20795047, -0.94234663, 0.026965765, -0.3335496, 0.21278849, 1.3568926, -0.15550262)
+
+[node name="Physical Bone forearm_right" parent="zombie/HITBOXES" parent_id_path=PackedInt32Array(495252481, 684569482) index="6" unique_id=656886412]
+transform = Transform3D(0.26256707, -0.20724143, -0.9423956, 0.050930656, -0.9723251, 0.22801329, -0.9635686, -0.107865416, -0.24474555, 0.26658264, 1.1080093, -0.14863378)
+
+[node name="Physical Bone hand_right" parent="zombie/HITBOXES" parent_id_path=PackedInt32Array(495252481, 684569482) index="7" unique_id=47655123]
+transform = Transform3D(0.6237972, -0.0866323, -0.7767702, 0.112325884, -0.97358423, 0.19878775, -0.77347267, -0.21125445, -0.59758794, 0.2098313, 0.84174633, -0.17817181)
+
+[node name="Physical Bone thigh_left" parent="zombie/HITBOXES" parent_id_path=PackedInt32Array(495252481, 684569482) index="8" unique_id=1270101863]
+transform = Transform3D(-0.87932056, -0.21926992, 0.42275217, 0.04239901, -0.9202177, -0.3891051, 0.47434193, -0.32422218, 0.81846505, -0.08537251, 0.90525246, -0.020058751)
+
+[node name="Physical Bone shin_L" parent="zombie/HITBOXES" parent_id_path=PackedInt32Array(495252481, 684569482) index="9" unique_id=1090081775]
+transform = Transform3D(-0.9936249, 0.024993874, 0.10996503, -0.019789994, -0.99864745, 0.048150152, 0.11101884, 0.04566964, 0.99276674, -0.18810958, 0.47409248, -0.17197025)
+
+[node name="Physical Bone thigh_right" parent="zombie/HITBOXES" parent_id_path=PackedInt32Array(495252481, 684569482) index="10" unique_id=726314559]
+transform = Transform3D(-0.87931603, 0.21927029, -0.42275274, -0.04239873, -0.9202199, -0.38910562, -0.4743393, -0.32422307, 0.81846637, 0.08488083, 0.90525246, -0.020058751)
+
+[node name="Physical Bone shin_R" parent="zombie/HITBOXES" parent_id_path=PackedInt32Array(495252481, 684569482) index="11" unique_id=601800178]
+transform = Transform3D(-0.993621, -0.024993323, -0.10996708, 0.019790336, -0.9986492, 0.04815021, -0.11101541, 0.045669172, 0.99276745, 0.18761802, 0.47409153, -0.17197067)
+
+[editable path="zombie"]
+[editable path="zombie/ZombiConRig"]
