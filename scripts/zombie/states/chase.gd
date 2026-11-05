@@ -46,11 +46,14 @@ func physics_update(_delta: float) -> void:
 
 	zombie.move_and_slide()
 
+
 func update(_delta: float) -> void:
 
 
 	var distance_to_target = zombie.global_position.distance_squared_to(target.global_position)
 	if distance_to_target <= grab_range * grab_range:
+		# Only attack if the target is still within reach.
+		# If the player moved away, the zombie should stop attacking.
 		attack()
 		stop = true
 		zombie.playback.travel("idle1")
@@ -66,7 +69,7 @@ func exit(next_state_path:String) -> void:
 	claw_timer.stop()
 	var tween = create_tween().set_parallel(true)
 	tween.tween_property(zombie.look_head,"influence",0.0,.5)
-
+	
 	
 func _on_vision_target_lost(lost: Node3D) -> void:
 	print_debug("target lost")
@@ -82,7 +85,11 @@ func _on_vision_target_lost(lost: Node3D) -> void:
 
 func attack() -> void:
 	
-	var distance =zombie.global_position.distance_squared_to(target.global_position)
+	# If the target is no longer valid or too far, stop attacking.
+	if target == null or zombie.global_position.distance_squared_to(target.global_position) > grab_range * grab_range:
+		return
+	
+	var distance = zombie.global_position.distance_squared_to(target.global_position)
 	if not claw_timer.is_stopped(): 
 		return
 	
@@ -129,11 +136,7 @@ func hurt_target(grab:bool = false) -> void:
 					finished.emit("grab")
 					return
 			else:
-				if hit_box.get_overlapping_bodies().is_empty():
-					return
-				if hit_box.get_overlapping_bodies()[0] is CharacterBody3D:
-					hit_box.get_overlapping_bodies()[0].health_component.hurt(zombie.claw_damage)
-
+				pass
 
 ## Callback del RVO: `Nav` devuelve la velocidad ya desviada para no chocar
 ## con los demás agentes. Es la única fuente de movimiento del zombi mientras

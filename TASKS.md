@@ -18,7 +18,7 @@
   forzar la reimportación de los assets movidos y confirmar que no hay errores.
 
 - [ ] **T-011 Rework de ragdoll en curso (sin commitear, detectado 2026-11-04)**
-      Trabajo paralelo que no estaba documentado acá ni en `DECISIONES.md`:
+      Trabajo sin commitear que no estaba documentado acá ni en `DECISIONES.md`:
       addon `ragdoll_wizard` nuevo (+ `project.godot`), `ragdoll_generator`
       borrado, huesos físicos movidos de `zombie.tscn` a la nueva
       `scenes/zombies/zombie_ragdoll_skelly.tscn`, `MujerZombiConRig.glb`,
@@ -154,7 +154,7 @@
       StateMachine/chase.claw` apunta a un método que ya no existe en
       `scripts/zombie/states/chase.gd` (detectado por `probe_inventario.gd`
       sección 4 y `check_tscn_connections.py`). Revisar al retomar el trabajo
-      de zombis (Claude). Sigue rota tras el commit del 2026-11-02:
+      de zombis (Jarvis). Sigue rota tras el commit del 2026-11-02:
       `chase.gd` tiene `attack()`, `hurt_target()` y arranca `claw_timer`, pero
       ninguna `func claw`.
 

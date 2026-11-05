@@ -1,24 +1,25 @@
 extends ZombieState
-## Empujón: el zombi retrocede en la dirección del empuje y luego se recupera.
-## Entrada: data = {"direction": Vector3}  (no hace falta que venga normalizada)
+## Push: the zombie recoils in the direction of the push and then recovers.
+## Input: data = {"direction": Vector3} (does not need to be normalized)
 ##
-## Matemática (resumen):
-##   La velocidad baja en línea recta de v0 a 0 en T segundos.
-##   Distancia recorrida = área del triángulo = v0 * T / 2
-##   => v0 = 2 * d / T        (velocidad inicial)
-##   => a  = v0 / T           (desaceleración por segundo)
-
-## Estado al que vuelve al terminar. Si no hay objetivo, "chase" lo manda a "idle".
+## Mathematics (summary):
+##   Speed decreases linearly from v0 to 0 in T seconds.
+##   Distance traveled = area of triangle = v0 * T / 2
+##   => v0 = 2 * d / T        (initial speed)
+##   => a  = v0 / T           (deceleration per second)
+##
+## State to return to when finished. If there is no target, "chase" sends
+## it to "idle".
 @export var next_state: StringName = &"chase"
-## Nodos del AnimationTree (state machine "zombie_sm").
-## Empujado desde ATRÁS: cae hacia adelante. Empujado desde ADELANTE: cae hacia atrás.
+## Nodes of the AnimationTree (state machine "zombie_sm").
+## Pushed from behind: falls forward. Pushed from front: falls backward.
 @export var anim_from_behind: StringName = &"stumble_forward"
 @export var anim_from_front: StringName = &"stumble_back"
-## Cuánto retrocede (metros).
+## How far it recoils (meters).
 @export var knockback_distance: float = 1.0
 
 
-## Qué tan rápido gira para quedar alineado con el empujón (grados por segundo).
+## How fast it turns to align with the push (degrees per second).
 @export var turn_speed_deg: float = 720.0
 @export var max_stagger : int = 3
 
@@ -29,7 +30,7 @@ var _target_yaw: float
 var stagger_count : int
 
 func _ready() -> void:
-	super()  # ZombieState._ready asigna `zombie`
+	super()  # ZombieState._ready assigns `zombie`
 	if not zombie.pushed.is_connected(_on_zombie_pushed):
 		zombie.pushed.connect(_on_zombie_pushed)
 
@@ -40,6 +41,8 @@ func enter(_previous_state_path: String, data := {}) -> void:
 
 	var dir: Vector3 = data.get("direction", zombie.global_basis.z)
 	if stagger_count >= max_stagger:
+		# After 3 consecutive stagger hits, start ragdoll immediately
+		# rather than playing another animation.
 		zombie.ragdoll_component.start(false,dir,50)
 		stagger_count = 0
 		return
@@ -89,9 +92,8 @@ func physics_update(delta: float) -> void:
 
 
 
-
 func _on_zombie_pushed(direction: Vector3) -> void:
-	# Si ya está aturdido, can_transition = false lo ignora (no se encadena el stun).
+	# If already stunned, can_transition = false ignores it (does not stack stun).
 	finished.emit(name, {"direction": direction})
 
 

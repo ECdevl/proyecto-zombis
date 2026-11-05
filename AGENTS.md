@@ -22,6 +22,21 @@ Estas reglas son obligatorias en todo el proyecto.
 - Ejemplos de sintaxis correcta: `await` en lugar de `yield`; declaración de señales sin paréntesis; etc.
 - `SkeletonIK3D` está deprecado en Godot 4. Usar subclases de `SkeletonModifier3D` (por ejemplo FABRIK3D, TwoBoneIK3D, CCDIK3D, JacobianIK3D), verificando que existan en la documentación de la versión instalada.
 
+## Estilo GDScript
+- **Nunca usar `:=`** (inferencia de tipo). Siempre declarar el tipo a mano:
+  `var nombre: Tipo = valor`.
+- Si el tipo no se conoce o es muy cambiante, se pone `Variant`:
+  `var nombre: Variant = valor`.
+- Aplica igual a los parámetros de función: `func f(x: int = 5)`,
+  nunca `func f(x := 5)`.
+- Excepción técnica: los bucles `for` **no admiten** anotación de tipo en
+  GDScript (`for i in range(...)`), así que ahí no hay nada que anotar.
+- Nota de veracidad: `Variant` no añade ningún tipo en runtime — la
+  documentación lo define como "no un tipo real, solo ausencia de tipo
+  estático". Su valor es dejar la intención explícita. El beneficio real
+  del tipo explícito es que un error de asignación **salta al compilar**
+  en vez de en runtime.
+
 ## Código y matemáticas
 - Priorizar soluciones matemáticas eficientes (trigonometría, geometría, álgebra, vectores, física; cualquier rama de la matemática) cuando existan. El código con peso matemático además puede resultar más modular.
 - El usuario es lento para las matemáticas: cuando el código tenga mucho peso matemático, explicarlo paso a paso y, si hay fórmulas, mostrarlas y explicar cada parte.
@@ -31,6 +46,6 @@ Estas reglas son obligatorias en todo el proyecto.
 - Registrar la situación, el error y la corrección en el archivo `ERRORES.md` de la raíz del proyecto.
 - Antes de responder sobre un tema donde ya hubo errores, consultar `ERRORES.md`.
 
-## Coordinación con Claude (trabajo asincrónico)
+## Coordinación con Jarvis (trabajo asincrónico)
 - Las decisiones de diseño se registran en `DECISIONS.md`; las tareas pendientes, en `TASKS.md`.
 - Leer ambos archivos antes de empezar a trabajar.
