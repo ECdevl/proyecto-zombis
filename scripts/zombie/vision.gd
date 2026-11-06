@@ -12,11 +12,14 @@ signal target_lost(target: Variant)
 @export var max_distance: float = 0.0
 ## Cada cuántos segundos revisa. No hace falta hacerlo en cada frame.
 @export var check_interval: float = 0.1
+## Chequeos fallidos seguidos antes de declarar la pérdida (× check_interval)
+@export var lost_after_checks: int = 5
 
 var target: Player
 var can_see: bool = false
 var _cos_half_fov: float
 var _time_left: float
+var _consecutive_fails: int = 0
 
 
 func _ready() -> void:
@@ -38,13 +41,21 @@ func _physics_process(delta: float) -> void:
 
 
 func _set_seen(seen: bool) -> void:
-	if seen == can_see:
-		return
-	can_see = seen
 	if seen:
+		_consecutive_fails = 0
+		if can_see:
+			return
+		can_see = true
 		target_spotted.emit(target)
-	else:
-		target_lost.emit(target)
+		return
+	_consecutive_fails += 1
+	if not can_see:
+		return
+	if _consecutive_fails < lost_after_checks:
+		return
+	_consecutive_fails = 0
+	can_see = false
+	target_lost.emit(target)
 
 
 func _check_sight() -> bool:
@@ -63,10 +74,13 @@ func _check_sight() -> bool:
 	var forward: Vector3 = owner.global_transform.basis.z * forward_sign
 	forward.y = 0.0
 	if forward.normalized().dot(to_target.normalized()) < _cos_half_fov:
+
 		return false
 
 	# 2) Pared
 	var query := PhysicsRayQueryParameters3D.create(eye_pos, target_pos, sight_mask)
 	query.exclude = [(owner as CollisionObject3D).get_rid()]
+	query.collision_mask = sight_mask
 	var hit := eye.get_world_3d().direct_space_state.intersect_ray(query)
+
 	return not hit.is_empty() and hit.collider == target

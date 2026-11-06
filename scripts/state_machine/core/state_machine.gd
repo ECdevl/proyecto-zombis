@@ -18,18 +18,23 @@ func _ready() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	state.handle_input(event)
+	if is_instance_valid(state):
+		state.handle_input(event)
 
 
 func _process(delta: float) -> void:
-	state.update(delta)
+	if is_instance_valid(state):
+		state.update(delta)
 
 func _physics_process(delta: float) -> void:
-	state.physics_update(delta)
+	if is_instance_valid(state):
+		state.physics_update(delta)
 	
 
 
 func _transition_to_next_state(target_state_path: String, data: Dictionary = {}) -> void:
+	if not is_instance_valid(state):
+		return
 	if not can_change_state:
 		return
 	if not has_node(target_state_path): #error handler

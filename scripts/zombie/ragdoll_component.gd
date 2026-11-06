@@ -31,7 +31,7 @@ func _ready() -> void:
 	# Los huesos no chocan con la cápsula del zombi.
 	simulator.physical_bones_add_collision_exception(body.get_rid())
 
-
+@export var default_push_bone : PhysicalBone3D
 func start(is_permanent := false,impulse: Vector3 = Vector3.ZERO,force: float = 0.0,bone:PhysicalBone3D = null) -> void:
 	simulator.influence = 1.0
 	permanent = is_permanent
@@ -42,11 +42,11 @@ func start(is_permanent := false,impulse: Vector3 = Vector3.ZERO,force: float = 
 	_ragdoll_time = 0.0
 	simulator.physical_bones_start_simulation()
 	if not bone:
-		pelvis.apply_central_impulse(impulse * force)
+		default_push_bone.apply_central_impulse(impulse * force)
 	else:
 		bone.apply_central_impulse(impulse*force)
 	ragdoll_started.emit()
-	print_debug(force)
+
 
 
 func _physics_process(delta: float) -> void:

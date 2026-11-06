@@ -451,3 +451,177 @@ con la velocidad correcta (2.00 m/s, no 4.00) y los 4 llegando al objetivo.
 **Verificación:** `tools/probe_avoidance.tscn` (sonda nueva) →
 *RESULTADO: TODO OK* (12 aserciones); regresión `probe_zombie` (7),
 `probe_melee` (14) y `probe_hitdir` (9) → todas *TODO OK*.
+
+## D-016 — El stagger lateral del zombi: el arma manda el lado (melee); el empuje descompone en el espacio local (2026-11-05)
+
+**Contexto:** el usuario creó `stumble_left` / `stumble_right` en `zombie_rig.glb`
+(las llamó "stagger_left/stagger_right") y pidió: (a) que al empujar al zombi de
+un lado se reproduzca la animación de ese lado; (b) que al golpearlo con una
+melee en el cuerpo, el stagger se reproduzca según la dirección del arma (X
+espacio del SwingData, rotulo "hacia la izquierda o la derecha"); (c) si X es
+0, no empuja.
+
+**Decisión:**
+
+1. **Melee — la regla es `SwingData.direction.x` (espacio cámara):**
+   `swing_x > 0` → `stumble_right`, `swing_x < 0` → `stumble_left`,
+   `swing_x == 0` (`is_zero_approx`) → **no se emite stagger** (el cuerpo del
+   zombi no reacciona al golpe con desplazamiento; `hurted()` hace `pass` y
+   termina en `_on_hurted`). Cuchillo swing2 (`Vector3(0, 1, 0)`) es el caso
+   concreto de X = 0. Las balas no traen `swing_x` → camino de empuje
+   (comportamiento anterior intacto).
+2. **Empujón — descomposición en el espacio LOCAL del zombi** (espejo de la
+   lógica existente de `from_behind`): `f = dir · (-basis.z)`,
+   `s = dir · basis.x`; es lateral si `|s| > |f|`. `s > 0` → `stumble_right`,
+   `s < 0` → `stumble_left`, si no `stumble_forward`/`stumble_back` según
+   `from_behind = f >= 0`. Un empujón con `s == 0` **no** se bloquea (sigue
+   stumbereando adelante/atrás); la regla "X es 0 no empuja" aplica solo al X
+   del arma, no al empujón — si no, un empujón frontal nunca provocaría
+   stagger y rompería el comportamiento existente.
+3. **Yaw:** en stagger lateral `_target_yaw = zombie.rotation.y` (el zombi no
+   gira 90°); en el frontal/trasero se mantiene el `atan2(-look_dir.x, -look_dir.z)`
+   existente. `from_behind`/`lateral` gobiernan la rama.
+4. **Nombres:** las animaciones son `stumble_left`/`stumble_right` (nombre real
+   en el glb). El AnimationTree `zombie_sm` (escena `zombie.tscn`) se amplió
+   con 2 subrecursos `AnimationNodeAnimation`, 2 estados
+   (`stumble_left` → posición (159, 380), `stumble_right` → (595, 90)) y 8
+   transiciones idle1/idle2 ↔ stagger_left/right (xfade 0.2, switch_mode 1
+   hacia el stagger / 2 desde el stagger, espejo de las de stumble_fwd/back).
+   `playback.start()` no necesita transiciones, son paridad del editor.
+5. **Reimport requerido:** `godot --headless --path . --import` — el cache
+   `.godot/imported` estaba viejo; tras reimportar,
+   `get_animation_list()` muestra `stumble_left`/`stumble_right`. El reexport
+   elimina la `stun` duplicada — comportamiento conocido y aceptado; el `.glb`
+   ya traía las animaciones del usuario.
+6. **Sin cambios de alcance:** cabeza = muerte, pierna = stun,
+   `stagger_count`/`max_stagger`, `_start_ragdoll_mid_stagger`,
+   `knockback_distance` y la dirección de desplazamiento del ragdoll intactos.
+   `stagger.gd` chequea `contains("stumble")` — compatible sin tocar.
+7. **Regla interpretada:** "X es 0 entonces no lo empuja" = X del
+   `SwingData.direction` (espacio de la cámara, según el comentario del
+   descriptor), NO la X del mundo.
+8. **`tools/probe_hitdir.gd` adaptado a `death.gd`** (trabajo del usuario sin
+   commitear: reparenta el rig a la escena y libera la raíz del zombi al
+   morir): la pelvis se captura ANTES del golpe (objeto que sobrevive al
+   `queue_free()` de la raíz) y `queue_free()` final queda con guarda
+   `is_instance_valid`. La sonda valida lo mismo que antes; estaba rota por
+   ese cambio, no por D-016.
+
+**Verificación:** `probe_melee` (14), `probe_zombie` (7), `probe_hitdir` (9) →
+*RESULTADO: TODO OK* en todas. `check_tscn_connections.py` → 3 rotas
+(addon `ragdoll_wizard`, preexistentes; ver T-011). Pendiente probar en el
+juego: T-013.
+
+## D-017 — Movimiento del jugador con inercia: aceleración, frenado con derrape e impulso aéreo conservado (2026-11-05)
+
+**Contexto:** el usuario pidió: "hay que cambiar el movimiento del jugador,
+hagamos que tenga aceleración y desaceleración, porque ahora se siente muy
+poco inmersivo". La estructura ya existía (commit `293acbe` añadió
+`PlayerStats.acceleration/deceleration/air_control`) pero los valores
+(40/50/0.3) hacían la rampa imperceptible: la velocidad de caminar (5) se
+alcanzaba en 5/40 = 0.125 s. Además dos detalles mataban la sensación de
+inercia: en el aire sin input se frenaba a `deceleration · air_control` =
+15 u/s² (un salto esprintando perdía TODO el impulso horizontal en 8/15 =
+0.53 s, menos que los 0.65 s de airtime = 2·6.5/20), y `jump.gd` hacía
+`velocity = Vector3.ZERO` al aterrizar (borraba la inercia horizontal).
+
+**Decisión:**
+
+1. **Valores nuevos en `player_stats.gd`** (grupo "Movement Feel"):
+   `acceleration` 40 → **12** (caminar 5 en t = v/a = 0.42 s, esprintar 8 en
+   0.67 s), `deceleration` 50 → **25** (parar desde 5 en 0.20 s con derrape
+   v²/(2a) = 0.5 m; desde 8 en 0.32 s / 1.28 m), `air_control` 0.3 → **0.5**.
+   Los tres ajustables desde el inspector (el sub-recurso PlayerStats de
+   `player.tscn` usa los defaults del script).
+2. **Contra-giro con producto punto** en `player.gd::__player_movement`: si
+   la velocidad horizontal va en CONTRA de la dirección pedida
+   (`horizontal.normalized().dot(direction) < 0`) se frena con
+   `deceleration` en vez de `acceleration` (respuesta inmediata al giro de
+   180°; a favor o desde parado se acelera).
+3. **Impulso aéreo conservado:** con `direction == ZERO` y en el aire NO se
+   toca la horizontal (antes se frenaba a 15 u/s²); con input en el aire el
+   control es `acceleration · air_control` = 6 u/s². En el suelo sin input
+   se frena normal con `deceleration`.
+4. **Aterrizaje:** `jump.gd` ahora hace `velocity.y = 0.0` (conserva la
+   horizontal; el suelo la frena con deceleration → tras aterrizar de un
+   salto esprintando se resbalan ~1.28 m) y emite `idle` igual; la cadena
+   idle → walk (velocity != 0) → decelera → idle ya lo maneja.
+5. **Sonda nueva** `tools/probe_movimiento.tscn/.gd` (corre como escena,
+   E-004): aceleración, freno con derrape integrado, sprint y salto en
+   carrera con impulso conservado. La física del proyecto corre a **120 Hz**
+   (las esperas se calculan con `Engine.physics_ticks_per_second`, no por
+   frames); el piso de la sonda es 200×200 porque las pruebas acumulan
+   ~25 m y con un piso chico el player cae por el borde (falso "no frena").
+
+**Verificación:** `probe_movimiento` → *RESULTADO: TODO OK* (13 aserciones:
+v = 1.20 a 0.1 s y 5.00 a 1 s; freno v = 4.58 a 2 frames de soltar, parada
+en 0.18 s, derrape medido 0.44 m ≈ teórico 0.50 menos 2 frames de arranque;
+sprint 8.00; aire: despegue 8.00 → mínima 8.00 → aterriza 8.00 → frena
+solo). El aviso `1 ObjectDB instance was leaked at exit` de la sonda es
+preexistente al instanciar `player.tscn` headless (lo repite
+`probe_avoidance`, que no comparte código con ella; ya anotado en TASKS.md
+"Notas de la validación"). Pendiente probar en el juego: T-014.
+
+## D-018 — Movimiento del zombi: andar hacia adelante y girar el cuerpo; sin snap de mirada ni ataque de espaldas (2026-11-06)
+
+**Contexto:** el usuario pidió:
+
+> "vamos a cambiar el movimiento de los zombis tambien, se siente muy poco
+> inmersivo, en vez de ellos poder rotar para snapear al jugador, hagamos que
+> ellos tengan que caminar hacia adelante e ir rotando para quedar mirando de
+> frente al jugador y verlo, de esta manera si estamos atras de ellos y
+> (supongamos) hacemos ruido no se daran vuelta instantaneamente"
+
+**Decisión:**
+
+1. **El cuerpo es la única fuente de orientación.** `chase` no strafea ni
+   camina hacia atrás: la velocidad deseada es `-basis.z * speed` (el frente
+   del rig es -Z) y el yaw se acerca al rumbo de la ruta a `turn_speed_deg`
+   (90°/s, exportado en `zombie.gd`) con `rotate_toward`. El giro solo se
+   aplica **mientras hay velocidad horizontal** (`STILL_SPEED = 0.05`): parado
+   no pivota. Para mirar al jugador tiene que caminar y girar; nunca hay un
+   giro instantáneo.
+2. **Se elimina el snap de la cabeza.** `%LookHead` es un
+   `LookAtModifier3D` sobre el hueso `head` con
+   `primary_limit_angle = 120°` e `influence` por defecto **1.0**. `idle`
+   lo apuntaba al `yaw` del `Player` con un tween de 0.5 s. Como el look-at
+   se aplica con `duration = 0` (snap interno; el tween solo mezclaba la
+   influencia), la cabeza giraba hasta 120° sin que el cuerpo girara: **ese
+   era el snap**. Ahora `idle._on_vision_target_spotted()` solo emite
+   `chase`, y `chase.enter()/exit()` limpian `target_node` y ponen
+   `influence = 0`. La cabeza queda solidaria al cuerpo.
+3. **La visión ya sigue al cuerpo.** `ZombieVision._check_sight()` calcula el
+   FOV con `owner.global_transform.basis.z * forward_sign` (120°), no con la
+   cabeza. Por lo tanto el zombi solo "ve" lo que su cuerpo encara; no hay
+   forma de detectar al jugador por detrás. **No existe sistema de oído
+   todavía**, así que el caso "ruido a la espalda" no puede ocurrir hoy; el
+   estado `turn` (90°/s en el sitio, gradual) queda listo para cuando se
+   añada. No se inventó el sistema de ruido.
+4. **No se ataca de espaldas.** Nuevo `attack_angle_deg = 70` y
+   `is_facing_target()` en `chase`: si el objetivo está dentro de
+   `grab_range` (1.0 m en la escena) pero fuera del cono, el zombi sigue
+   caminando (y girando) en vez de detenerse a arañar. Así el ataque también
+   exige quedar de frente, no solo la persecución.
+5. **Evitación:** `Nav.radius` 0.15 → **0.3** en `zombie.tscn` (ver
+   `ERRORES.md` E-018). Con el andar hacia adelante los zombis viajan en
+   paralelo y el radio de 0.15 no cubría el cuerpo (caja 0.507 × 0.458):
+   se solapaban a 0.39 m. Con 0.3 el RVO mantiene ≥ 0.6 m (medido 0.62).
+6. **Sonda `probe_turn`:** se reparó el `const` que no compilaba (E-017) y
+   se amplió a 14 aserciones: A) objetivo detrás → avanza hacia adelante y
+   gira como mucho `turn_speed_deg × 0.5 s`, con la cabeza sin target y con
+   influencia 0; B) a los 3 s el cuerpo ya mira al objetivo; C) `turn` gira
+   en el sitio a velocidad limitada; D) `is_facing_target()` es falso con el
+   jugador a la espalda y verdadero de frente; E) datos inválidos no dejan
+   el estado atrapado.
+
+**Consecuencia:** el zombi puede tardar en reaccionar (hasta 2 s para un
+giro de 180° a 90°/s) y puede pasar de largo al jugador mientras gira. Es el
+comportamiento pedido: la reacción deja de ser un snap y pasa a ser
+locomoción. `turn_speed_deg` es ajustable desde el inspector si se quiere más
+lento o más rápido.
+
+**Verificación:** `probe_turn` (14) → *TODO OK*; `probe_avoidance` (12) →
+*TODO OK* (mín 0.62 m, desvío RVO 0.823 vs 0.000 del control ciego);
+`probe_zombie` (7), `probe_melee` (14) y `probe_hitdir` (9) → *TODO OK*.
+`check_tscn_connections.py` → 3 rotas, todas del addon `ragdoll_wizard`
+(T-008 ya no aparece). Pendiente probar en el juego: T-015.

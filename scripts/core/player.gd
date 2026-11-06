@@ -212,14 +212,26 @@ func __player_movement(delta:float) -> void:
 		direction = (yaw.transform.basis * Vector3(_input_direction.x  , 0, _input_direction.y  )).normalized()
 	else:
 		direction = (yaw.transform.basis * Vector3(_input_direction.x  , 0, 0  )).normalized()
-	if can_move:
-		var target := direction * speed / player_stats.base_speed
-		var horizontal := Vector3(velocity.x, 0.0, velocity.z)
+	var horizontal: Vector3 = Vector3(velocity.x, 0.0, velocity.z)
 
-		var rate = player_stats.acceleration if direction != Vector3.ZERO else player_stats.deceleration
+	if direction == Vector3.ZERO:
+		if is_on_floor():
+			# Sin input en el suelo: frenar hasta 0 con deceleration.
+			horizontal = horizontal.move_toward(Vector3.ZERO, player_stats.deceleration * delta)
+			velocity.x = horizontal.x
+			velocity.z = horizontal.z
+		# Sin input en el aire: no tocar la horizontal, el impulso del salto
+		# se conserva (el aire no frena).
+	else:
+		var target: Vector3 = direction * speed / player_stats.base_speed
+		# Contra-giro: si la velocidad actual apunta en CONTRA de la dirección
+		# pedida, frenar (respuesta inmediata); si va a favor (o estamos
+		# parados), acelerar.
+		var rate: float = player_stats.deceleration
+		if horizontal == Vector3.ZERO or horizontal.normalized().dot(direction) >= 0.0:
+			rate = player_stats.acceleration
 		if not is_on_floor():
 			rate *= player_stats.air_control
-
 		horizontal = horizontal.move_toward(target, rate * delta)
 		velocity.x = horizontal.x
 		velocity.z = horizontal.z

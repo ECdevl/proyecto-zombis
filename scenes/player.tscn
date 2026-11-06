@@ -12,7 +12,10 @@
 [ext_resource type="Script" uid="uid://ci8pf37ayym1b" path="res://scripts/state_machine/player_states/crouch.gd" id="6_tuyoq"]
 [ext_resource type="Script" uid="uid://cke46qan7lbqy" path="res://scripts/state_machine/player_states/prone.gd" id="7_fjrip"]
 [ext_resource type="Script" uid="uid://cg2alhn207kxn" path="res://scripts/inventory/descriptors/item_descriptor.gd" id="7_gl8cc"]
+[ext_resource type="Resource" uid="uid://vhjqrf85xijj" path="res://resources/weapons/firearm/glock-17.tres" id="8_487ah"]
 [ext_resource type="Script" uid="uid://dbrirwgakwuq6" path="res://scripts/state_machine/player_states/jump.gd" id="8_smehm"]
+[ext_resource type="ArrayMesh" uid="uid://dj21n5b5l771h" path="res://assets/models/consumables/canned/lata.obj" id="9_bj30b"]
+[ext_resource type="Script" uid="uid://orlxlnvacg2d" path="res://scripts/inventory/descriptors/ammo_item_descriptor.gd" id="9_md1ol"]
 [ext_resource type="Script" uid="uid://bxh8kmg275dd7" path="res://scripts/state_machine/player_states/climb.gd" id="10_y4r1p"]
 [ext_resource type="Script" uid="uid://bj2mv7d2vurgy" path="res://scripts/state_machine/arm_states/normal.gd" id="13_f1ej7"]
 [ext_resource type="PackedScene" uid="uid://01e8m6xuuak5" path="res://scenes/ui/ui.tscn" id="13_jej6c"]
@@ -39,15 +42,25 @@ metadata/_custom_type_script = "uid://civ8cmtod8s0y"
 
 [sub_resource type="Resource" id="Resource_a8ls1"]
 script = ExtResource("3_a8ls1")
+acceleration = 25.0
+deceleration = 35.0
 metadata/_custom_type_script = "uid://biay5nfkmn6qe"
 
 [sub_resource type="Resource" id="Resource_60mlk"]
 script = ExtResource("4_i4ail")
 metadata/_custom_type_script = "uid://desjayqtv12h4"
 
+[sub_resource type="Resource" id="Resource_w3oce"]
+script = ExtResource("9_md1ol")
+ammo_type = 1
+item_name = "Balas 9mm"
+item_mesh = ExtResource("9_bj30b")
+metadata/_custom_type_script = "uid://orlxlnvacg2d"
+
 [sub_resource type="Resource" id="Resource_inv_pockets"]
 script = ExtResource("41_imodel")
 dimensions = Vector2i(7, 2)
+starting_items = Array[ExtResource("7_gl8cc")]([ExtResource("8_487ah"), SubResource("Resource_w3oce")])
 metadata/_custom_type_script = "uid://cw2gxg62gx4of"
 
 [sub_resource type="Resource" id="Resource_inv_equipment"]
@@ -543,9 +556,6 @@ collision_mask = 2
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="ItemInstruct" unique_id=436641924]
 shape = SubResource("SphereShape3D_8njf7")
-
-[node name="pole" type="Marker3D" parent="." unique_id=1143012895]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.42064583, 1.1201322, 0)
 
 [node name="BodyAT" type="AnimationTree" parent="." unique_id=2011397890]
 unique_name_in_owner = true

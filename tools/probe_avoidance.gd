@@ -20,22 +20,24 @@ extends Node3D
 ##      lateral por su cuenta) y la velocidad es la pedida.
 ##   2) B: el control ciego sigue emitiendo `velocity_computed` y llega al
 ##      objetivo → es una base de comparación válida (se mueve igual).
-##   3) B: el RVO ciego tampoco desvía lateralmente → la métrica no mide
-##      ruido sino evitación.
+##   3) B: el RVO ciego tampoco desvía → la métrica no mide ruido sino
+##      evitación.
 ##   4) C: `velocity_computed` dispara para todos los zombis que persiguen.
 ##   5) C: la velocidad horizontal queda ≤ SPEED * 1.3 (con el bug de doble
 ##      multiplicación daría SPEED² = 4.0 m/s).
 ##   6) C: la distancia mínima entre pares nunca baja de MIN_DIST.
 ##   7) C: todos llegan a menos de 2 m del objetivo (no se bloquean entre
 ##      sí).
-##   8) C: el RVO aparta a los zombis → su salida (`safe_velocity`) se
-##      desvía MÁS que en el control ciego B. La comparación es contra B,
-##      no contra un número fijo: lo que mide es el efecto de la evitación
-##      mutua, no el giro de llegada ni las colisiones.
+##   8) C: el RVO aparta a los zombis → altera MÁS la velocidad que el control
+##      ciego B. La comparación es contra B, no contra un número fijo: lo que
+##      mide es el efecto de la evitación mutua.
 ##
-## El desvío lateral se mide sobre `safe_velocity`, es decir sobre lo que
-## decide el RVO, y NO sobre la velocidad final de la escena: medirlo
-## después mezclaría el avoidance con las colisiones físicas.
+## El desvío del RVO se mide sobre `safe_velocity` comparada con la velocidad
+## DESEADA (`NavigationAgent3D.velocity`, la que fija `chase`), y NO sobre la
+## velocidad final de la escena ni sobre la recta al objetivo: con el zombi
+## andando "hacia adelante" (D-018) el rumbo del cuerpo no coincide con la
+## recta al objetivo, así que medir contra esa recta contaría el giro como si
+## fuera evitación.
 ##
 ## Nota: los errores de script NO detienen la ejecución en Godot, así que la
 ## salida hay que mirarla además del RESULTADO: no debe aparecer ningún
@@ -56,10 +58,6 @@ const MIN_DIST := 0.45
 ## Techo de frames de física por escenario. El bucle se corta antes si todos
 ## llegan al objetivo.
 const MAX_FRAMES := 2400
-## Distancia al objetivo a partir de la cual se mide el desvío lateral
-## (cerca del objetivo el propio giro de llegada contaría como desvío).
-const LATERAL_FROM := 3.0
-
 var fallos := 0
 
 var _target: Player
@@ -67,7 +65,7 @@ var _zombies: Array[Zombie] = []
 var _fires: Dictionary = {}
 var _max_speed := 0.0
 var _min_dist := INF
-var _max_lateral := 0.0
+var _max_rvo_dev := 0.0
 var _reached := 0
 
 
@@ -103,14 +101,14 @@ func _ready() -> void:
 	await _run([Vector3(0, 0, 4)], target, true)
 	_dump()
 	ok(_zombies.size() == 1, "el escenario A spawneó 1 zombi (%d)" % _zombies.size())
-	var lat_a := _max_lateral
+	var lat_a := _max_rvo_dev
 	ok(lat_a <= SPEED * 0.15,
-		"sin vecinos no hay desvío lateral (%.3f <= %.3f m/s)" % [lat_a, SPEED * 0.15])
+		"sin vecinos el RVO no desvía (%.3f <= %.3f m/s)" % [lat_a, SPEED * 0.15])
 
 	print("=== B) Cuatro zombis, avoidance_mask = 0 (control ciego) ===")
 	await _run(grupo, target, false)
 	_dump()
-	var lat_b := _max_lateral
+	var lat_b := _max_rvo_dev
 	var n := _zombies.size()
 	ok(n == grupo.size(), "el escenario B spawneó %d zombis (esperaba %d)" % [n, grupo.size()])
 	var ciegos_firing := _count_firing()
@@ -120,7 +118,7 @@ func _ready() -> void:
 	ok(ciegos_llegaron == n,
 		"el control ciego también llega (%d/%d): sirve de comparación" % [ciegos_llegaron, n])
 	ok(lat_b <= SPEED * 0.15,
-		"el RVO ciego no desvía lateralmente (%.3f <= %.3f m/s)" % [lat_b, SPEED * 0.15])
+		"el RVO ciego no desvía (%.3f <= %.3f m/s)" % [lat_b, SPEED * 0.15])
 
 	print("=== C) Cuatro zombis, avoidance real (mask = 1) ===")
 	await _run(grupo, target, true)
@@ -138,9 +136,9 @@ func _ready() -> void:
 	# Comparación contra el control ciego B (no contra un número fijo):
 	# el margen es el doble del ruido medido en A y B.
 	var margen := maxf(SPEED * 0.05, lat_b * 2.0)
-	ok(_max_lateral > lat_b + margen,
+	ok(_max_rvo_dev > lat_b + margen,
 		"el RVO aparta a los zombis (%.3f > %.3f + %.3f m/s)"
-			% [_max_lateral, lat_b, margen])
+			% [_max_rvo_dev, lat_b, margen])
 
 	if fallos == 0:
 		print("RESULTADO: TODO OK")
@@ -161,7 +159,7 @@ func _run(spawns: Array[Vector3], target: Player, avoid_agents: bool) -> void:
 	_fires.clear()
 	_max_speed = 0.0
 	_min_dist = INF
-	_max_lateral = 0.0
+	_max_rvo_dev = 0.0
 	_reached = 0
 	await get_tree().physics_frame
 	await get_tree().physics_frame
@@ -236,23 +234,18 @@ func _run(spawns: Array[Vector3], target: Player, avoid_agents: bool) -> void:
 
 
 ## Callback del RVO: `Nav` devuelve la velocidad ya desviada. Se mide AQUÍ
-## el desvío lateral (no en `velocity` final): así se aísla lo que decide el
-## RVO del efecto de las colisiones físicas.
+## cuánto se aparta de la velocidad DESEADA (`Nav.velocity`, la que fija
+## `chase`): así se aísla lo que decide el RVO del rumbo del cuerpo.
 func _on_velocity(safe_velocity: Vector3, id: int, z: Zombie) -> void:
 	_fires[id] = int(_fires.get(id, 0)) + 1
 
-	if _target == null or not is_instance_valid(z):
+	if not is_instance_valid(z):
 		return
 
-	var vh := Vector3(safe_velocity.x, 0.0, safe_velocity.z)
-	var hacia := _target.global_position - z.global_position
-	hacia.y = 0.0
-	if hacia.length_squared() <= LATERAL_FROM * LATERAL_FROM:
-		return
-
-	var dir := hacia.normalized()
-	# Componente de la velocidad perpendicular a la recta al objetivo.
-	_max_lateral = maxf(_max_lateral, (vh - dir * vh.dot(dir)).length())
+	var safe_h : Vector3 = Vector3(safe_velocity.x, 0.0, safe_velocity.z)
+	var desired : Vector3 = z.nav.velocity
+	var desired_h : Vector3 = Vector3(desired.x, 0.0, desired.z)
+	_max_rvo_dev = maxf(_max_rvo_dev, (safe_h - desired_h).length())
 
 
 func _count_firing() -> int:
@@ -265,7 +258,7 @@ func _count_firing() -> int:
 
 func _dump() -> void:
 	print("   vel máx        : %.2f m/s (speed = %.1f)" % [_max_speed, SPEED])
-	print("   desvío lateral : %.3f m/s" % _max_lateral)
+	print("   desvío del RVO: %.3f m/s" % _max_rvo_dev)
 	print("   dist mín par   : %s m" % ("inf" if _min_dist == INF else "%.2f" % _min_dist))
 	print("   llegaron       : %d/%d | velocity_computed: %d/%d"
 		% [_reached, _zombies.size(), _count_firing(), _zombies.size()])

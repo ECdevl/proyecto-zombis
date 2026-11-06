@@ -28,7 +28,7 @@ func enter(previous_state_path: String, data := {}) -> void:
 func physics_update(_delta: float) -> void:
 	zombie.velocity.x = 0
 	zombie.velocity.z = 0
-	zombie.handle_gravity(delta)
+	zombie.handle_gravity(_delta)
 	zombie.move_and_slide()
 func exit(next_state_path: String) -> void:
 	zombie.at["parameters/TimeScale/scale"] = 1.0

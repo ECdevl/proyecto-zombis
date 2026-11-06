@@ -105,6 +105,10 @@ func _kill_with(cam: Camera3D, swing_dir: Vector3, yaw: float, zombie_yaw: float
 	add_child(zombie)
 	zombie.global_position = forward * 1.5
 	zombie.rotation.y = zombie_yaw
+	# death.gd reparenta el rig a la escena y libera la raíz del zombi al
+	# morir; la pelvis (dentro del rig) sobrevive, así que se captura su
+	# referencia antes del golpe en vez de pasar por `zombie` después.
+	var pelvis: PhysicalBone3D = zombie.find_child("Physical Bone pelvis", true, false) as PhysicalBone3D
 	# Dejar que esqueleto, hitboxes y estado inicial se asienten.
 	await get_tree().physics_frame
 	await get_tree().physics_frame
@@ -137,10 +141,11 @@ func _kill_with(cam: Camera3D, swing_dir: Vector3, yaw: float, zombie_yaw: float
 		await get_tree().physics_frame
 
 	var result := {
-		"vel": zombie.ragdoll_component.pelvis.linear_velocity,
+		"vel": pelvis.linear_velocity if pelvis != null else Vector3.ZERO,
 		"right": cam.global_basis.x,
 	}
-	zombie.queue_free()
+	if is_instance_valid(zombie):
+		zombie.queue_free()
 	await get_tree().physics_frame
 	return result
 

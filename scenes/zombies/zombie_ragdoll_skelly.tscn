@@ -76,6 +76,9 @@ height = 0.46854138
 radius = 0.038357493
 height = 0.38357493
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_kwdwd"]
+size = Vector3(0.08637695, 0.25166017, 0.08429565)
+
 [node name="PhysicalBoneSimulator3D" type="PhysicalBoneSimulator3D" unique_id=2043820654]
 
 [node name="Physical Bone root" type="PhysicalBone3D" parent="." unique_id=778448533]
@@ -102,7 +105,7 @@ joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.8923166e-06, -8.005156e
 body_offset = Transform3D(1, 3.5527137e-15, -1.2681678e-10, -1.2681411e-10, -5.9604645e-08, -1.0000002, -1.7763568e-14, 1.0000002, -1.0430813e-07, 4.892325e-06, 0.06611186, 1.4901161e-08)
 bounce = 1.0
 bone_name = "pelvis"
-joint_constraints/swing_span = 153.94995
+joint_constraints/swing_span = 153.94994
 joint_constraints/twist_span = 180.0
 joint_constraints/bias = 0.3
 joint_constraints/softness = 0.8
@@ -219,8 +222,8 @@ joint_constraints/x/linear_equilibrium_point = 0.0
 joint_constraints/x/linear_restitution = 0.5
 joint_constraints/x/linear_damping = 1.0
 joint_constraints/x/angular_limit_enabled = false
-joint_constraints/x/angular_limit_upper = 1.1999997
-joint_constraints/x/angular_limit_lower = -0.9999997
+joint_constraints/x/angular_limit_upper = 1.1999996
+joint_constraints/x/angular_limit_lower = -0.99999964
 joint_constraints/x/angular_limit_softness = 0.5
 joint_constraints/x/angular_restitution = 0.0
 joint_constraints/x/angular_damping = 1.0
@@ -478,7 +481,7 @@ joint_constraints/y/linear_equilibrium_point = 0.0
 joint_constraints/y/linear_restitution = 0.5
 joint_constraints/y/linear_damping = 1.0
 joint_constraints/y/angular_limit_enabled = true
-joint_constraints/y/angular_limit_upper = 54.99999
+joint_constraints/y/angular_limit_upper = 54.999985
 joint_constraints/y/angular_limit_lower = -24.999996
 joint_constraints/y/angular_limit_softness = 0.5
 joint_constraints/y/angular_restitution = 0.0
@@ -875,7 +878,7 @@ joint_constraints/y/linear_equilibrium_point = 0.0
 joint_constraints/y/linear_restitution = 0.5
 joint_constraints/y/linear_damping = 1.0
 joint_constraints/y/angular_limit_enabled = true
-joint_constraints/y/angular_limit_upper = 54.99999
+joint_constraints/y/angular_limit_upper = 54.999985
 joint_constraints/y/angular_limit_lower = -24.999996
 joint_constraints/y/angular_limit_softness = 0.5
 joint_constraints/y/angular_restitution = 0.0
@@ -1253,7 +1256,7 @@ joint_constraints/x/linear_restitution = 0.5
 joint_constraints/x/linear_damping = 1.0
 joint_constraints/x/angular_limit_enabled = true
 joint_constraints/x/angular_limit_upper = 0.0
-joint_constraints/x/angular_limit_lower = -164.99995
+joint_constraints/x/angular_limit_lower = -164.99994
 joint_constraints/x/angular_limit_softness = 0.5
 joint_constraints/x/angular_restitution = 0.0
 joint_constraints/x/angular_damping = 1.0
@@ -1415,7 +1418,7 @@ joint_constraints/x/linear_restitution = 0.5
 joint_constraints/x/linear_damping = 1.0
 joint_constraints/x/angular_limit_enabled = true
 joint_constraints/x/angular_limit_upper = 0.0
-joint_constraints/x/angular_limit_lower = -164.99995
+joint_constraints/x/angular_limit_lower = -164.99994
 joint_constraints/x/angular_limit_softness = 0.5
 joint_constraints/x/angular_restitution = 0.0
 joint_constraints/x/angular_damping = 1.0
@@ -1470,3 +1473,37 @@ joint_constraints/z/angular_equilibrium_point = 0.0
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Physical Bone shin_R" unique_id=2072819339]
 transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0, 0)
 shape = SubResource("CapsuleShape3D_u70kg")
+
+[node name="foot_right" type="PhysicalBone3D" parent="." unique_id=1264203940]
+transform = Transform3D(0.9890237, -0.07886871, 0.124947615, 0.08448801, -0.39188293, -0.9161275, 0.12121862, 0.9166284, -0.380918, -0.1782771, 0.08789623, 0.09807034)
+collision_layer = 32768
+collision_mask = 32769
+joint_type = 2
+body_offset = Transform3D(1.0000005, 5.7071447e-06, -1.501292e-06, -2.9802322e-08, 1.0000007, -1.937151e-06, -9.685755e-08, 5.9604645e-08, 0.99999464, 0, 0, 0)
+bone_name = "foot_right"
+joint_constraints/swing_span = 45.0
+joint_constraints/twist_span = 180.0
+joint_constraints/bias = 0.3
+joint_constraints/softness = 0.8
+joint_constraints/relaxation = 1.0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="foot_right" unique_id=2020951193]
+transform = Transform3D(0.99087024, 0.10670847, -0.08239899, -0.06598215, 0.9168092, 0.39383543, 0.11756995, -0.38480398, 0.91547894, 0.0073526204, 0.08311282, 0.01187928)
+shape = SubResource("BoxShape3D_kwdwd")
+
+[node name="foot_left" type="PhysicalBone3D" parent="." unique_id=1280593689]
+transform = Transform3D(0.98902345, 0.0788716, -0.124947704, -0.084486954, -0.39188313, -0.9161275, -0.12122135, 0.916628, -0.380918, 0.17827669, 0.08789781, 0.09806976)
+collision_layer = 32768
+collision_mask = 32769
+joint_type = 2
+body_offset = Transform3D(0.9999965, -4.172325e-07, 1.4603138e-06, -1.4156103e-07, 1.000002, -1.5795231e-06, -8.940697e-08, 1.4901161e-07, 0.9999962, 0, 0, 0)
+bone_name = "foot_left"
+joint_constraints/swing_span = 45.0
+joint_constraints/twist_span = 180.0
+joint_constraints/bias = 0.3
+joint_constraints/softness = 0.8
+joint_constraints/relaxation = 1.0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="foot_left" unique_id=1979861680]
+transform = Transform3D(0.99087024, 0.10670847, -0.08239899, -0.06598215, 0.9168092, 0.39383543, 0.11756995, -0.38480398, 0.91547894, 0.0073526204, 0.08311282, 0.01187928)
+shape = SubResource("BoxShape3D_kwdwd")

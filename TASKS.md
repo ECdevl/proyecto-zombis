@@ -2,6 +2,59 @@
 
 ## En curso
 
+- [ ] **T-015 Movimiento del zombi: andar hacia adelante y girar el cuerpo**
+      (2026-11-06, D-018)
+  - [x] `chase`: se mantiene el andar solo hacia adelante (-Z) y el giro
+        limitado a `turn_speed_deg` (90°/s) únicamente mientras camina; parado
+        no pivota; `stop = false` al entrar
+  - [x] Sin snap de mirada: `idle` ya no apunta `%LookHead` al jugador;
+        `chase.enter/exit` limpian `target_node` e `influence = 0`; la cabeza
+        queda solidaria al cuerpo
+  - [x] Ataque solo de frente: `attack_angle_deg = 70` +
+        `is_facing_target()`; dentro de `grab_range` pero fuera del cono,
+        sigue caminando para girar
+  - [x] `zombie.tscn`: `Nav.radius` 0.15 → 0.3 (los zombis se solapaban al
+        andar en paralelo; E-018)
+  - [x] `probe_turn` reparada (E-017) y ampliada a 14 aserciones →
+        *RESULTADO: TODO OK*
+  - [x] `probe_avoidance` con la métrica corregida (desvío contra
+        `Nav.velocity`, no contra la recta al objetivo) → *TODO OK*
+        (mín 0.62 m, desvío 0.823 vs 0.000 del control ciego)
+  - [x] Regresión `probe_zombie` (7), `probe_melee` (14),
+        `probe_hitdir` (9) → *TODO OK*
+  - [ ] Probar en el juego: que un zombi al que se le aparece el jugador
+        por detrás/sal lado camine y gire en vez de clavar la mirada;
+        ajustar `turn_speed_deg` (90) y `attack_angle_deg` (70) desde el
+        inspector si hace falta
+
+- [ ] **T-014 Movimiento del jugador con inercia** (2026-11-05, D-017)
+  - [x] `player_stats.gd`: `acceleration` 12, `deceleration` 25,
+        `air_control` 0.5 (ajustables desde el inspector, grupo
+        "Movement Feel")
+  - [x] `player.gd`: contra-giro (dot(vel, dirección) < 0 → frena con
+        `deceleration`) e impulso aéreo conservado (sin input en el aire
+        no se toca la horizontal)
+  - [x] `jump.gd`: al aterrizar `velocity.y = 0` (antes `Vector3.ZERO`
+        borraba la inercia horizontal del salto)
+  - [x] Sonda nueva `tools/probe_movimiento.tscn` → *RESULTADO: TODO OK*
+        (13 aserciones; ver D-017)
+  - [ ] Probar en el juego: sensación de arranque, frenado y derrape;
+        afinar 12/25/0.5 desde el inspector si hace falta
+
+- [x] **T-013 Stagger izquierdo/derecho del zombi** (2026-11-05, D-016)
+      (`stumble_left`/`stumble_right` del `zombie_rig.glb`)
+  - [x] GLB reimportado con `godot --headless --path . --import`;
+        `get_animation_list()` confirma `stumble_left`/`stumble_right`
+  - [x] AnimationTree `zombie_sm` ampliado (2 nodos + 2 estados + 8
+        transiciones, espejo de stumble_fwd/back); escena sigue válida
+  - [x] Melee en cuerpo: `swing_x` del SwingData manda
+        (>0 → stumble_right, <0 → stumble_left, ==0 → sin stagger)
+  - [x] Empujón: descomposición zombie-local; lateral si |s| > |f|
+  - [x] Sondas verdes: `probe_melee`, `probe_zombie`, `probe_hitdir`
+        (esta última adaptada a `death.gd`, ver D-016)
+  - [ ] Probar en el juego: empujón a izquierda/derecha y golpes melee;
+        confirmar que el cuchillo (swing2, X = 0) no empuja
+
 - [x] **T-001 Reorganizar la estructura de archivos del proyecto** (ver `DECISIONS.md` D-001..D-003)
   - [x] Inventario completo + mapa de referencias `res://`
   - [x] Detectar duplicados exactos, archivos vacíos y código muerto
@@ -283,6 +336,18 @@
   mezclarlo con las colisiones), la distancia mínima entre pares y la
   llegada al objetivo. **Corre como escena.** Uso:
   `godot --headless --path . res://tools/probe_avoidance.tscn`
+  → *RESULTADO: TODO OK*
+- `tools/probe_movimiento.tscn` + `tools/probe_movimiento.gd` — sonda del
+  movimiento con inercia (D-017): monta un piso 200×200 (las pruebas acumulan
+  ~25 m; con un piso chico el player cae por el borde) y un player real, y
+  simula input con `Input.action_press`/`action_release`. Comprueba:
+  aceleración (v = 1.2 a 0.1 s, 5.00 a 1 s), freno (v > 3.5 a 2 frames de
+  soltar, se detiene solo en < 1 s, derrape integrado 0.3–0.8 m), sprint
+  (8.00 en 1.5 s) y salto en carrera con impulso conservado (soltar todo en
+  el aire mantiene la velocidad, aterriza y frena solo). La física corre a
+  **120 Hz**: las esperas se calculan con `Engine.physics_ticks_per_second`.
+  **Corre como escena.** Uso:
+  `godot --headless --path . res://tools/probe_movimiento.tscn`
   → *RESULTADO: TODO OK*
 - `tools/dump_engine_signals.gd` — genera `tools/engine_signals.py`: la tabla de señales que
   declara cada clase del motor usada en el proyecto. Se regenera solo si se agregan clases:

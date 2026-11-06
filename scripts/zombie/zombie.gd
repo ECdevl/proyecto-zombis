@@ -31,6 +31,9 @@ class_name Zombie
 @export var zombie_mesh: MeshInstance3D
 @export var speed: float = 2.5
 @export var claw_damage: float = 10.0
+## Yaw speed used when the zombie rotates toward something (deg/s). Shared by
+## `chase` (steering while walking) and `turn` (turning to a heard noise).
+@export var turn_speed_deg: float = 90.0
 
 # --- Debugging ///
 ## Prints state changes (read by StateMachine).
@@ -100,31 +103,18 @@ func hurted(damage: float, info: Dictionary) -> void:
 			print_debug("OH MY LEG")
 			state_machine.state.finished.emit("stun", {"direction": 0})
 		else:
-			# Other hits: emit stagger state finished, then start ragdoll
-			# after about half the stagger animation duration.
-			state_machine.state.finished.emit("stagger", {"direction": 0})
-			_start_ragdoll_after_stagger()
+			# Other hits: stagger only. The death/ragdoll path goes through
+			# health <= 0 -> die() -> permanent ragdoll; there is no
+			# ragdoll-after-stagger timer here.
+			# A melee swing whose X is exactly 0 (vertical chop, thrust) does
+			# not push the zombie: no stagger is emitted at all.
+			var sx : Variant = info.get("swing")
+			if (sx is float or sx is int) and is_zero_approx(float(sx)) or sx == null:
+				pass  # no lo empuja
+			else:
+				state_machine.state.finished.emit("hurt", {"blend":sx})
 
 	_on_hurted(damage, info)
-
-
-## Starts the ragdoll after roughly half the stagger animation has played.
-## Uses the AnimationPlayer's current time and length to estimate the delay.
-func _start_ragdoll_after_stagger() -> void:
-	var anim_length := float(zombie_ap.animation_length)
-	# If we are inside a staggered animation, wait for ~50% of its duration.
-	# If the animation length is zero, start ragdoll immediately to avoid
-	# getting stuck.
-	if anim_length > 0.0:
-		var timer := get_tree().create_timer(anim_length * 0.55)
-		timer.timeout.connect(_start_ragdoll_now)
-	else:
-		_start_ragdoll_now()
-
-
-func _start_ragdoll_now() -> void:
-	# Transition to the death state, which will start the ragdoll.
-	state_machine.state.finished.emit("die")
 
 
 ## Hook: special zombie reaction to damage. Subclasses override this and,
@@ -137,10 +127,9 @@ func _on_hurted(_damage: float, _info: Dictionary) -> void:
 ## state, which starts the permanent ragdoll with the impact impulse.
 func die(damage: float, info: Dictionary) -> void:
 	state_machine.state.finished.emit("death")
-
+	
 	var impulse := _vec3(info, "impulse")
 	var force := _num(info, "force")
-
 	# Without built-in impulse (a bullet does not bring it), the direction is
 	# stored in a meta while the impact is resolved.
 	if impulse.length_squared() < 0.0001 and has_meta("melee_hit_dir"):

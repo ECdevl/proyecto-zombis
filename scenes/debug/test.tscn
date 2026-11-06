@@ -5,9 +5,9 @@
 [ext_resource type="Texture2D" uid="uid://ce2rcj4jb7dmi" path="res://assets/textures/dev/dev_blue.png" id="2_7rf62"]
 [ext_resource type="Resource" uid="uid://1pliys4sarhg" path="res://resources/weapons/melee/bate.tres" id="3_2rjyo"]
 [ext_resource type="Resource" uid="uid://b1ihtv4u6lxt6" path="res://resources/weapons/melee/cuchillo.tres" id="3_mx0de"]
-[ext_resource type="Texture2D" uid="uid://cqhcv00l1pewv" path="res://assets/textures/dev/dev_green.png" id="4_5cao6"]
 [ext_resource type="PackedScene" uid="uid://dftxseqmmjo35" path="res://scenes/zombies/zombie.tscn" id="4_ppyta"]
 [ext_resource type="PackedScene" uid="uid://dnwmecb1siwnm" path="res://scenes/components/pickable_object.tscn" id="6_hn7ej"]
+[ext_resource type="Texture2D" uid="uid://dj1qfowiro57r" path="res://assets/textures/dev/dev_red.png" id="8_2rjyo"]
 [ext_resource type="Resource" uid="uid://djhf1p03bo78d" path="res://resources/weapons/melee/machete.tres" id="12_i5s65"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_hc2b7"]
@@ -29,7 +29,7 @@ polygons = [PackedInt32Array(2, 1, 0), PackedInt32Array(0, 3, 2), PackedInt32Arr
 agent_radius = 1.0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5cao6"]
-albedo_texture = ExtResource("4_5cao6")
+albedo_texture = ExtResource("8_2rjyo")
 uv1_triplanar = true
 uv2_triplanar = true
 
@@ -53,7 +53,7 @@ data = PackedVector3Array(-5.147888, -3.0267944, 2.3208008, -5.147888, -3.026794
 
 [node name="machete" parent="." unique_id=747042647 instance=ExtResource("6_hn7ej")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.2911944, 1.5109104, -2.633137)
-collision_layer = 3
+collision_layer = 16
 item_descriptor = ExtResource("12_i5s65")
 
 [node name="bate" parent="." unique_id=1272183585 instance=ExtResource("6_hn7ej")]
@@ -78,16 +78,16 @@ shadow_caster_mask = 4294966783
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.209753, 0.79818475, -2.4651966)
 
 [node name="zombie" parent="." unique_id=495252481 instance=ExtResource("4_ppyta")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.64013565, 0.20921421, -2.1452744)
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 11.092147, 0.14002538, 2.23852)
 
-[node name="zombie2" parent="." unique_id=1271811869 instance=ExtResource("4_ppyta")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.7314705, 0.20921421, -2.1452744)
+[node name="zombie2" parent="." unique_id=898808481 instance=ExtResource("4_ppyta")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.2543035, 0.14002538, -2.1452744)
 
-[node name="zombie3" parent="." unique_id=948871590 instance=ExtResource("4_ppyta")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.8402061, 0.20921421, -2.1452744)
+[node name="zombie3" parent="." unique_id=1528392514 instance=ExtResource("4_ppyta")]
+transform = Transform3D(-0.8660254, 0, -0.50000006, 0, 1, 0, 0.50000006, 0, -0.8660254, 3.325004, 0.14002538, 8.811889)
 
-[node name="zombie4" parent="." unique_id=1452103045 instance=ExtResource("4_ppyta")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.966783, 0.20921421, -2.1452744)
+[node name="zombie4" parent="." unique_id=1435421835 instance=ExtResource("4_ppyta")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.410116, 0.14002538, -2.1452744)
 
 [node name="NavigationRegion3D" type="NavigationRegion3D" parent="." unique_id=1057889258]
 navigation_mesh = SubResource("NavigationMesh_vyfcd")

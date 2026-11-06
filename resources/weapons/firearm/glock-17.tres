@@ -17,6 +17,7 @@ viewmodel_model = ExtResource("4_0l6i6")
 damage = 9.0
 fire_rate = 0.133
 weapon_range = 300.0
+knockback = 60.0
 item_name = "Glock-17"
 weight = 2.0
 dimensions = Vector2i(2, 2)

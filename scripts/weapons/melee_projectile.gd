@@ -17,7 +17,7 @@ class_name MeleeProjectile extends Projectile
 const DRAW_DEBUG_RAYS := false
 
 var attacker : Node3D
-var knockback : float = 0.0
+
 var push_direction : Vector3 = Vector3.ZERO  # en mundo
 var swing_data_ref: SwingData
 
@@ -148,7 +148,7 @@ func _apply_hit_with_dir(collider: Object, hit_pos: Vector3, zombie: Zombie) -> 
 	if hitbox.is_in_group("zombie_head"):
 		zombie.set_meta("melee_hit_dir", push_direction.normalized() if push_direction.length_squared() > 0.0001 else (-get_viewport().get_camera_3d().global_basis.z))
 
-	zombie.health_component.hurt(dmg, {"who":hitbox,"attacker":_attacker(),"hit_pos":hit_pos,"impulse":push_direction,"force":knockback})
+	zombie.health_component.hurt(dmg, {"who":hitbox,"attacker":_attacker(),"hit_pos":hit_pos,"impulse":push_direction,"force":knockback,"swing":swing_data_ref.direction})
 
 
 func _damage_for(hitbox: Node) -> float:
@@ -157,6 +157,8 @@ func _damage_for(hitbox: Node) -> float:
 	if hitbox.is_in_group("zombie_head"):
 		return damage
 	return 0.1
+
+
 
 
 func _attacker() -> Node3D:

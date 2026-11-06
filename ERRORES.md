@@ -534,3 +534,62 @@ salida del flujo de objetivo perdido).
 **Lección:** al borrar un handler hay que buscar la conexión en los
 `.tscn` — `check_tscn_connections.py` la detecta, pero Godot no la
 menciona.
+
+---
+
+## E-017 — `const` con `Engine.physics_ticks_per_second` no compila en GDScript (2026-11-06)
+
+**Síntoma:** `tools/probe_turn.gd` no cargaba:
+
+```
+SCRIPT ERROR: Parse Error: Assigned value for constant "PHYSICS_DT" isn't a constant expression.
+ERROR: Failed to load script "res://tools/probe_turn.gd" with error "Parse error".
+```
+
+**Causa real:** `Engine.physics_ticks_per_second` es una propiedad de runtime,
+no una expresión constante; no se puede usar en el inicializador de un `const`.
+La sonda se escribió en la sesión anterior y **nunca llegó a ejecutarse**, así
+que el error quedó oculto.
+
+**Corrección:** `var _physics_dt : float = 0.0` y asignarlo en `_ready()`:
+
+```gdscript
+_physics_dt = 1.0 / float(Engine.physics_ticks_per_second)
+```
+
+`_physics_ticks()` ya usaba `Engine.physics_ticks_per_second` directamente;
+ese uso sí es válido (se evalúa en runtime).
+
+**Verificación:** `probe_turn` carga y da *RESULTADO: TODO OK* (14 aserciones).
+
+## E-018 — El RVO dejaba que dos zombis que andan en paralelo se solaparan (2026-11-06)
+
+**Síntoma:** `probe_avoidance` fallaba en el escenario C:
+
+```
+FALLA nunca se atraviesan (mín 0.39 >= 0.45 m)
+```
+
+La caja de colisión del zombi mide `0.507 × 0.458` (escena
+`zombie.tscn`), así que a 0.39 m de centros los cuerpos se atraviesan.
+
+**Causa real:** desde D-018 el zombi se mueve en la dirección de su frente. Dos
+zombis que van uno al lado del otro hacia el mismo objetivo ya no convergen:
+van en paralelo, y el RVO no ve una colisión inminente. El radio de evitación
+de la escena era `0.15`, así que el RVO consideraba correcta una separación de
+0.30 m (2 × radio), menor que el ancho real del cuerpo. `CharacterBody3D` contra
+`CharacterBody3D` **no resuelve la penetración** (`move_and_slide` solo desliza
+contra cuerpos que no se mueven), así que la superposición quedaba visible.
+En el control ciego (mask 0) el mínimo también era 0.39: no era un fallo del
+RVO, era un radio mal dimensionado.
+
+**Corrección:** `Nav.radius` de `0.15` a `0.3` en `scenes/zombies/zombie.tscn`
+(el RVO mantiene los centros a ≥ 0.6 m, por encima de los 0.507 m del cuerpo).
+
+**Verificación:** `probe_avoidance` → *RESULTADO: TODO OK* (12 aserciones);
+distancia mínima **0.62 m** y desvío del RVO **0.823 m/s** frente a **0.000**
+del control ciego. `probe_turn`, `probe_zombie`, `probe_melee` y
+`probe_hitdir` siguen verdes.
+
+**Lección:** `NavigationAgent3D.radius` es el círculo de evitación, no el radio
+de horneado del navmesh; tiene que cubrir el cuerpo del personaje.

@@ -14,13 +14,14 @@ const WORLD_MASK := 1
 
 var damage : float = 0
 var range: float = 100
-
+var knockback : float = 20.0
 var _ray_end : Vector3  # punto final del raycast (sirve cuando no choca)
 
 
-func set_projectile(proj_damage:float,proj_range:float) -> void:
+func set_projectile(proj_damage:float,proj_range:float,proj_knockback:float = 20.0) -> void:
 	damage = proj_damage
 	range = proj_range
+	knockback = proj_knockback
 	fire()
 
 
@@ -39,7 +40,7 @@ func _apply_hit(collider: Object, hit_pos: Vector3) -> void:
 	if hitbox == null or not (hitbox.owner is Zombie):
 		return
 	var zombie := hitbox.owner as Zombie
-	zombie.health_component.hurt(_damage_for(hitbox),{"who":hitbox,"attacker":_attacker(),"hit_pos":hit_pos})
+	zombie.health_component.hurt(_damage_for(hitbox),{"who":hitbox,"attacker":_attacker(),"hit_pos":hit_pos,"impulse":_attacker().global_position.direction_to(hit_pos),"force":knockback})
 
 
 ## TEMPORAL (igual que antes): solo la cabeza hace daño, el resto 0.
