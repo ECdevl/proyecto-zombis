@@ -593,3 +593,19 @@ del control ciego. `probe_turn`, `probe_zombie`, `probe_melee` y
 
 **Lección:** `NavigationAgent3D.radius` es el círculo de evitación, no el radio
 de horneado del navmesh; tiene que cubrir el cuerpo del personaje.
+
+## E-019 — `PhysicalBone3D` no tiene `get_bone_name()` (2026-11-06)
+
+**Síntoma:** la sonda `tools/probe_ragdoll_behavior.gd` abortaba con
+`Invalid call. Nonexistent function 'get_bone_name' in base 'PhysicalBone3D'`
+al intentar imprimir el nombre del hueso de un joint.
+
+**Causa:** `get_bone_name()` no existe en `PhysicalBone3D` (Godot 4.7). El
+nombre del hueso vive en el `Skeleton3D`.
+
+**Corrección:** obtener el id con `PhysicalBone3D.get_bone_id()` y el nombre
+con `Skeleton3D.get_bone_name(id)`. La sonda guarda la referencia al
+`Skeleton3D` en `_collect_bones()` y usa ese par de métodos.
+
+**Verificación:** `probe_ragdoll_behavior` → *RESULTADO: TODO OK* (20 huesos,
+19 joints; sin NaN, estable a 0.12 m/s).

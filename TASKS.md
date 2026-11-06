@@ -70,8 +70,8 @@
   **Pendiente de validación en el editor:** abrir el proyecto con Godot 4.7.2 para
   forzar la reimportación de los assets movidos y confirmar que no hay errores.
 
-- [ ] **T-011 Rework de ragdoll en curso (sin commitear, detectado 2026-11-04)**
-      Trabajo sin commitear que no estaba documentado acá ni en `DECISIONES.md`:
+- [ ] **T-011 Rework de ragdoll (2026-11-04; constraints 2026-11-06, D-019)**
+      Trabajo que no estaba documentado acá ni en `DECISIONES.md`:
       addon `ragdoll_wizard` nuevo (+ `project.godot`), `ragdoll_generator`
       borrado, huesos físicos movidos de `zombie.tscn` a la nueva
       `scenes/zombies/zombie_ragdoll_skelly.tscn`, `MujerZombiConRig.glb`,
@@ -83,6 +83,18 @@
   - [x] Restaurar `simulator`/`pelvis` en `RagdollComponent` — el rework movió
         los huesos y no actualizó los `NodePath`; el ragdoll no arrancaba
         (E-014).
+  - [x] Quitar `Physical Bone root` (cuerpo libre de 0.875 m sin joint) de la
+        escena base y de los overrides de `zombie.tscn` /
+        `ragdoll_testing.tscn`; el pelvis queda como raíz libre.
+  - [x] Repartir masa por segmento (total ≈70 kg), damping 0, bounce 0,
+        friction 0.8/1.0 y límites anatómicos verificados contra los ejes
+        reales y la convención de signo de Jolt (D-019).
+  - [x] Sondas nuevas `probe_ragdoll_axes`, `probe_6dof_sign` y
+        `probe_ragdoll_behavior`; esta última da *TODO OK* (estable, sin
+        NaN ni joints separados).
+  - [ ] Validación visual en el editor con `ragdoll_testing.tscn` /
+        `RagdollDebug`: afinar hombros, caderas y pies si algún ángulo se ve
+        antinatural.
   - [ ] Afinar `knockback`: `bate.tres` =500 da≈60 m/s de pelvis (¿excesivo?);
         probar en juego. Machete/cuchillo quedan en20 (default de
         `EquippableDescriptor`).
@@ -91,8 +103,6 @@
         (`CreateButton`/`ClearSlotsButton`/`CopyBoneNameButton`) + la
         preexistente T-008. **Se mantiene en 4 tras el rework de zombis**
         (E-016: se restauró `_on_nav_target_reached()`).
-  - [ ] Decidir cómo commitear: el fix de E-014 vive dentro de `zombie.tscn`,
-        que además contiene todo el rework.
 
 - [x] **T-012 Rework de `scripts/zombie/`: modularidad + evitación mutua**
       (2026-11-04, D-014 / D-015 / E-015 / E-016)

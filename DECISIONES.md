@@ -625,3 +625,74 @@ lento o más rápido.
 `probe_zombie` (7), `probe_melee` (14) y `probe_hitdir` (9) → *TODO OK*.
 `check_tscn_connections.py` → 3 rotas, todas del addon `ragdoll_wizard`
 (T-008 ya no aparece). Pendiente probar en el juego: T-015.
+
+## D-019 — Ragdoll: cuerpo raíz único, masas humanas y límites anatómicos verificados contra los ejes reales (2026-11-06)
+
+**Contexto:** el ragdoll se veía como "un saco de papas" y con extremidades
+erráticas. El análisis encontró cinco causas concretas en
+`zombie_ragdoll_skelly.tscn` / `zombie.tscn`:
+
+1. `Physical Bone root` era un cuerpo libre (`joint_type = 0`) con una
+   cápsula de 0.875 m, sin joint y sin que nada lo referenciara. Caía y
+   colisionaba por su cuenta.
+2. Masas absurdas: pelvis 33 kg contra 1 kg en todos los demás huesos
+   (total ≈53 kg, casi todo en una cápsula de 0.13 m).
+3. Codos, manos, pulgares y cuello tenían los tres ejes 6DOF en 0: joints
+   rígidos.
+4. Damping incoherente: pelvis/columna a 0 y brazos/piernas a 22–55.
+5. Límites asimétricos o ejes bloqueados (`spine` solo extensión, hombros
+   con un solo sentido, rodillas con `-165°` de flexión).
+
+**Decisión:**
+
+1. **Eliminar `Physical Bone root`** de la escena base y sus overrides en
+   `zombie.tscn` y `ragdoll_testing.tscn`. Sin `body_a`,
+   `PhysicalBone3D::_reload_joint()` hace `joint_clear`; el `pelvis` queda
+   como único cuerpo raíz libre del ragdoll. Su `joint_type = 2` (cono)
+   queda sin uso.
+2. **Repartir la masa por segmento** (total ≈70 kg): pelvis 8, spine 8,
+   chest 14, neck 5 (incluye la cabeza), hombros 1.5, brazos 2.5,
+   antebrazos 1.5, manos 0.4, pulgares 0.1, muslos 7, pantorrillas 3.5,
+   pies 1.0.
+3. **Límites anatómicos en grados Godot.** La convención importa: el
+   wrapper de Jolt invierte el signo (`angulo_godot = -angulo_dextrógiro`
+   alrededor del eje local; ver `jolt_generic_6dof_joint_3d.cpp`). Los ejes
+   se midieron con `tools/probe_ragdoll_axes.gd` y la convención se
+   comprobó con `tools/probe_6dof_sign.gd`. Resultado:
+
+   | Hueso | X | Y | Z |
+   |---|---|---|---|
+   | spine | -45..25 | -20..20 | -30..30 |
+   | chest | -30..20 | -20..20 | -35..35 |
+   | neck | -30..30 | -25..25 | -30..30 |
+   | shoulder L/R | -20..20 | -25..25 | -20..20 |
+   | upper_arm L/R | -110..45 | -75..75 | -60..60 |
+   | forearm L/R | -130..5 | -3..3 | -3..3 |
+   | hand L/R | -60..60 | -20..20 | -40..40 |
+   | thumb L/R | -10..10 | -10..10 | -10..10 |
+   | thigh L/R | -20..110 | -30..30 | -20..20 |
+   | shin L/R | -140..0 | -5..5 | -5..5 |
+
+   `pelvis` y `foot L/R` usan conos: pelvis swing 45 / twist 30 (sin uso al
+   ser raíz) y pies swing 35 / twist 20 (antes twist 180, casi libre).
+4. **Damping y materiales homogéneos:** `linear_damp = 0`,
+   `angular_damp = 0` en todos; `bounce = 0`; `friction = 0.8` (pies 1.0);
+   `linear_restitution = 0`. El damping del joint (`angular_damping = 1`)
+   queda como única disipación angular.
+5. **Herramientas:** `tools/probe_ragdoll_axes.gd` (ejes del miembro en el
+   frame del joint), `tools/probe_6dof_sign.gd` (signo de los límites),
+   `tools/probe_ragdoll_behavior.gd` (estabilidad numérica) y el visor
+   `scripts/debug/ragdoll_debug.gd` para tunear en vivo.
+
+**Consecuencia:** el ragdoll ya no tiene un cuerpo fantasma ni inercia
+desbalanceada; los límites permiten flexión/extensión realista y el twist
+queda acotado. Sigue pendiente la validación visual en el editor para
+afinar ángulos (sobre todo hombros y caderas) y el knockback del bate
+(T-011).
+
+**Verificación:** `probe_ragdoll_behavior` → *TODO OK* (20 huesos, 19
+joints; velocidad final 0.12 m/s, estiramiento máximo 0.273 m durante el
+impacto y 0.102 m al reposo, sin NaN, sin atravesar el piso);
+`probe_zombie` → *TODO OK*; `ragdoll_testing.tscn` 300 frames headless sin
+errores de script; `check_tscn_connections.py` → solo las 3 conexiones
+rotas preexistentes del addon `ragdoll_wizard`.

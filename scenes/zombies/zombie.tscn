@@ -479,152 +479,97 @@ secondary_damp_threshold = 1.0
 
 [node name="PhysicalBoneSimulator3D" parent="ZombiConRig/rig/Skeleton3D" index="2" unique_id=2043820654 instance=ExtResource("4_a1fd2")]
 
-[node name="Physical Bone root" parent="ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" index="0" unique_id=778448533]
-transform = Transform3D(-1, 1.0885791e-07, 9.805431e-09, 2.4498092e-09, 0.112013295, -0.99370676, -1.0927117e-07, -0.99370676, -0.112013295, 9.964977e-06, 0.44222566, -0.09698084)
-joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.960669e-06, 6.5118074e-06, 0.43767318)
-body_offset = Transform3D(-1, 7.598736e-09, -6.210989e-08, -6.3948846e-14, 0.99259907, 0.12143879, 6.257297e-08, 0.12143878, -0.992599, 9.9878525e-06, -0.05315697, 0.4344332)
-
-[node name="Physical Bone pelvis" parent="ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" index="1" unique_id=349718241]
+[node name="Physical Bone pelvis" parent="ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" index="0" unique_id=349718241]
 transform = Transform3D(1, 2.984828e-08, -7.069516e-07, -6.7711727e-07, -0.24963996, -0.9683388, -2.053866e-07, 0.9683387, -0.24963997, 2.6345078e-06, 0.9120816, -0.03147312)
 joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.588606e-06, 5.402261e-07, 0.06599961)
 body_offset = Transform3D(1, 1.341564e-07, -7.0695154e-07, -7.069516e-07, -2.3841858e-07, -1.0000002, -1.341566e-07, 1.0000002, -2.8312206e-07, 2.6352645e-06, 0.06599963, -5.2154064e-07)
-mass = 33.0
 
-[node name="Physical Bone spine" parent="ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" index="2" unique_id=1261679756]
+[node name="Physical Bone spine" parent="ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" index="1" unique_id=1261679756]
 transform = Transform3D(1, -2.0465372e-05, -3.106771e-05, -3.4847762e-05, -0.22289592, -0.97484225, 1.3025645e-05, 0.97484225, -0.22289592, -1.6788283e-05, 1.0754352, 0.0077330284)
 joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.995003e-05, 1.4081932e-05, 0.10178375)
 body_offset = Transform3D(1, -2.2506356e-07, -3.4243556e-05, -3.424376e-05, -0.0009675175, -0.9999998, 1.9193976e-07, 0.9999998, -0.0009675622, -1.646459e-05, 0.10178375, 8.440018e-05)
-linear_damp_mode = 0
-linear_damp = 0.0
-angular_damp_mode = 0
-angular_damp = 0.0
-joint_constraints/x/angular_limit_upper = 90.0
-joint_constraints/x/angular_limit_lower = 0.0
 
-[node name="Physical Bone chest" parent="ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" index="3" unique_id=620983971]
+[node name="Physical Bone chest" parent="ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" index="2" unique_id=620983971]
 transform = Transform3D(1, 1.9482146e-05, -4.119961e-05, -2.6311855e-05, -0.4913242, -0.8709768, -3.7210863e-05, 0.87097675, -0.49132422, 0.000108570006, 1.2955241, 0.0995004)
 joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00010329679, 0.00027603656, 0.14340347)
 body_offset = Transform3D(1, -2.913339e-07, -4.151874e-05, -4.15193e-05, -0.002287954, -0.99999774, 1.963308e-07, 0.9999977, -0.002287954, 0.0001092508, 0.14340377, 5.2064657e-05)
-linear_damp_mode = 0
-linear_damp = 0.0
-angular_damp_mode = 0
-angular_damp = 0.0
 
-[node name="Physical Bone neck" parent="ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" index="4" unique_id=1318872044]
+[node name="Physical Bone neck" parent="ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" index="3" unique_id=1318872044]
 transform = Transform3D(1, -5.5155575e-05, 5.173056e-05, -2.3987006e-05, -0.88013744, -0.474719, 7.17134e-05, 0.474719, -0.88013744, 0.00017646674, 1.4323632, 0.19533421)
 visible = false
 joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00017881265, 8.363971e-05, 0.031273276)
 body_offset = Transform3D(1, -3.3880864e-05, -2.5763802e-06, -2.562745e-06, 0.00040191412, -1.0000001, 3.3881923e-05, 1.0000001, 0.00040188432, 0.00017889607, 0.031273246, -9.62019e-05)
-angular_damp_mode = 1
 
-[node name="Physical Bone shoulder_left" parent="ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" index="5" unique_id=787026885]
+[node name="Physical Bone shoulder_left" parent="ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" index="4" unique_id=787026885]
 transform = Transform3D(0.11627951, 0.19989254, -0.9728937, -0.52962464, 0.8411321, 0.10952021, 0.8402243, 0.5025335, 0.20367442, 0.10673025, 1.3729774, 0.12749583)
 joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00014178111, -0.0005916463, 0.10956615)
 body_offset = Transform3D(0.99999905, 0.001473546, 0.00063720345, 0.00063574314, 0.0009935498, -0.9999996, -0.0014741123, 0.9999989, 0.000992626, 7.2836876e-05, 0.10956678, 0.0004826784)
-joint_constraints/x/angular_limit_lower = -66.0
 
-[node name="Physical Bone upper_arm_left" parent="ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" index="6" unique_id=1806527756]
+[node name="Physical Bone upper_arm_left" parent="ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" index="5" unique_id=1806527756]
 transform = Transform3D(-0.313019, -0.9335883, -0.17444782, -0.07999955, -0.15710767, 0.98433596, -0.9463717, 0.32207158, -0.025508959, 0.22806592, 1.2349042, 0.1098479)
 joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.0792663e-05, 4.95751e-07, 0.12862831)
 body_offset = Transform3D(1, 0.00090554357, 3.825873e-05, 3.8204715e-05, 0.00013032276, -1.0000005, -0.00090551376, 0.9999999, 0.00013022032, 5.8710575e-06, 0.12862837, -1.7255545e-05)
 
-[node name="Physical Bone forearm_left" parent="ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" index="7" unique_id=1499607631]
+[node name="Physical Bone forearm_left" parent="ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" index="6" unique_id=1499607631]
 transform = Transform3D(-0.2448949, -0.95608765, 0.16100629, -0.091072954, 0.18801309, 0.977935, -0.96526283, 0.22482798, -0.13311718, 0.22794493, 0.9757407, 0.13137127)
 joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.784731e-05, 0.00015880467, 0.13805042)
 body_offset = Transform3D(1.0000002, 0.00078989565, -0.0003259182, -0.00032614172, 0.00037895702, -1.0000006, -0.00078976154, 1, 0.00037932955, 9.2715025e-05, 0.13805044, -0.00021120906)
-angular_damp_mode = 1
-angular_damp = 33.0
 
-[node name="Physical Bone hand_left" parent="ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" index="8" unique_id=2002939894]
+[node name="Physical Bone hand_left" parent="ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" index="7" unique_id=2002939894]
 transform = Transform3D(-0.60454965, -0.79620814, 0.023923075, -0.15720944, 0.14870124, 0.9763059, -0.7809002, 0.5864644, -0.21506871, 0.20877439, 0.809757, 0.1568929)
 joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0021967432, 0.0030073405, 0.03395321)
 body_offset = Transform3D(1.0000001, -0.0008266568, -0.000431031, -0.00043031573, 0.00076039135, -1.0000002, 0.00082692504, 0.99999964, 0.00076010823, -0.0021796227, 0.03395188, -0.0030349642)
-angular_damp_mode = 1
 
-[node name="Physical Bone thumb_01_L" parent="ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" index="9" unique_id=1763796427]
+[node name="Physical Bone thumb_01_L" parent="ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" index="8" unique_id=1763796427]
 transform = Transform3D(0.2194509, 0.6234894, 0.7504014, -0.06816584, -0.7574722, 0.6492991, 0.97323936, -0.193641, -0.12372728, 0.15671006, 0.7981027, 0.17009848)
 joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00075430225, -0.0020126165, 0.016219115)
 body_offset = Transform3D(1.0000002, 0.0008125901, 0.00030238926, 0.00030270964, -0.0004924219, -1.0000007, -0.0008123368, 0.99999994, -0.00049311854, 0.0007510334, 0.016218364, 0.0020200014)
-angular_damp_mode = 1
 
-[node name="Physical Bone shoulder_right" parent="ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" index="10" unique_id=1919303944]
+[node name="Physical Bone shoulder_right" parent="ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" index="9" unique_id=1919303944]
 transform = Transform3D(0.11665278, -0.19937675, 0.9729548, 0.5283767, 0.8419603, 0.10918357, -0.840958, 0.50135005, 0.20356302, -0.10228569, 1.3728702, 0.12763825)
 joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00019115231, 0.00035216316, 0.10522326)
 body_offset = Transform3D(1.0000001, 2.6792288e-05, -0.000752911, -0.00075285137, 0.0006421581, -0.9999997, -2.6494265e-05, 1.0000001, 0.00064213574, 0.00027036667, 0.105222866, -0.0004197359)
-joint_constraints/x/angular_limit_lower = -66.0
 
-[node name="Physical Bone upper_arm_right" parent="ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" index="11" unique_id=908978708]
+[node name="Physical Bone upper_arm_right" parent="ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" index="10" unique_id=908978708]
 transform = Transform3D(-0.3062188, 0.94722176, 0.09487365, 0.009114787, -0.096739314, 0.99526805, 0.9519175, 0.30563456, 0.020989673, -0.21744058, 1.2335199, 0.107562765)
 joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0033809957, -0.0014962828, 0.12848815)
 body_offset = Transform3D(1.0000001, -0.00038209558, -0.00015987642, -0.00015954301, 0.00048268167, -0.9999998, 0.000382334, 1, 0.00048251497, 0.0034009665, 0.1284883, 0.0014355779)
 
-[node name="Physical Bone forearm_right" parent="ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" index="12" unique_id=96763122]
+[node name="Physical Bone forearm_right" parent="ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" index="11" unique_id=96763122]
 transform = Transform3D(-0.23522185, 0.9583832, -0.1617788, 0.034406655, 0.1745554, 0.9840461, 0.97133255, 0.22590286, -0.074034, -0.20714097, 0.9721786, 0.112984836)
 joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0014399096, -0.0005399722, 0.1381533)
 body_offset = Transform3D(1.0000001, 0.00028185546, -2.1256506e-05, -2.1085143e-05, 8.526631e-05, -1, -0.00028178096, 1.0000002, 8.512288e-05, 0.0014429986, 0.13815331, 0.0005278066)
-angular_damp_mode = 1
-angular_damp = 33.0
 
-[node name="Physical Bone hand_right" parent="ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" index="13" unique_id=234755791]
+[node name="Physical Bone hand_right" parent="ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" index="12" unique_id=234755791]
 transform = Transform3D(-0.6003071, 0.79976964, 0.0001773183, 0.17363517, 0.13011415, 0.9761768, 0.7806934, 0.5860367, -0.21697655, -0.18517207, 0.7979153, 0.13048872)
 joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00014302204, -0.00011758327, 0.041580938)
 body_offset = Transform3D(0.9999995, 0.00061941147, -0.00095796585, -0.0009574145, -0.0006374866, -0.99999934, -0.0006201565, 0.9999999, -0.00063705444, -0.000103116035, 0.041580975, 0.00014416128)
-angular_damp_mode = 1
 
-[node name="Physical Bone thumb_01_R" parent="ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" index="14" unique_id=1466446043]
+[node name="Physical Bone thumb_01_R" parent="ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" index="13" unique_id=1466446043]
 transform = Transform3D(0.22132519, -0.642098, -0.73397917, 0.06278572, -0.74170095, 0.66778564, -0.9731768, -0.19388121, -0.12384252, -0.13397108, 0.79235685, 0.14194386)
 joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.3683762e-05, 0.000106364605, 0.018706338)
 body_offset = Transform3D(1.0000002, -0.0005838722, -0.00023382157, -0.00023412704, -0.0004314799, -1, 0.0005836785, 0.9999999, -0.00043132715, 1.8119812e-05, 0.018706381, -9.828806e-05)
-angular_damp_mode = 1
 
-[node name="Physical Bone thigh_left" parent="ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" index="15" unique_id=1462795331]
+[node name="Physical Bone thigh_left" parent="ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" index="14" unique_id=1462795331]
 transform = Transform3D(0.8793133, -0.4227625, -0.21927159, 0.0423989, -0.38909835, 0.92022, -0.47435275, -0.81845856, -0.32421464, 0.13650846, 0.6865117, 0.039664816)
 visible = true
 joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.131558e-06, 2.5537833e-05, 0.23430479)
 body_offset = Transform3D(0.9999987, -1.2040138e-05, -5.0216913e-06, -5.0514936e-06, -6.377697e-06, -1, 1.2099743e-05, 0.9999964, -6.3478947e-06, -4.954636e-06, 0.23430479, -2.4050474e-05)
-angular_damp_mode = 1
-joint_constraints/x/angular_limit_upper = 90.0
-joint_constraints/x/angular_limit_lower = -90.0
-joint_constraints/y/angular_limit_upper = 3.0
-joint_constraints/y/angular_limit_lower = -3.0
-joint_constraints/z/angular_limit_upper = 3.0
-joint_constraints/z/angular_limit_lower = -3.0
 
-[node name="Physical Bone shin_L" parent="ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" index="16" unique_id=512205986]
+[node name="Physical Bone shin_L" parent="ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" index="15" unique_id=512205986]
 transform = Transform3D(0.9936202, -0.1099746, 0.02498923, -0.019790152, 0.0481156, 0.9986457, -0.11102803, -0.9927691, 0.045632217, 0.18308306, 0.27945802, 0.10684088)
 joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.07082515e-05, 4.8332226e-06, 0.19175512)
 body_offset = Transform3D(0.99999636, -8.709729e-06, -4.1816384e-07, 7.036142e-07, 3.485754e-05, -0.9999965, 9.782612e-06, 1.0000018, 3.7584454e-05, 1.0788441e-05, 0.19175446, -1.2040138e-05)
-joint_constraints/x/angular_limit_lower = -90.0
-joint_constraints/x/angular_restitution = 0.01
-joint_constraints/y/angular_limit_upper = 34.999996
-joint_constraints/y/angular_limit_lower = -34.999996
 
-[node name="Physical Bone thigh_right" parent="ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" index="17" unique_id=1891352746]
+[node name="Physical Bone thigh_right" parent="ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" index="16" unique_id=1891352746]
 transform = Transform3D(0.8793506, 0.42265916, 0.21932125, -0.04248287, -0.38911703, 0.9202082, 0.47427607, -0.818503, -0.32421452, -0.13648821, 0.68654984, 0.03959885)
 joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.4012247e-06, -2.8160699e-05, 0.23424388)
 body_offset = Transform3D(1.000004, -9.930134e-05, 4.9322844e-05, 4.929304e-05, 1.9133091e-05, -0.9999976, 9.924173e-05, 0.9999949, 1.9073486e-05, -1.0155141e-05, 0.23424333, 2.3692846e-05)
-angular_damp_mode = 1
-joint_constraints/x/angular_limit_upper = 90.0
-joint_constraints/x/angular_limit_lower = -90.0
-joint_constraints/y/angular_limit_upper = 3.0
-joint_constraints/y/angular_limit_lower = -3.0
-joint_constraints/z/angular_limit_upper = 3.0
-joint_constraints/z/angular_limit_lower = -3.0
 
-[node name="Physical Bone shin_R" parent="ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" index="18" unique_id=884494848]
+[node name="Physical Bone shin_R" parent="ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" index="17" unique_id=884494848]
 transform = Transform3D(0.99362165, 0.10996105, -0.024991663, 0.019790374, 0.04814106, 0.9986445, 0.11101511, -0.9927694, 0.045657825, -0.18307011, 0.2794365, 0.10682711)
 joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.6067703e-07, -4.759543e-06, 0.19177663)
 body_offset = Transform3D(1.0000007, -6.5490603e-06, 3.0407682e-07, -9.313226e-10, 9.074807e-06, -0.99999475, 5.2154064e-07, 1.0000008, 1.1220574e-05, 4.0233135e-07, 0.19177562, 2.6077032e-06)
-joint_constraints/x/angular_limit_lower = -90.0
-joint_constraints/x/angular_restitution = 0.01
-joint_constraints/y/angular_limit_upper = 34.999996
-joint_constraints/y/angular_limit_lower = -34.999996
-
-[node name="foot_right" parent="ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" index="19" unique_id=1264203940]
-friction = 0.5
-
-[node name="foot_left" parent="ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D" index="20" unique_id=1280593689]
-friction = 0.5
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1878822890]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.018615723, 0.7982483, -0.11633301)
