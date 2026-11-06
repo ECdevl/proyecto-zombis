@@ -105,6 +105,10 @@ var _impulse_label: Label
 var _axis_buttons: Array[Button] = []
 var _sign_label: Label
 
+# Per-bone simulation selector.
+var _bone_checks: Dictionary = {}  # PhysicalBone3D -> CheckBox
+var _simulating: bool = false
+
 
 func _ready() -> void:
 	# Keep drawing and listening to the panel while the tree is paused.
@@ -492,6 +496,8 @@ func _build_ui() -> void:
 	_info_label.add_theme_font_size_override("font_size", 13)
 	column.add_child(_info_label)
 
+	column.add_child(_build_simulation_selector())
+
 	_rows_root = VBoxContainer.new()
 	_rows_root.add_theme_constant_override("separation", 4)
 	column.add_child(_rows_root)
@@ -510,6 +516,85 @@ func _build_ui() -> void:
 	_status_label.modulate = Color(0.8, 0.8, 0.8)
 	_status_label.text = "Cámara: clic derecho + mover; W/A/S/D; rueda; Q/E; Shift = rápido."
 	column.add_child(_status_label)
+
+
+func _build_simulation_selector() -> VBoxContainer:
+	var box: VBoxContainer = VBoxContainer.new()
+	box.add_theme_constant_override("separation", 4)
+
+	var title: Label = Label.new()
+	title.text = "Huesos en la simulación (marca solo los que quieras simular)"
+	title.add_theme_font_size_override("font_size", 13)
+	box.add_child(title)
+
+	var buttons: HBoxContainer = HBoxContainer.new()
+	var all_button: Button = Button.new()
+	all_button.text = "Todos"
+	all_button.pressed.connect(_on_select_all)
+	buttons.add_child(all_button)
+	var none_button: Button = Button.new()
+	none_button.text = "Ninguno"
+	none_button.pressed.connect(_on_select_none)
+	buttons.add_child(none_button)
+	var restart_button: Button = Button.new()
+	restart_button.text = "Reiniciar simulación"
+	restart_button.pressed.connect(_on_restart_simulation)
+	buttons.add_child(restart_button)
+	box.add_child(buttons)
+
+	var grid: GridContainer = GridContainer.new()
+	grid.columns = 4
+	grid.add_theme_constant_override("h_separation", 10)
+	grid.add_theme_constant_override("v_separation", 2)
+	for bone in bones:
+		var check: CheckBox = CheckBox.new()
+		check.text = bone.bone_name
+		check.button_pressed = true
+		check.add_theme_font_size_override("font_size", 12)
+		grid.add_child(check)
+		_bone_checks[bone] = check
+	box.add_child(grid)
+	return box
+
+
+func _on_select_all() -> void:
+	_set_all_bones(true)
+
+
+func _on_select_none() -> void:
+	_set_all_bones(false)
+
+
+func _set_all_bones(enabled: bool) -> void:
+	for check in _bone_checks.values():
+		(check as CheckBox).button_pressed = enabled
+
+
+func _enabled_bone_names() -> Array[StringName]:
+	var names: Array[StringName] = []
+	for bone in bones:
+		var check: CheckBox = _bone_checks.get(bone) as CheckBox
+		if check != null and check.button_pressed:
+			names.append(bone.bone_name)
+	return names
+
+
+func _on_restart_simulation() -> void:
+	var names: Array[StringName] = _enabled_bone_names()
+	if names.is_empty():
+		simulator.physical_bones_stop_simulation()
+		_simulating = false
+		if ragdoll_component != null:
+			ragdoll_component.is_ragdoll = false
+		_status_label.text = "Ningún hueso marcado: simulación detenida."
+		return
+	simulator.physical_bones_stop_simulation()
+	simulator.physical_bones_start_simulation(names)
+	_simulating = true
+	if ragdoll_component != null:
+		ragdoll_component.is_ragdoll = true
+		ragdoll_component.permanent = true
+	_status_label.text = "Simulando %d hueso(s): %s" % [names.size(), ", ".join(names)]
 
 
 func _build_force_row() -> VBoxContainer:

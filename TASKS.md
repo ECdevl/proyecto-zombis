@@ -99,6 +99,13 @@
   - [x] `ragdoll_debug.gd`: cámara libre estilo editor (clic derecho + WASD +
         rueda, funciona en pausa) e impulso dirigido al hueso seleccionado
         (eje/signo/magnitud) para ver el tope de los constraints (D-020).
+  - [x] `ragdoll_debug.gd`: selector de huesos en la simulación (casillas por
+        hueso + Todos/Ninguno/Reiniciar) que llama
+        `physical_bones_start_simulation(names)` (D-021).
+  - [x] Subir el damping del cuerpo a `angular_damp` 0.90 / `linear_damp` 0.12,
+        torso 1.10 / 0.14, y apretar hombros (x ±12, y ±15, z ±12) y manos
+        (x ±45, y ±15, z ±30) y `spine` x lower −25 (D-021) → *probe TODO OK*
+        (estiramiento máximo 0.251, antes 0.255).
   - [ ] Validación visual en el editor con `ragdoll_testing.tscn` /
         `RagdollDebug`: afinar hombros, caderas y pies si algún ángulo se ve
         antinatural; ajustar `linear_damp`/`angular_damp` con el panel si

@@ -745,3 +745,47 @@ grande es la cámara libre y el impulso por hueso para afinar en vivo.
 `ragdoll_testing.tscn` headless sin errores de script. La validación visual y
 el ajuste fino de `linear_damp`/`angular_damp` quedan para el usuario con el
 panel `RagdollDebug` (T-011).
+
+---
+
+## D-021 — Flacidez del ragdoll: subir el damping del cuerpo y apretar límites (los limit springs de Jolt no son accesibles) (2026-11-06)
+
+**Contexto:** tras D-020 la flacidez restante ("saco de papas") seguía visible.
+El usuario eligió en su momento "las dos juntas": damping moderado + limit
+springs suaves.
+
+**Hallazgo que bloqueó parte del plan:** los *limit springs* del joint 6DOF de
+Jolt **no son accesibles desde GDScript**. En `modules/jolt_physics/` (rama
+4.7-stable), `JoltPhysicsServer3D` es una clase interna de C++ con
+`_bind_methods() {}` **vacío**: sus métodos `generic_6dof_joint_set_jolt_param`
+/ `..._set_jolt_flag` (enum `G6DOFJointAxisParamJolt` /
+`G6DOFJointAxisFlagJolt`, p. ej. `G6DOF_JOINT_LINEAR_LIMIT_SPRING_FREQUENCY`,
+`G6DOF_JOINT_FLAG_ENABLE_LINEAR_LIMIT_SPRING`) **no están expuestos a
+scripting**. El enum base `PhysicsServer3D.G6DOFJointAxisParam` solo trae los
+parámetros que Jolt descarta (softness/restitution/damping/erp). Tampoco existe
+propiedad de nodo `PhysicalBone3D` para ellos (`grep limit_spring` en la escena
+base → 0 resultados). Solo una GDExtension/C++ los expondría.
+
+**Decisión (alternativa elegida por el usuario): "más damping + límites".**
+
+1. **Subir el damping del cuerpo** (`DAMP_MODE_REPLACE`) en los 20 huesos de
+   `zombie_ragdoll_skelly.tscn`: `angular_damp = 0.90` / `linear_damp = 0.12`;
+   torso (`pelvis`, `spine`, `chest`) `angular_damp = 1.10` / `linear_damp =
+   0.14`. (Antes: 0.55/0.08 y torso 0.70/0.10.)
+2. **Apretar límites angulares** donde se veían flojos:
+   `shoulder_left`/`shoulder_right` x[-12,12] y[-15,15] z[-12,12];
+   `hand_left`/`hand_right` x[-45,45] y[-15,15] z[-30,30]; `spine` x[-25,25]
+   (antes −45).
+3. **`ragdoll_debug.gd`: selector de huesos en la simulación.** Casillas por
+   hueso (marcadas por defecto) + botones Todos / Ninguno / Reiniciar
+   simulación; usa `PhysicalBoneSimulator3D.physical_bones_start_simulation(
+   names: Array[StringName])` para simular solo los marcados y
+   `physical_bones_stop_simulation()` para reiniciar. Sirve para aislar un
+   hueso y ver hasta dónde llega su constraint.
+
+**Consecuencia / verificación:** `probe_ragdoll_behavior` → *TODO OK*
+(pelvis final `(0.131, 0.037, 0.283)`, velocidad final 0.177 m/s,
+estiramiento final 0.049, estiramiento máximo histórico **0.251**, antes 0.255;
+sin NaN, pelvis en rango, ningún hueso bajo el piso). `ragdoll_debug.gd`
+compila limpio (`--check-only`) y `ragdoll_testing.tscn` corre headless sin
+errores de script. Falta la validación visual del usuario con el panel.

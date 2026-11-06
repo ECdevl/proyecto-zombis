@@ -637,3 +637,30 @@ cerrar los ángulos, no la *softness*.
 **Verificación:** `probe_ragdoll_behavior` → *TODO OK* (estiramiento al reposo
 0.044 m, antes 0.102; velocidad final 0.088 m/s, antes 0.121). Los parámetros
 inertes del joint se dejaron como estaban.
+
+---
+
+## E-021 — Los limit springs del joint 6DOF de Jolt no se pueden activar desde GDScript (2026-11-06)
+
+**Síntoma:** se quería "endurecer el tope" del ragdoll con los *limit springs*
+del joint 6DOF (frecuencia + damping del límite), siguiendo el plan de "damping
++ limit springs". No había forma de activarlos ni desde el `.tscn` ni desde
+GDScript.
+
+**Causa real:** en `modules/jolt_physics/` (rama 4.7-stable) los limit springs
+viven en `JoltGeneric6DOFJoint3D::limit_spring_enabled/frequency/damping` y se
+ajustan desde `JoltPhysicsServer3D.generic_6dof_joint_set_jolt_param/_jolt_flag`
+(enum `G6DOFJointAxisParamJolt` / `G6DOFJointAxisFlagJolt`). Pero
+`JoltPhysicsServer3D` es una clase **interna de C++** con `_bind_methods() {}`
+vacío: esos métodos y enums **no están expuestos a scripting**. El enum base
+`PhysicsServer3D.G6DOFJointAxisParam` solo contiene los parámetros que Jolt
+descarta. Tampoco existe una propiedad `PhysicalBone3D` con ese nombre (se
+comprobó con `grep limit_spring` en `zombie_ragdoll_skelly.tscn` → 0).
+
+**Corrección:** no intentar usar limit springs desde GDScript. Disipar y
+endurecer con las palancas disponibles: damping del **cuerpo** (D-020/D-021) y
+cerrar los límites angulares. Si en el futuro se necesitan limit springs, hay
+que exponerlos vía GDExtension.
+
+**Verificación:** documentado en D-021; el ragdoll se afinó con damping y
+límites (`probe_ragdoll_behavior` → *TODO OK*).
