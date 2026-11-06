@@ -13,6 +13,28 @@ extends Node3D
 ## Changes are applied straight to the PhysicsServer3D joint, so they are
 ## visible immediately; use "Copiar valores" to paste them into the .tscn.
 ##
+## Free camera (editor style, works while the tree is paused):
+##   * Right mouse button held -> look around (yaw/pitch).
+##   * Wheel -> move forward/backward.
+##   * W/A/S/D -> move horizontally, Q/E -> down/up.
+##   * Shift -> faster.
+##
+## Bone forces: the panel applies a central impulse to the selected bone so you
+## can watch how far its constraints let it travel. The axis is picked with the
+## X/Y/Z buttons and the sign with +/-.
+##
+## Fuente verificada: `modules/jolt_physics/joints/jolt_generic_6dof_joint_3d.cpp`
+## (rama 4.7-stable). En Jolt, PARA UN JOINT 6DOF ESTOS PARÁMETROS SE IGNORAN
+## con un WARN_PRINT (el valor se descarta):
+##   G6DOF_JOINT_LINEAR_LIMIT_SOFTNESS, LINEAR_RESTITUTION, LINEAR_DAMPING,
+##   ANGULAR_LIMIT_SOFTNESS, ANGULAR_DAMPING, ANGULAR_RESTITUTION,
+##   ANGULAR_FORCE_LIMIT, ANGULAR_ERP.
+## Solo tienen efecto: los límites (lower/upper) y sus flags de habilitación,
+## los LIMIT SPRINGS (limit_spring_enabled/frequency/damping), los motores y
+## los springs comunes. El damping del CUERPO (PhysicalBone3D.angular_damp /
+## linear_damp con DAMP_MODE_REPLACE) sí lo aplica el motor y es la palanca
+## real contra el temblor.
+##
 ## Axis conventions (Jolt Physics, the engine set in project.godot):
 ##   6DOF  -> limits are rotations around the joint-local X/Y/Z axes.
 ##   Cone  -> swing cone around +X (half-angle) and twist around X.
@@ -28,8 +50,21 @@ const COLOR_CONE: Color = Color(1.0, 0.8, 0.2)
 const COLOR_SELECTED: Color = Color(1.0, 1.0, 0.25)
 const COLOR_CHAIN: Color = Color(0.65, 0.65, 0.65, 0.55)
 
+## Radians of camera rotation per pixel of mouse motion.
+const CAMERA_SENSITIVITY: float = 0.0035
+## Metres per second of camera movement with W/A/S/D/Q/E.
+const CAMERA_SPEED: float = 4.0
+## Wheel metres per notch.
+const CAMERA_WHEEL_STEP: float = 0.4
+const CAMERA_MIN_PITCH: float = -1.5
+const CAMERA_MAX_PITCH: float = 1.5
+## Impulse range offered by the force controls, in newton-seconds.
+const IMPULSE_MIN: float = 0.5
+const IMPULSE_MAX: float = 200.0
+
 @export var simulator_path: NodePath = ^"../zombie/ZombiConRig/rig/Skeleton3D/PhysicalBoneSimulator3D"
 @export var ragdoll_component_path: NodePath = ^"../zombie/RagdollComponent"
+@export var camera_path: NodePath = ^"../Camera3D"
 @export var show_axes: bool = true
 @export var show_limits: bool = true
 @export var show_labels: bool = true
@@ -42,6 +77,11 @@ var simulator: PhysicalBoneSimulator3D
 var ragdoll_component: ZombieRagdoll
 var bones: Array[PhysicalBone3D] = []
 var selected_bone: PhysicalBone3D
+
+var _camera: Camera3D
+var _looking: bool = false
+var _cam_yaw: float = 0.0
+var _cam_pitch: float = 0.0
 
 var _mesh_instance: MeshInstance3D
 var _mesh: ImmediateMesh
@@ -56,6 +96,14 @@ var _status_label: Label
 var _rows_root: VBoxContainer
 var _control_rows: Array[Dictionary] = []
 var _updating_ui: bool = false
+
+# Force controls.
+var _impulse_axis: int = 2
+var _impulse_sign: float = 1.0
+var _impulse_slider: HSlider
+var _impulse_label: Label
+var _axis_buttons: Array[Button] = []
+var _sign_label: Label
 
 
 func _ready() -> void:
@@ -77,6 +125,7 @@ func _ready() -> void:
 	_build_gizmo_nodes()
 	_build_ui()
 	_select_bone(_preferred_bone())
+	_setup_camera()
 
 
 func _find_simulator() -> PhysicalBoneSimulator3D:
@@ -89,6 +138,93 @@ func _preferred_bone() -> PhysicalBone3D:
 		if bone.bone_name == "pelvis":
 			return bone
 	return bones[0] if not bones.is_empty() else null
+
+
+# ---------------------------------------------------------------------------
+# Free camera (editor style)
+# ---------------------------------------------------------------------------
+
+func _setup_camera() -> void:
+	_camera = get_node_or_null(camera_path) as Camera3D
+	if _camera == null:
+		_camera = _find_camera()
+	if _camera == null:
+		push_warning("RagdollDebug: no Camera3D found at %s" % camera_path)
+		return
+	# Derive the euler angles from the scene transform so the first drag does
+	# not snap the camera to a different orientation.
+	var basis: Basis = _camera.global_basis.orthonormalized()
+	_cam_yaw = atan2(-basis.x.z, basis.z.z)
+	_cam_pitch = asin(clampf(basis.x.y, -1.0, 1.0))
+
+
+func _find_camera() -> Camera3D:
+	var found: Array[Node] = get_tree().root.find_children("*", "Camera3D", true, false)
+	return found[0] as Camera3D if not found.is_empty() else null
+
+
+func _apply_camera_rotation() -> void:
+	if _camera == null:
+		return
+	# YXZ euler: yaw around Y, pitch around X. Left-handed sense of the editor.
+	var basis: Basis = Basis.from_euler(Vector3(_cam_pitch, _cam_yaw, 0.0))
+	_camera.global_basis = basis.orthonormalized()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if _camera == null:
+		return
+	var motion: InputEventMouseMotion = event as InputEventMouseMotion
+	if motion != null and _looking:
+		_cam_yaw -= motion.relative.x * CAMERA_SENSITIVITY
+		_cam_pitch = clampf(_cam_pitch - motion.relative.y * CAMERA_SENSITIVITY, CAMERA_MIN_PITCH, CAMERA_MAX_PITCH)
+		_apply_camera_rotation()
+		get_viewport().set_input_as_handled()
+		return
+
+	var button: InputEventMouseButton = event as InputEventMouseButton
+	if button != null:
+		if button.button_index == MOUSE_BUTTON_RIGHT:
+			_looking = button.pressed
+			Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED if _looking else Input.MOUSE_MODE_VISIBLE)
+			get_viewport().set_input_as_handled()
+		elif button.pressed and button.button_index == MOUSE_BUTTON_WHEEL_UP:
+			_move_camera(-CAMERA_WHEEL_STEP)
+			get_viewport().set_input_as_handled()
+		elif button.pressed and button.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+			_move_camera(CAMERA_WHEEL_STEP)
+			get_viewport().set_input_as_handled()
+
+
+func _move_camera(distance: float) -> void:
+	if _camera == null:
+		return
+	# Forward is -Z in Godot's camera convention.
+	_camera.global_position += -_camera.global_basis.z * distance
+
+
+func _process_free_camera(delta: float) -> void:
+	if _camera == null:
+		return
+	var direction: Vector3 = Vector3.ZERO
+	if Input.is_physical_key_pressed(KEY_W):
+		direction -= _camera.global_basis.z
+	if Input.is_physical_key_pressed(KEY_S):
+		direction += _camera.global_basis.z
+	if Input.is_physical_key_pressed(KEY_A):
+		direction -= _camera.global_basis.x
+	if Input.is_physical_key_pressed(KEY_D):
+		direction += _camera.global_basis.x
+	if Input.is_physical_key_pressed(KEY_E):
+		direction += Vector3.UP
+	if Input.is_physical_key_pressed(KEY_Q):
+		direction -= Vector3.UP
+	if direction == Vector3.ZERO:
+		return
+	var speed: float = CAMERA_SPEED
+	if Input.is_physical_key_pressed(KEY_SHIFT):
+		speed *= 3.0
+	_camera.global_position += direction.normalized() * speed * delta
 
 
 # ---------------------------------------------------------------------------
@@ -124,7 +260,8 @@ func _build_gizmo_nodes() -> void:
 		_labels[bone] = label
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
+	_process_free_camera(delta)
 	if _mesh == null or simulator == null:
 		return
 	_redraw_gizmos()
@@ -359,6 +496,8 @@ func _build_ui() -> void:
 	_rows_root.add_theme_constant_override("separation", 4)
 	column.add_child(_rows_root)
 
+	column.add_child(_build_force_row())
+
 	var copy_button: Button = Button.new()
 	copy_button.text = "Copiar valores del hueso"
 	copy_button.tooltip_text = "Copia las líneas joint_constraints/... para pegarlas en el .tscn"
@@ -369,8 +508,103 @@ func _build_ui() -> void:
 	_status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_status_label.add_theme_font_size_override("font_size", 12)
 	_status_label.modulate = Color(0.8, 0.8, 0.8)
-	_status_label.text = "Pausa congela la física para mirar una pose. Los sliders cambian el joint en vivo."
+	_status_label.text = "Cámara: clic derecho + mover; W/A/S/D; rueda; Q/E; Shift = rápido."
 	column.add_child(_status_label)
+
+
+func _build_force_row() -> VBoxContainer:
+	var box: VBoxContainer = VBoxContainer.new()
+	box.add_theme_constant_override("separation", 4)
+
+	var title: Label = Label.new()
+	title.text = "Fuerza al hueso seleccionado (ver hasta dónde llegan los límites)"
+	title.add_theme_font_size_override("font_size", 13)
+	box.add_child(title)
+
+	var row: HBoxContainer = HBoxContainer.new()
+
+	var axis_label: Label = Label.new()
+	axis_label.text = "Eje:"
+	row.add_child(axis_label)
+
+	_axis_buttons.clear()
+	for axis in range(3):
+		var axis_button: Button = Button.new()
+		axis_button.text = AXIS_NAMES[axis].to_upper()
+		axis_button.toggle_mode = true
+		axis_button.custom_minimum_size = Vector2(34.0, 0.0)
+		axis_button.pressed.connect(_on_axis_pressed.bind(axis))
+		row.add_child(axis_button)
+		_axis_buttons.append(axis_button)
+
+	var sign_button: Button = Button.new()
+	sign_button.text = "+ / -"
+	sign_button.custom_minimum_size = Vector2(52.0, 0.0)
+	sign_button.pressed.connect(_on_sign_pressed)
+	row.add_child(sign_button)
+
+	_sign_label = Label.new()
+	_sign_label.text = "+"
+	_sign_label.custom_minimum_size = Vector2(20.0, 0.0)
+	row.add_child(_sign_label)
+
+	_impulse_slider = _make_slider(IMPULSE_MIN, IMPULSE_MAX, 0.5)
+	_impulse_slider.value = 20.0
+	_impulse_slider.value_changed.connect(_on_impulse_changed)
+	row.add_child(_impulse_slider)
+
+	_impulse_label = _fixed_label("20.0", 48.0)
+	row.add_child(_impulse_label)
+
+	var apply_button: Button = Button.new()
+	apply_button.text = "Aplicar impulso"
+	apply_button.pressed.connect(_on_apply_impulse)
+	row.add_child(apply_button)
+
+	box.add_child(row)
+	_update_axis_buttons()
+	return box
+
+
+func _on_axis_pressed(axis: int) -> void:
+	_impulse_axis = axis
+	_update_axis_buttons()
+
+
+func _update_axis_buttons() -> void:
+	for index in range(_axis_buttons.size()):
+		_axis_buttons[index].button_pressed = index == _impulse_axis
+
+
+func _on_sign_pressed() -> void:
+	_impulse_sign = -_impulse_sign
+	_sign_label.text = "+" if _impulse_sign > 0.0 else "-"
+
+
+func _on_impulse_changed(value: float) -> void:
+	_impulse_label.text = "%.1f" % value
+
+
+func _on_apply_impulse() -> void:
+	if selected_bone == null:
+		_status_label.text = "No hay hueso seleccionado."
+		return
+	if not simulator.is_simulating_physics() and ragdoll_component != null and not ragdoll_component.is_ragdoll:
+		_status_label.text = "El ragdoll no está corriendo; el impulso se aplicará al arrancar."
+	var direction: Vector3 = Vector3.ZERO
+	match _impulse_axis:
+		0:
+			direction = Vector3.RIGHT
+		1:
+			direction = Vector3.UP
+		_:
+			direction = Vector3.BACK
+	direction *= _impulse_sign
+	var magnitude: float = _impulse_slider.value
+	selected_bone.apply_central_impulse(direction * magnitude)
+	_status_label.text = "Impulso %.1f N·s %s%s aplicado a %s." % [
+		magnitude, "" if _impulse_sign > 0.0 else "-",
+		AXIS_NAMES[_impulse_axis].to_upper(), selected_bone.bone_name]
 
 
 func _build_toolbar() -> HBoxContainer:

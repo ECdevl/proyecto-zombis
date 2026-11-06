@@ -92,9 +92,17 @@
   - [x] Sondas nuevas `probe_ragdoll_axes`, `probe_6dof_sign` y
         `probe_ragdoll_behavior`; esta última da *TODO OK* (estable, sin
         NaN ni joints separados).
+  - [x] Damping del **cuerpo** con `DAMP_MODE_REPLACE` (D-020; Jolt ignora el
+        damping del joint 6DOF): `angular_damp` 0.55 / `linear_damp` 0.08,
+        torso 0.70 / 0.10 → *probe TODO OK* (estiramiento 0.256→0.044 al
+        reposo).
+  - [x] `ragdoll_debug.gd`: cámara libre estilo editor (clic derecho + WASD +
+        rueda, funciona en pausa) e impulso dirigido al hueso seleccionado
+        (eje/signo/magnitud) para ver el tope de los constraints (D-020).
   - [ ] Validación visual en el editor con `ragdoll_testing.tscn` /
         `RagdollDebug`: afinar hombros, caderas y pies si algún ángulo se ve
-        antinatural.
+        antinatural; ajustar `linear_damp`/`angular_damp` con el panel si
+        sigue habiendo temblor o flacidez.
   - [ ] Afinar `knockback`: `bate.tres` =500 da≈60 m/s de pelvis (¿excesivo?);
         probar en juego. Machete/cuchillo quedan en20 (default de
         `EquippableDescriptor`).

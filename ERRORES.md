@@ -609,3 +609,31 @@ con `Skeleton3D.get_bone_name(id)`. La sonda guarda la referencia al
 
 **Verificación:** `probe_ragdoll_behavior` → *RESULTADO: TODO OK* (20 huesos,
 19 joints; sin NaN, estable a 0.12 m/s).
+
+---
+
+## E-020 — El damping del joint 6DOF no tiene efecto en Jolt (ajustarlo es perder el tiempo) (2026-11-06)
+
+**Síntoma:** tras fijar los `joint_constraints/*/angular_damping` (y
+`angular_limit_softness`, `linear_damping`, `erp`, etc.) del ragdoll, el
+temblor y la flacidez de los huesos no cambiaban de forma perceptible.
+
+**Causa real:** el wrapper de Jolt
+(`modules/jolt_physics/joints/jolt_generic_6dof_joint_3d.cpp`, rama
+4.7-stable) **descarta** la mayoría de los parámetros del joint 6DOF con un
+`WARN_PRINT`, sustituyéndolos por sus constantes `G6DOF_DEFAULT_*`:
+`linear_limit_softness`, `linear_restitution`, `linear_damping`,
+`angular_limit_softness`, `angular_damping`, `angular_restitution`,
+`angular_force_limit` y `erp`. Solo se respetan los límites lower/upper con
+sus flags, los *limit springs*, los motores y los springs comunes. Por tanto
+`angular_damping = 1.0` en el joint no disipa nada.
+
+**Corrección:** disipar con el damping del **cuerpo**:
+`PhysicalBone3D.angular_damp` / `linear_damp` con `DAMP_MODE_REPLACE` (el
+motor sí lo aplica). Aplicado en `zombie_ragdoll_skelly.tscn` (ver D-020).
+La otra palanca real para la flacidez son los *limit springs* del joint o
+cerrar los ángulos, no la *softness*.
+
+**Verificación:** `probe_ragdoll_behavior` → *TODO OK* (estiramiento al reposo
+0.044 m, antes 0.102; velocidad final 0.088 m/s, antes 0.121). Los parámetros
+inertes del joint se dejaron como estaban.

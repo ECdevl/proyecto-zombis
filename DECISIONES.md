@@ -696,3 +696,52 @@ impacto y 0.102 m al reposo, sin NaN, sin atravesar el piso);
 `probe_zombie` → *TODO OK*; `ragdoll_testing.tscn` 300 frames headless sin
 errores de script; `check_tscn_connections.py` → solo las 3 conexiones
 rotas preexistentes del addon `ragdoll_wizard`.
+
+## D-020 — Damping del CUERPO con `DAMP_MODE_REPLACE` (Jolt ignora el damping del joint 6DOF) + cámara libre e impulso por hueso en `RagdollDebug` (2026-11-06)
+
+**Contexto:** tras D-019 el ragdoll seguía con temblor y "flacidez" ("saco de
+papas"). Al investigar el wrapper `modules/jolt_physics/joints/
+jolt_generic_6dof_joint_3d.cpp` (rama 4.7-stable) se confirmó que **Jolt
+descarta** con `WARN_PRINT` casi todos los parámetros del joint 6DOF:
+`linear_limit_softness`, `linear_restitution`, `linear_damping`,
+`angular_limit_softness`, `angular_damping`, `angular_restitution`,
+`angular_force_limit` y `erp` (constantes `G6DOF_DEFAULT_*`). Solo aplican los
+límites lower/upper con sus flags, los *limit springs*, los motores y los
+springs comunes. Por tanto, el `angular_damping = 1` de los joints (única
+disipación de D-019) **no tenía efecto** en Jolt. La palanca real de
+disipación es el damping del **cuerpo** (`PhysicalBone3D.angular_damp` /
+`linear_damp` en `DAMP_MODE_REPLACE`), que el motor sí respeta.
+
+El mismo código confirma la convención de signo ya documentada: Godot niega
+los ángulos al pasarlos a Jolt (`lower = -upper; upper = -lower`).
+
+**Decisión:**
+
+1. **Aplicar damping del cuerpo con `DAMP_MODE_REPLACE`** en los 20 huesos de
+   `scenes/zombies/zombie_ragdoll_skelly.tscn`: por defecto
+   `linear_damp_mode = 1` / `linear_damp = 0.08` /
+   `angular_damp_mode = 1` / `angular_damp = 0.55`; y en el torso
+   (`pelvis`, `spine`, `chest`) `linear_damp = 0.10` / `angular_damp = 0.70`
+   (más damping donde más masa). `zombie.tscn` **no requiere cambios**: sus
+   overrides de huesos solo llevan `transform`/`joint_offset`/`body_offset` y
+   heredan el damping de la escena base.
+2. **No tocar los parámetros de softness/damping del joint 6DOF**: no tienen
+   efecto en Jolt (quedan como estaban, inertes).
+3. **Cámara libre estilo editor** y **aplicación de impulso al hueso
+   seleccionado** en `scripts/debug/ragdoll_debug.gd`: clic derecho captura el
+   ratón y permite mirar/orbitar, rueda avanza/retrocede, `W/A/S/D` + `Q/E`
+   desplazan (Shift = rápido), todo con `process_mode =
+   PROCESS_MODE_ALWAYS` (funciona aun con el árbol en pausa). El panel añade un
+   bloque para elegir eje X/Y/Z, signo +/−, magnitud (0.5–200) y un botón
+   "Aplicar impulso" que llama
+   `PhysicalBone3D.apply_central_impulse(dir * magnitud)` sobre el hueso
+   seleccionado, para observar hasta dónde llegan sus constraints.
+
+**Consecuencia / verificación:** `probe_ragdoll_behavior` → *TODO OK*
+(velocidad final 0.088 m/s, antes 0.121; estiramiento al reposo 0.044 m,
+antes 0.102; estiramiento máximo 0.256 m, antes 0.273; sin NaN, pelvis en
+rango, ningún hueso bajo el piso). Mejora modesta pero medible; la mejora
+grande es la cámara libre y el impulso por hueso para afinar en vivo.
+`ragdoll_testing.tscn` headless sin errores de script. La validación visual y
+el ajuste fino de `linear_damp`/`angular_damp` quedan para el usuario con el
+panel `RagdollDebug` (T-011).

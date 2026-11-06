@@ -95,9 +95,9 @@ joint_constraints/relaxation = 1.0
 mass = 8.0
 friction = 0.8
 linear_damp_mode = 1
-linear_damp = 0.0
+linear_damp = 0.1000
 angular_damp_mode = 1
-angular_damp = 0.0
+angular_damp = 0.7000
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Physical Bone pelvis" unique_id=2073221382]
 transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0, 0)
@@ -112,10 +112,6 @@ joint_type = 5
 joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.7179586e-06, 1.5711907e-05, 0.100845814)
 body_offset = Transform3D(1, -1.4156103e-07, -7.376075e-07, -7.4040145e-07, -0.0005392134, -1, 1.4901161e-07, 1.0000001, -0.0005392432, 3.7923455e-06, 0.100845814, 3.8668513e-05)
 bounce = 0.0
-linear_damp_mode = 1
-linear_damp = 0.0
-angular_damp_mode = 1
-angular_damp = 0.0
 bone_name = "spine"
 joint_constraints/x/linear_limit_enabled = true
 joint_constraints/x/linear_limit_upper = 0.0
@@ -182,6 +178,10 @@ joint_constraints/z/angular_spring_damping = 0.0
 joint_constraints/z/angular_equilibrium_point = 0.0
 mass = 8.0
 friction = 0.8
+linear_damp_mode = 1
+linear_damp = 0.1000
+angular_damp_mode = 1
+angular_damp = 0.7000
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Physical Bone spine" unique_id=152217264]
 transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0, 0)
@@ -196,10 +196,6 @@ joint_type = 5
 joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.7823414e-06, 0.00017488158, 0.14248441)
 body_offset = Transform3D(1, -1.3969839e-05, 3.7811697e-07, 3.6228448e-07, -0.001183778, -0.9999995, 1.3960525e-05, 0.9999996, -0.0011838675, -1.8337741e-06, 0.14248455, -6.198883e-06)
 bounce = 0.0
-linear_damp_mode = 1
-linear_damp = 0.0
-angular_damp_mode = 1
-angular_damp = 0.0
 bone_name = "chest"
 joint_constraints/x/linear_limit_enabled = true
 joint_constraints/x/linear_limit_upper = 0.0
@@ -266,6 +262,10 @@ joint_constraints/z/angular_spring_damping = 0.0
 joint_constraints/z/angular_equilibrium_point = 0.0
 mass = 14.0
 friction = 0.8
+linear_damp_mode = 1
+linear_damp = 0.1000
+angular_damp_mode = 1
+angular_damp = 0.7000
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Physical Bone chest" unique_id=1724880399]
 transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0, 0)
@@ -346,9 +346,9 @@ joint_constraints/z/angular_equilibrium_point = 0.0
 mass = 5.0
 friction = 0.8
 linear_damp_mode = 1
-linear_damp = 0.0
+linear_damp = 0.0800
 angular_damp_mode = 1
-angular_damp = 0.0
+angular_damp = 0.5500
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Physical Bone neck" unique_id=1283076231]
 transform = Transform3D(1.0000008, -2.2351742e-08, -3.7252903e-09, 0, 2.0861626e-07, 0.9999994, -5.2154064e-08, -1.0000002, -1.1920929e-07, 0.021400116, -0.016834855, -0.09740603)
@@ -363,8 +363,6 @@ joint_type = 5
 joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.530673e-05, -0.0002954886, 0.10768296)
 body_offset = Transform3D(1, 0.0005735457, 0.00033792853, 0.0003375709, 0.00057850033, -0.99999994, -0.0005736351, 1, 0.00057834387, 2.9087067e-05, 0.10768314, 0.00023317337)
 bounce = 0.0
-angular_damp_mode = 1
-angular_damp = 0.0
 bone_name = "shoulder_left"
 joint_constraints/x/linear_limit_enabled = true
 joint_constraints/x/linear_limit_upper = 0.0
@@ -432,7 +430,9 @@ joint_constraints/z/angular_equilibrium_point = 0.0
 mass = 1.5
 friction = 0.8
 linear_damp_mode = 1
-linear_damp = 0.0
+linear_damp = 0.0800
+angular_damp_mode = 1
+angular_damp = 0.5500
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Physical Bone shoulder_left" unique_id=1398170411]
 transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0, 0)
@@ -448,8 +448,6 @@ joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.9339723e-06, 9.467662e-
 body_offset = Transform3D(1.0000005, 0.00041291118, -4.656613e-09, -1.7695129e-08, 2.202252e-05, -1.0000005, -0.00041288137, 1.0000002, 2.1819491e-05, 5.930662e-06, 0.1280297, -1.2263656e-05)
 friction = 0.8
 bounce = 0.0
-angular_damp_mode = 1
-angular_damp = 0.0
 bone_name = "upper_arm_left"
 joint_constraints/x/linear_limit_enabled = true
 joint_constraints/x/linear_limit_upper = 0.0
@@ -516,7 +514,9 @@ joint_constraints/z/angular_spring_damping = 0.0
 joint_constraints/z/angular_equilibrium_point = 0.0
 mass = 2.5
 linear_damp_mode = 1
-linear_damp = 0.0
+linear_damp = 0.0800
+angular_damp_mode = 1
+angular_damp = 0.5500
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Physical Bone upper_arm_left" unique_id=256695789]
 transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0, 0)
@@ -598,9 +598,9 @@ joint_constraints/z/angular_spring_damping = 0.0
 joint_constraints/z/angular_equilibrium_point = 0.0
 mass = 1.5
 linear_damp_mode = 1
-linear_damp = 0.0
+linear_damp = 0.0800
 angular_damp_mode = 1
-angular_damp = 0.0
+angular_damp = 0.5500
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Physical Bone forearm_left" unique_id=1565597742]
 transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0, 0)
@@ -682,9 +682,9 @@ joint_constraints/z/angular_spring_damping = 0.0
 joint_constraints/z/angular_equilibrium_point = 0.0
 mass = 0.4
 linear_damp_mode = 1
-linear_damp = 0.0
+linear_damp = 0.0800
 angular_damp_mode = 1
-angular_damp = 0.0
+angular_damp = 0.5500
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Physical Bone hand_left" unique_id=324522548]
 transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0, 0)
@@ -766,9 +766,9 @@ joint_constraints/z/angular_equilibrium_point = 0.0
 mass = 0.1
 friction = 0.8
 linear_damp_mode = 1
-linear_damp = 0.0
+linear_damp = 0.0800
 angular_damp_mode = 1
-angular_damp = 0.0
+angular_damp = 0.5500
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Physical Bone thumb_01_L" unique_id=437295197]
 transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0, 0)
@@ -783,8 +783,6 @@ joint_type = 5
 joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00010126551, 0.0001693485, 0.10534516)
 body_offset = Transform3D(1.0000004, -0.00041776896, -0.00041408837, -0.00041384995, 0.0004118085, -0.99999994, 0.00041785836, 1.0000001, 0.00041162968, 0.0001449585, 0.105345026, -0.00021266937)
 bounce = 0.0
-angular_damp_mode = 1
-angular_damp = 0.0
 bone_name = "shoulder_right"
 joint_constraints/x/linear_limit_enabled = true
 joint_constraints/x/linear_limit_upper = 0.0
@@ -852,7 +850,9 @@ joint_constraints/z/angular_equilibrium_point = 0.0
 mass = 1.5
 friction = 0.8
 linear_damp_mode = 1
-linear_damp = 0.0
+linear_damp = 0.0800
+angular_damp_mode = 1
+angular_damp = 0.5500
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Physical Bone shoulder_right" unique_id=298771189]
 transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0, 0)
@@ -868,8 +868,6 @@ joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0018593216, -0.00067690
 body_offset = Transform3D(1.0000004, -0.00015431643, -7.452071e-05, -7.4315816e-05, 0.00022528693, -1.0000002, 0.00015455484, 1.0000002, 0.00022514537, 0.0018687546, 0.1279769, 0.0006483793)
 friction = 0.8
 bounce = 0.0
-angular_damp_mode = 1
-angular_damp = 0.0
 bone_name = "upper_arm_right"
 joint_constraints/x/linear_limit_enabled = true
 joint_constraints/x/linear_limit_upper = 0.0
@@ -936,7 +934,9 @@ joint_constraints/z/angular_spring_damping = 0.0
 joint_constraints/z/angular_equilibrium_point = 0.0
 mass = 2.5
 linear_damp_mode = 1
-linear_damp = 0.0
+linear_damp = 0.0800
+angular_damp_mode = 1
+angular_damp = 0.5500
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Physical Bone upper_arm_right" unique_id=1386674471]
 transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0, 0)
@@ -1018,9 +1018,9 @@ joint_constraints/z/angular_spring_damping = 0.0
 joint_constraints/z/angular_equilibrium_point = 0.0
 mass = 1.5
 linear_damp_mode = 1
-linear_damp = 0.0
+linear_damp = 0.0800
 angular_damp_mode = 1
-angular_damp = 0.0
+angular_damp = 0.5500
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Physical Bone forearm_right" unique_id=661620892]
 transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0, 0)
@@ -1102,9 +1102,9 @@ joint_constraints/z/angular_spring_damping = 0.0
 joint_constraints/z/angular_equilibrium_point = 0.0
 mass = 0.4
 linear_damp_mode = 1
-linear_damp = 0.0
+linear_damp = 0.0800
 angular_damp_mode = 1
-angular_damp = 0.0
+angular_damp = 0.5500
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Physical Bone hand_right" unique_id=1065315805]
 transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0, 0)
@@ -1186,9 +1186,9 @@ joint_constraints/z/angular_equilibrium_point = 0.0
 mass = 0.1
 friction = 0.8
 linear_damp_mode = 1
-linear_damp = 0.0
+linear_damp = 0.0800
 angular_damp_mode = 1
-angular_damp = 0.0
+angular_damp = 0.5500
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Physical Bone thumb_01_R" unique_id=2124680177]
 transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0, 0)
@@ -1203,9 +1203,6 @@ joint_type = 5
 joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.536994e-08, 2.9989926e-07, 0.23427162)
 body_offset = Transform3D(0.9999987, 5.9604645e-08, -2.9802322e-08, -5.9604645e-08, 8.940697e-08, -1.0000001, 0, 0.9999964, 1.1920929e-07, 2.2351742e-08, 0.23427165, -3.2782555e-07)
 bounce = 0.0
-linear_damp_mode = 1
-linear_damp = 0.0
-angular_damp = 0.0
 bone_name = "thigh_left"
 joint_constraints/x/linear_limit_enabled = true
 joint_constraints/x/linear_limit_upper = 0.0
@@ -1272,7 +1269,10 @@ joint_constraints/z/angular_spring_damping = 0.0
 joint_constraints/z/angular_equilibrium_point = 0.0
 mass = 7.0
 friction = 0.8
+linear_damp_mode = 1
+linear_damp = 0.0800
 angular_damp_mode = 1
+angular_damp = 0.5500
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Physical Bone thigh_left" unique_id=1501623388]
 transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0, 0)
@@ -1288,8 +1288,6 @@ joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.0005318e-06, -4.9835364e
 body_offset = Transform3D(0.99999636, 1.1473894e-06, -1.0211952e-06, 9.872019e-08, 1.7359853e-06, -0.9999964, -7.4505806e-08, 1.0000018, 4.462898e-06, -8.046627e-07, 0.19179901, -3.5762787e-07)
 friction = 0.8
 bounce = 0.0
-angular_damp_mode = 1
-angular_damp = 0.0
 bone_name = "shin.L"
 joint_constraints/x/linear_limit_enabled = true
 joint_constraints/x/linear_limit_upper = 0.0
@@ -1356,7 +1354,9 @@ joint_constraints/z/angular_spring_damping = 0.0
 joint_constraints/z/angular_equilibrium_point = 0.0
 mass = 3.5
 linear_damp_mode = 1
-linear_damp = 0.0
+linear_damp = 0.0800
+angular_damp_mode = 1
+angular_damp = 0.5500
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Physical Bone shin_L" unique_id=567169135]
 transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0, 0)
@@ -1371,9 +1371,6 @@ joint_type = 5
 joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.3317245e-07, 5.7135395e-07, 0.2342713)
 body_offset = Transform3D(1.0000039, 2.9802322e-08, 5.9604645e-08, 1.4901161e-08, -2.9802322e-08, -0.9999976, -5.9604645e-08, 0.9999948, -1.4901161e-07, 1.1920929e-07, 0.23427075, -5.364418e-07)
 bounce = 0.0
-linear_damp_mode = 1
-linear_damp = 0.0
-angular_damp = 0.0
 bone_name = "thigh_right"
 joint_constraints/x/linear_limit_enabled = true
 joint_constraints/x/linear_limit_upper = 0.0
@@ -1440,7 +1437,10 @@ joint_constraints/z/angular_spring_damping = 0.0
 joint_constraints/z/angular_equilibrium_point = 0.0
 mass = 7.0
 friction = 0.8
+linear_damp_mode = 1
+linear_damp = 0.0800
 angular_damp_mode = 1
+angular_damp = 0.5500
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Physical Bone thigh_right" unique_id=47628316]
 transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0, 0)
@@ -1456,8 +1456,6 @@ joint_offset = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.3919164e-07, -1.7078369
 body_offset = Transform3D(1.0000007, -6.251037e-06, 1.3690442e-07, -1.6763806e-07, 4.7311187e-07, -0.9999948, 2.30968e-07, 1.0000008, 2.6114285e-06, 3.1292439e-07, 0.19178838, 1.206994e-06)
 friction = 0.8
 bounce = 0.0
-angular_damp_mode = 1
-angular_damp = 0.0
 bone_name = "shin.R"
 joint_constraints/x/linear_limit_enabled = true
 joint_constraints/x/linear_limit_upper = 0.0
@@ -1524,7 +1522,9 @@ joint_constraints/z/angular_spring_damping = 0.0
 joint_constraints/z/angular_equilibrium_point = 0.0
 mass = 3.5
 linear_damp_mode = 1
-linear_damp = 0.0
+linear_damp = 0.0800
+angular_damp_mode = 1
+angular_damp = 0.5500
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Physical Bone shin_R" unique_id=2072819339]
 transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0, 0)
@@ -1546,9 +1546,9 @@ mass = 1.0
 bounce = 0.0
 friction = 1.0
 linear_damp_mode = 1
-linear_damp = 0.0
+linear_damp = 0.0800
 angular_damp_mode = 1
-angular_damp = 0.0
+angular_damp = 0.5500
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="foot_right" unique_id=2020951193]
 transform = Transform3D(0.99087024, 0.10670847, -0.08239899, -0.06598215, 0.9168092, 0.39383543, 0.11756995, -0.38480398, 0.91547894, 0.0073526204, 0.08311282, 0.01187928)
@@ -1570,9 +1570,9 @@ mass = 1.0
 bounce = 0.0
 friction = 1.0
 linear_damp_mode = 1
-linear_damp = 0.0
+linear_damp = 0.0800
 angular_damp_mode = 1
-angular_damp = 0.0
+angular_damp = 0.5500
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="foot_left" unique_id=1979861680]
 transform = Transform3D(0.99087024, 0.10670847, -0.08239899, -0.06598215, 0.9168092, 0.39383543, 0.11756995, -0.38480398, 0.91547894, 0.0073526204, 0.08311282, 0.01187928)
