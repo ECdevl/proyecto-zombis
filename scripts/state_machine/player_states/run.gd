@@ -10,8 +10,8 @@ func enter(previous_state_path: String, data := {}) -> void:
 		if tree:
 			tree["parameters/run/blend_amount"] = 1.0
 	else:
-		if player.playback:
-			player.playback.travel("run")
+		if is_instance_valid(player.viewmodel_animator):
+			player.viewmodel_animator.play_base(&"run")
 		elif player.weapon_controller.weapon_ap:
 			player.weapon_controller.weapon_ap.play("run")
 	player.speed = player.sprint_speed
@@ -51,8 +51,8 @@ func exit(next_state_path:String) -> void:
 		if tree:
 			tree["parameters/run/blend_amount"] = 0.0
 	else:
-		if player.playback:
-			player.playback.travel("idle")
+		if is_instance_valid(player.viewmodel_animator):
+			player.viewmodel_animator.play_base(&"idle")
 		elif player.weapon_controller.weapon_ap:
 			player.weapon_controller.weapon_ap.play("idle")
 	if not player.get_current_weapon():

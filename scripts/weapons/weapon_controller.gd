@@ -79,13 +79,9 @@ func _free_weapon() -> void:
 		if child.name.begins_with("gun") or child == player.current_viewmodel:
 			child.name = "gun_old"
 			child.queue_free()
-	# Limpiar BoneAttachment de mano si existe.
-	if is_instance_valid(player.armsy):
-		var skel: Skeleton3D = player.armsy.get_node_or_null("rig/Skeleton3D") as Skeleton3D
-		if skel != null:
-			for c in skel.get_children():
-				if c is BoneAttachment3D and c.name == "WeaponAttachment":
-					c.queue_free()
+	if is_instance_valid(player.viewmodel_animator):
+		player.viewmodel_animator.queue_free()
+	player.viewmodel_animator = null
 	player.current_viewmodel = null
 	player.viewmodel_ap = null
 	player.viewmodel_animation_tree = null
@@ -122,21 +118,26 @@ func _on_weapon_changed(gun: EquippableDescriptor) -> void:
 	_free_weapon()
 	weapon_node = gun.viewmodel_model.instantiate()
 	weapon_node.name = "gun"
-	# Adjuntar el arma a la mano derecha del rig del jugador (armsy), sin ocultar armsy.
+	player.weapon_pivot.add_child(weapon_node)
+	weapon_node.global_transform = player.weapon_pivot.global_transform
 	if is_instance_valid(player.armsy):
-		var skel: Skeleton3D = player.armsy.get_node_or_null("rig/Skeleton3D") as Skeleton3D
-		if skel != null:
-			var attachment: BoneAttachment3D = BoneAttachment3D.new()
-			attachment.name = "WeaponAttachment"
-			attachment.bone_name = "hand_right"
-			skel.add_child(attachment)
-			attachment.add_child(weapon_node)
-			weapon_node.transform = Transform3D.IDENTITY
-	player.armsy.show()
+		player.armsy.hide()
 	player.current_viewmodel = weapon_node
 	weapon_ap = weapon_node.get_node_or_null("AnimationPlayer")
 	player.viewmodel_ap = weapon_ap
-	player.viewmodel_animation_tree = null
+	var animator: Variant = VIEWMODEL_ANIMATOR_SCRIPT.new()
+	weapon_node.add_child(animator)
+	animator.setup(weapon_node)
+	player.viewmodel_animator = animator
+	if animator.ap != null:
+		weapon_ap = animator.ap
+		player.viewmodel_ap = animator.ap
+	if animator.tree != null:
+		player.viewmodel_animation_tree = animator.tree
+	else:
+		var vm_tree := weapon_node.get_node_or_null("AnimationTree")
+		if vm_tree is AnimationTree:
+			player.viewmodel_animation_tree = vm_tree
 	player.viewmodel_playback = null
 	refresh_flashlight_rig()
 
@@ -148,14 +149,18 @@ func _on_weapon_changed(gun: EquippableDescriptor) -> void:
 
 	var firearm := gun as Weapon
 	if firearm and weapon_ap:
-		if weapon_ap.has_animation(&"draw"):
-			weapon_ap.play(&"draw")
+		if is_instance_valid(player.viewmodel_animator):
+			player.viewmodel_animator.fire_shot(&"draw")
+		else:
+			weapon_ap.play("draw")
 
 
 	var melee := gun as Melee
 	if melee and weapon_ap:
-		if weapon_ap.has_animation(&"draw"):
-			weapon_ap.play(&"draw")
+		if is_instance_valid(player.viewmodel_animator):
+			player.viewmodel_animator.fire_shot(&"draw")
+		else:
+			weapon_ap.play("draw")
 
 	if firearm:
 		firearm.ammo_requested.emit()
@@ -184,11 +189,12 @@ func _input(event: InputEvent) -> void:
 			if tree:
 				tree["parameters/punch/request"]  = AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE
 		else:
-			if weapon_ap != null and weapon_ap.has_animation(&"punch"):
+			if is_instance_valid(player.viewmodel_animator):
+				player.viewmodel_animator.fire_shot(&"punch")
+			else:
 				weapon_ap.stop()
-				weapon_ap.play(&"punch", -1)
-				if weapon_ap.has_animation(&"idle"):
-					weapon_ap.queue(&"idle")
+				weapon_ap.play("punch", -1)
+				weapon_ap.queue("idle")
 
 		push()
 		push_time.start()
@@ -236,8 +242,11 @@ func shoot() -> bool:
 	gun.curr_bullets -= 1
 	fire_rate.start(gun.fire_rate)
 	if weapon_ap and weapon_ap.has_animation("shoot"):
-		weapon_ap.stop()
-		weapon_ap.play(&"shoot")
+		if is_instance_valid(player.viewmodel_animator):
+			player.viewmodel_animator.fire_shot(&"shoot")
+		else:
+			weapon_ap.stop()
+			weapon_ap.play("shoot")
 
 
 	gun_fired.emit(gun.ammo_type)
@@ -314,8 +323,11 @@ func swing() -> bool:
 	var swing_data: SwingData = melee.swings[swing_index]
 	swing_index+=1
 	if weapon_ap and weapon_ap.has_animation(swing_data.animation):
-		weapon_ap.stop()
-		weapon_ap.play(swing_data.animation, .1)
+		if is_instance_valid(player.viewmodel_animator):
+			player.viewmodel_animator.play_base(swing_data.animation)
+		else:
+			weapon_ap.stop()
+			weapon_ap.play(swing_data.animation, .1)
 	fire_rate.start(melee.fire_rate)
 	
 	await get_tree().create_timer(swing_data.hit_time).timeout
@@ -334,8 +346,11 @@ func swing() -> bool:
 	if view_punch:
 		view_punch.punch(Vector2(swing_data.recoil_kick.x, swing_data.recoil_kick.y))
 	if weapon_ap.has_animation("idle"):
-		weapon_ap.playback_default_blend_time = .5
-		weapon_ap.queue(&"idle")
+		if is_instance_valid(player.viewmodel_animator):
+			player.viewmodel_animator.play_base(&"idle")
+		else:
+			weapon_ap.playback_default_blend_time = .5
+			weapon_ap.queue("idle")
 
 	# Paso 2: acá se crea el golpe (MeleeProjectile) usando melee y swing_data.
 	var hit := MeleeProjectile.new()
@@ -374,7 +389,10 @@ func reload() -> void:
 	_reload_gun_ref = gun
 
 	if weapon_ap and weapon_ap.has_animation("reload"):
-		weapon_ap.play(&"reload")
+		if is_instance_valid(player.viewmodel_animator):
+			player.viewmodel_animator.fire_shot(&"reload")
+		else:
+			weapon_ap.play("reload")
 
 	var t := gun.reload_time
 	if t <= 0.0:
@@ -426,7 +444,10 @@ func _on_reload_timeout() -> void:
 	_pending_reload = false
 	_reload_gun_ref = null
 	if weapon_ap and is_instance_valid(weapon_ap) and weapon_ap.has_animation("idle"):
-		weapon_ap.play(&"idle")
+		if is_instance_valid(player.viewmodel_animator):
+			player.viewmodel_animator.play_base(&"idle")
+		else:
+			weapon_ap.play("idle")
 
 ## Animación de "agarrar objeto" del player.
 func play_grab_animation() -> void:
@@ -458,6 +479,10 @@ func refresh_flashlight_rig() -> void:
 	_refresh_flashlight()
 
 func _get_flashlight_skeleton() -> Skeleton3D:
+	if is_instance_valid(player.current_viewmodel):
+		var sk: Skeleton3D = _find_arm_skeleton(player.current_viewmodel)
+		if sk != null:
+			return sk
 	if is_instance_valid(player.armsy):
 		return player.armsy.get_node_or_null("rig/Skeleton3D") as Skeleton3D
 	return null
@@ -522,7 +547,8 @@ func _refresh_flashlight() -> void:
 	if not equipped:
 		_teardown_flashlight_rig()
 		_flashlight_on = false
-		pass
+		if is_instance_valid(player.viewmodel_animator):
+			player.viewmodel_animator.set_context(&"ctx_flashlight", 0.0)
 		return
 	var skeleton: Skeleton3D = _get_flashlight_skeleton()
 	if skeleton == null:
@@ -535,7 +561,8 @@ func _refresh_flashlight() -> void:
 	var desc: FlashlightDescriptor = left_item.descriptor as FlashlightDescriptor
 	_ensure_flashlight_instance(desc)
 	_flashlight_attachment.visible = true
-	pass
+	if is_instance_valid(player.viewmodel_animator):
+		player.viewmodel_animator.set_context(&"ctx_flashlight", 1.0)
 	
 func _build_flashlight_rig(skeleton: Skeleton3D) -> void:
 	_teardown_flashlight_rig()
