@@ -24,8 +24,14 @@ enum Needs {HEALTH,STAMINA,HUNGER,THIRST,SLEEP}
 
 
 
+var health_component : HealthComponent
+
 func heal(what:Needs,amount:float) -> void:
 	match what:
+		Needs.HEALTH:
+			if health_component:
+				health_component.heal(amount)
+			return
 		Needs.STAMINA:
 			current_stamina += amount
 			if current_stamina > max_stamina:

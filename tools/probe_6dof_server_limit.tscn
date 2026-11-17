@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://tools/probe_6dof_server_limit.gd" id="1_psl"]
+
+[node name="Probe6DofServerLimit" type="Node3D"]
+script = ExtResource("1_psl")

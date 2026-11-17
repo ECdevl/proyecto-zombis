@@ -45,4 +45,4 @@ func _gui_input(event: InputEvent) -> void:
 
 func _refresh() -> void:
 	var item := equipment_model.get_equipped(equip_slot)
-	icon_rect.texture = item.descriptor.icon if item else null
+	icon_rect.texture = item.descriptor.get_icon() if item else null

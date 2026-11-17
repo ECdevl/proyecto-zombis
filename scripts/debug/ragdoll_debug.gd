@@ -107,6 +107,7 @@ var _sign_label: Label
 
 # Per-bone simulation selector.
 var _bone_checks: Dictionary = {}  # PhysicalBone3D -> CheckBox
+var _bone_physics_backup: Dictionary = {}  # PhysicalBone3D -> [collision_layer, collision_mask]
 var _simulating: bool = false
 
 
@@ -523,9 +524,16 @@ func _build_simulation_selector() -> VBoxContainer:
 	box.add_theme_constant_override("separation", 4)
 
 	var title: Label = Label.new()
-	title.text = "Huesos en la simulación (marca solo los que quieras simular)"
+	title.text = "Huesos a simular (cada hueso arrastra a sus descendientes)"
 	title.add_theme_font_size_override("font_size", 13)
 	box.add_child(title)
+
+	var hint: Label = Label.new()
+	hint.text = "La pelvis es la raíz: marcarla simula todo el ragdoll. Si queda sin marcar, se queda quieta como ancla y los demás huesos cuelgan de ella. Los huesos sin marcar no se simulan."
+	hint.add_theme_font_size_override("font_size", 11)
+	hint.modulate = Color(0.75, 0.75, 0.75)
+	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	box.add_child(hint)
 
 	var buttons: HBoxContainer = HBoxContainer.new()
 	var all_button: Button = Button.new()
@@ -548,13 +556,31 @@ func _build_simulation_selector() -> VBoxContainer:
 	grid.add_theme_constant_override("v_separation", 2)
 	for bone in bones:
 		var check: CheckBox = CheckBox.new()
-		check.text = bone.bone_name
+		check.text = "pelvis (raíz)" if String(bone.bone_name) == "pelvis" else bone.bone_name
 		check.button_pressed = true
 		check.add_theme_font_size_override("font_size", 12)
 		grid.add_child(check)
 		_bone_checks[bone] = check
 	box.add_child(grid)
 	return box
+
+
+## Los huesos que no simulan quedan KINEMATIC anclados a la pose de reposo y
+## CONSERVAN sus capas/máscaras: como en reposo varios huesos solapan con sus
+## vecinos, el solver de Jolt reparte todo el impulso de separación al cuerpo
+## dinámico y lo lanza. Los huesos que no simulan se desactivan de la colisión
+## (capa y máscara a 0); los que sí simulan conservan donde estaban.
+func _ghost_unselected_bones() -> void:
+	for bone in bones:
+		if not _bone_physics_backup.has(bone):
+			_bone_physics_backup[bone] = [bone.collision_layer, bone.collision_mask]
+		if bone.is_simulating_physics():
+			var backup: Array = _bone_physics_backup[bone]
+			bone.collision_layer = int(backup[0])
+			bone.collision_mask = int(backup[1])
+		else:
+			bone.collision_layer = 0
+			bone.collision_mask = 0
 
 
 func _on_select_all() -> void:
@@ -579,6 +605,14 @@ func _enabled_bone_names() -> Array[StringName]:
 	return names
 
 
+# Huesos sin simular quedan KINEMATIC y se teletransportan a la pose de
+# reposo cada frame. Si la pose aún no se ha asentado (p. ej. justo tras
+# entrar en escena), el salto teleport-a-teleport se integra como velocidad
+# implícita y el solver de los joints la inyecta como un "golpe" inicial.
+# Asentar unos frames antes de arrancar elimina el golpe (medido: v=1.7 m/s
+# y caída estable tras 10 frames; v=280 m/s con 1 frame).
+const SETTLE_FRAMES_BEFORE_START := 10
+
 func _on_restart_simulation() -> void:
 	var names: Array[StringName] = _enabled_bone_names()
 	if names.is_empty():
@@ -586,15 +620,20 @@ func _on_restart_simulation() -> void:
 		_simulating = false
 		if ragdoll_component != null:
 			ragdoll_component.is_ragdoll = false
+		_ghost_unselected_bones()
 		_status_label.text = "Ningún hueso marcado: simulación detenida."
 		return
 	simulator.physical_bones_stop_simulation()
+	if not get_tree().paused:
+		for _i in range(SETTLE_FRAMES_BEFORE_START):
+			await get_tree().physics_frame
 	simulator.physical_bones_start_simulation(names)
+	_ghost_unselected_bones()
 	_simulating = true
 	if ragdoll_component != null:
 		ragdoll_component.is_ragdoll = true
 		ragdoll_component.permanent = true
-	_status_label.text = "Simulando %d hueso(s): %s" % [names.size(), ", ".join(names)]
+	_status_label.text = "Simulando %d hueso(s) raíz: %s. Se simula también cada descendiente de los marcados." % [names.size(), ", ".join(names)]
 
 
 func _build_force_row() -> VBoxContainer:
@@ -975,6 +1014,7 @@ func _on_start_pressed() -> void:
 		_status_label.text = "No hay RagdollComponent en %s" % ragdoll_component_path
 		return
 	ragdoll_component.start(true)
+	_ghost_unselected_bones()
 	_status_label.text = "Ragdoll iniciado."
 
 
@@ -982,6 +1022,7 @@ func _on_stop_pressed() -> void:
 	if simulator == null:
 		return
 	simulator.physical_bones_stop_simulation()
+	_ghost_unselected_bones()
 	if ragdoll_component != null:
 		ragdoll_component.is_ragdoll = false
 		ragdoll_component.permanent = false

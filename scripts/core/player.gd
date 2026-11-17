@@ -3,6 +3,7 @@ class_name Player
 
 
 signal item_consumed(proceed:bool)
+signal attacked_close
 
 const CAM_HEIGHT_STAND  : float = 1.5
 const CAM_HEIGHT_CROUCH : float = 0.75
@@ -91,6 +92,7 @@ var weapon_AP : AnimationPlayer
 var current_viewmodel: Node3D
 var viewmodel_ap: AnimationPlayer
 var viewmodel_animation_tree: AnimationTree
+var viewmodel_animator: ViewmodelAnimator = null
 var viewmodel_playback: AnimationNodeStateMachinePlayback
 
 
@@ -103,7 +105,11 @@ var body_at_playback : AnimationNodeStateMachinePlayback
 var arms_mesh: MeshInstance3D 
 var can_move : bool = true
 var playback : AnimationNodeStateMachinePlayback 
-var looking_at_obj : Node3D = Node3D.new()
+var looking_at_obj : Node3D = null
+var is_dead : bool = false
+## Motivos activos por los que el jugador no debe recibir input de juego.
+## Es un conjunto, no un bool: inventario, agarre y muerte pueden solaparse.
+var _input_locks : Dictionary = {}
 
 var _input_direction := Vector2.ZERO
 var direction : Vector3
@@ -115,7 +121,9 @@ var speed : float = 3.0
 func _ready() -> void:
 	health_component = health_component.duplicate()
 	health_component.hurted.connect(hurted)
-
+	health_component.death.connect(die)
+	if player_needs:
+		player_needs.health_component = health_component
 	#ui.inventory_manager.connect("equip_weapon",Callable(self,"equip_weapon"))
 	inventory.hands.main_weapon_changed.connect(equip_weapon)
 	grabbed_object.connect(_on_grabbed_object)
@@ -133,6 +141,7 @@ func _ready() -> void:
 		arms_ap.play("idle")
 	body_at_playback = body_at["parameters/body/playback"]
 
+
 	
 @onready var look_at_component: RayCast3D = %LookAtComponent
 
@@ -140,12 +149,45 @@ signal weapon_changed(gun:Resource)
 
 signal grabbed_object(world_obj:Node3D)
 signal loot_opened(model:InventoryModel,display:String)
+signal player_death
 
 func hurted(damage:float,info:Dictionary) -> void:
+	if is_dead:
+		return
 	view_punch.punch(Vector2(damage,0))
 	ui.flash_hurt()
-	
+
+## Bloquea el input de juego por un motivo concreto. Usar un conjunto evita que
+## cerrar el inventario reactive al jugador mientras sigue muerto o agarrado.
+func set_input_lock(reason: StringName, locked: bool) -> void:
+	if locked:
+		_input_locks[reason] = true
+	else:
+		_input_locks.erase(reason)
+
+func is_input_locked() -> bool:
+	return not _input_locks.is_empty()
+
+func can_be_grabbed() -> bool:
+	return not is_dead and grabber == null
+
+func die(damage:float,info:Dictionary) -> void:
+	if is_dead:
+		return
+	is_dead = true
+	can_move = false
+	velocity = Vector3.ZERO
+	set_input_lock(&"death", true)
+	if is_instance_valid(ui):
+		ui.close_inventory()
+	if grabber:
+		end_grab()
+	ads_controller.aiming = false
+	player_death.emit()
+
 func _try_interact(hit_object: Node) -> void:
+	if is_dead or is_input_locked():
+		return
 	if hit_object is ContainerInteractable:
 		emit_signal("loot_opened",hit_object.inventory_model,hit_object.display_name)
 	elif hit_object.has_method("interact"):
@@ -157,7 +199,12 @@ func _try_interact(hit_object: Node) -> void:
 		var door : DoorComponent = look_at_component.get_collider()
 		door.check_door(self)
 func _unhandled_input(event: InputEvent) -> void:
+	if is_input_locked():
+		return
 	__camera_input(event)
+	if event.is_action_pressed("toggle_flashlight"):
+		if weapon_controller:
+			weapon_controller.toggle_flashlight()
 	if event.is_action_pressed("use"):
 		var object
 		if look_at_component.is_colliding():
@@ -183,6 +230,8 @@ func _process(_delta: float) -> void:
 		if obj is Area3D:
 			obj = obj.owner
 		looking_at_obj = obj
+	else:
+		looking_at_obj = null
 
 
 func __camera_input(event : InputEvent) -> void:
@@ -206,6 +255,13 @@ func _gravity(delta: float) -> void:
 
 func __player_movement(delta:float) -> void:
 	if not can_move:
+		return
+	if is_input_locked():
+		# La gravedad sigue actuando, pero el jugador no camina ni conserva
+		# impulso horizontal mientras una UI o la muerte tienen el control.
+		velocity.x = 0.0
+		velocity.z = 0.0
+		move_and_slide()
 		return
 	_input_direction = Input.get_vector(left, right, forward, backward)
 	if %StateMachine.state.name != "hang":
@@ -257,11 +313,13 @@ const PICKABLE_SCENE := preload("res://scenes/components/pickable_object.tscn")
 ## Quien llame (UI o estado de brazos) debe sacarlo del inventario ANTES.
 ## Si no se puede soltar, el item se devuelve al inventario: nunca se pierde.
 func drop_item(item: ItemInstance) -> void:
-	if item == null:
+	if item == null or is_dead:
 		return
 	if not %normal.can_transition:  # recargando: no se suelta (y no se pierde)
 		inventory.add_anywhere(item)
 		return
+	if item.descriptor.item_mesh == null and item.descriptor.has_method("ensure_item_mesh"):
+		item.descriptor.ensure_item_mesh()
 	if item.descriptor.item_mesh == null:
 		push_warning("drop_item: '%s' no tiene item_mesh." % item.descriptor.item_name)
 		inventory.add_anywhere(item)  # se devuelve: el item no se pierde
@@ -293,7 +351,12 @@ func get_current_weapon() -> EquippableDescriptor:
 ## La UI pidió usar un objeto (comida, bebida, medicina): el Player decide qué
 ## estado del FSM de brazos corresponde y lo pide.
 func use_item(item: ItemInstance) -> void:
+	if is_dead or grabber != null:
+		return
 	await get_tree().process_frame
+	if is_dead or grabber != null:
+		return
+	%ArmsFSM.state.can_transition = true
 	%ArmsFSM.state.finished.emit("consuming", {"item": item})
 
 
@@ -322,20 +385,27 @@ signal grab_escaped  # el jugador llenó la barra de escape
 var grabber: CharacterBody3D
 var grab_anchor: Node3D
 
-func get_grabbed(by: CharacterBody3D, anchor: Node3D) -> void:
-	if grabber:
-		return
+## Devuelve true solo si este zombi consiguió agarrar al jugador. Si ya había
+## otro agarrándolo, el llamador debe atacar en vez de quedar en estado grab.
+func get_grabbed(by: CharacterBody3D, anchor: Node3D) -> bool:
+	if not can_be_grabbed():
+		return false
 	grabber = by
 	grab_anchor = anchor
+	if is_instance_valid(ui):
+		ui.close_inventory()
+	set_input_lock(&"grabbed", true)
 	var data := {"grabber": by, "anchor": anchor}
 	%StateMachine.state.finished.emit("grabbed", data)
 	%ArmsFSM.state.can_transition = true  # aunque esté recargando
 	%ArmsFSM.state.finished.emit("grabbed", data)
+	return true
 
 func end_grab() -> void:
 	if not grabber:
 		return
 	grabber = null
 	grab_anchor = null
+	set_input_lock(&"grabbed", false)
 	%StateMachine.state.finished.emit("idle")
 	%ArmsFSM.state.finished.emit("normal")

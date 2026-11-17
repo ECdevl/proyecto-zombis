@@ -19,6 +19,8 @@ func enter(previous_state_path: String, data := {}) -> void:
 			zombie.zombie_mesh.scale.x = -1
 		zombie.playback.start("stun")
 		await get_tree().create_timer(randf_range(min_stun_time, max_stun_time)).timeout
+		if zombie.state_machine.state != self:
+			return
 		if not zombie.ragdoll_component.is_ragdoll:
 			can_transition = true
 			finished.emit("recover", {"animation": "stun_recover"})

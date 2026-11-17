@@ -20,7 +20,7 @@ func physics_update(_delta: float) -> void:
 			finished.emit("idle")
 
 func exit(next_state_path:String) -> void:
-	if next_state_path != "prone" or next_state_path != "crouch":
+	if next_state_path != "prone" and next_state_path != "crouch":
 		player.yaw.position = Vector3(0.0,1.0,0.0)
 		player.collision_standing.disabled = false
 		player.collision_crouched.disabled =true

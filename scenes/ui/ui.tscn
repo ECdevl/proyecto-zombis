@@ -4,9 +4,22 @@
 [ext_resource type="Script" uid="uid://bsopu1qttaw0" path="res://scripts/inventory/controller/inventory_ui_controller.gd" id="4_gdt2y"]
 [ext_resource type="PackedScene" uid="uid://5v7bcrkk5m62" path="res://scenes/ui/inventory_view.tscn" id="6_8dubc"]
 [ext_resource type="Script" uid="uid://dalhqhdgs4pkw" path="res://scripts/inventory/ui/equip_view.gd" id="6_p7vwb"]
+[ext_resource type="Shader" uid="uid://bebk2np837ale" path="res://materials/vignette.gdshader" id="8_jcn1r"]
 [ext_resource type="PackedScene" uid="uid://g74dur30org" path="res://scenes/ui/item_actions.tscn" id="8_uegxj"]
+[ext_resource type="Texture2D" uid="uid://bfwcn0i08pul2" path="res://assets/sprites/blood_splatter_screen.png" id="9_uegxj"]
 [ext_resource type="Script" uid="uid://x065rabl4u3m" path="res://scripts/inventory/view/hand_slot_view.gd" id="10_4kltc"]
+[ext_resource type="Texture2D" uid="uid://1vtuu81dox33" path="res://assets/sprites/keys/Dark/Enter-Key.png" id="10_hl07w"]
 [ext_resource type="Texture2D" uid="uid://csnjpx6ohqe73" path="res://assets/sprites/grid.png" id="10_y220t"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_7vp6q"]
+shader = ExtResource("8_jcn1r")
+shader_parameter/vignette_color = Color(0.45, 0.02, 0.02, 1)
+shader_parameter/intensity = 0.0
+shader_parameter/inner_radius = 0.18000000855
+shader_parameter/softness = 0.65
+shader_parameter/screen_tint = 0.0
+shader_parameter/pulse_speed = 1.0000000475
+shader_parameter/pulse_strength = 0.162000007695
 
 [sub_resource type="Gradient" id="Gradient_nt7q6"]
 interpolation_mode = 1
@@ -36,6 +49,25 @@ gradient = SubResource("Gradient_4kltc")
 [sub_resource type="LabelSettings" id="LabelSettings_vyfcd"]
 font_size = 48
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_uegxj"]
+bg_color = Color(0, 0, 0, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_uegxj"]
+font_size = 100
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_swkix"]
+content_margin_left = 750.0
+content_margin_right = 750.0
+content_margin_bottom = 50.0
+bg_color = Color(0.6, 0.6, 0.6, 0)
+
+[sub_resource type="InputEventKey" id="InputEventKey_y220t"]
+device = -1
+keycode = 4194309
+
+[sub_resource type="Shortcut" id="Shortcut_y220t"]
+events = [SubResource("InputEventKey_y220t")]
+
 [node name="UI" type="Control" unique_id=1877997638]
 layout_mode = 3
 anchors_preset = 15
@@ -45,6 +77,19 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_nt7q6")
+
+[node name="vignette" type="ColorRect" parent="." unique_id=542339131]
+unique_name_in_owner = true
+visible = false
+z_index = 974
+material = SubResource("ShaderMaterial_7vp6q")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
 
 [node name="hurt_flash" type="ColorRect" parent="." unique_id=1997764759]
 unique_name_in_owner = true
@@ -529,3 +574,59 @@ grow_horizontal = 2
 grow_vertical = 0
 text = "¡Liberate!"
 horizontal_alignment = 1
+
+[node name="screen_splatter" type="TextureRect" parent="." unique_id=232719440]
+unique_name_in_owner = true
+visible = false
+z_index = 1653
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("9_uegxj")
+
+[node name="DeathScreen" type="PanelContainer" parent="." unique_id=602797422]
+unique_name_in_owner = true
+visible = false
+z_index = 1654
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_uegxj")
+
+[node name="Label" type="Label" parent="DeathScreen" unique_id=1813218934]
+layout_mode = 2
+size_flags_vertical = 1
+text = "Estas muerto"
+label_settings = SubResource("LabelSettings_uegxj")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="restart" type="Button" parent="DeathScreen" unique_id=697370982]
+layout_mode = 2
+size_flags_vertical = 8
+theme_override_font_sizes/font_size = 48
+theme_override_styles/normal = SubResource("StyleBoxFlat_swkix")
+theme_override_styles/normal_mirrored = SubResource("StyleBoxFlat_swkix")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_swkix")
+theme_override_styles/pressed_mirrored = SubResource("StyleBoxFlat_swkix")
+theme_override_styles/hover = SubResource("StyleBoxFlat_swkix")
+theme_override_styles/hover_mirrored = SubResource("StyleBoxFlat_swkix")
+theme_override_styles/hover_pressed = SubResource("StyleBoxFlat_swkix")
+theme_override_styles/hover_pressed_mirrored = SubResource("StyleBoxFlat_swkix")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_swkix")
+theme_override_styles/disabled_mirrored = SubResource("StyleBoxFlat_swkix")
+theme_override_styles/focus = SubResource("StyleBoxFlat_swkix")
+shortcut = SubResource("Shortcut_y220t")
+text = "Reiniciar"
+icon = ExtResource("10_hl07w")
+expand_icon = true
+
+[connection signal="pressed" from="DeathScreen/restart" to="." method="_on_restart_pressed"]

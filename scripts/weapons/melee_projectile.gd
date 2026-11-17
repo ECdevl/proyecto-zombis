@@ -60,9 +60,9 @@ func fire() -> void:
 	for i in _ray_order(angles.size()):
 		var dir := Basis(axis, angles[i]) * aim
 		var query := PhysicsRayQueryParameters3D.create(origin, origin + dir * range)
-		query.collision_mask = HITBOX_MASK
+		query.collision_mask = WORLD_MASK | HITBOX_MASK
 		query.collide_with_areas = true
-		query.collide_with_bodies = false  # solo interesan los hitboxes del zombi
+		query.collide_with_bodies = true  # el mundo ahora corta el fan de rayos
 
 		var result := cam.get_world_3d().direct_space_state.intersect_ray(query)
 		if result.is_empty():
@@ -149,7 +149,9 @@ func _apply_hit_with_dir(collider: Object, hit_pos: Vector3, zombie: Zombie) -> 
 		zombie.set_meta("melee_hit_dir", push_direction.normalized() if push_direction.length_squared() > 0.0001 else (-get_viewport().get_camera_3d().global_basis.z))
 
 	zombie.health_component.hurt(dmg, {"who":hitbox,"attacker":_attacker(),"hit_pos":hit_pos,"impulse":push_direction,"force":knockback,"swing":swing_data_ref.direction})
-
+	if _attacker() is Player:
+		var att : Player = _attacker()
+		att.attacked_close.emit()
 
 func _damage_for(hitbox: Node) -> float:
 	# Cabeza = daño completo. El resto recibe un daño mínimo (0.1) que no mata

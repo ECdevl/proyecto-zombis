@@ -18,7 +18,7 @@ func _ready() -> void:
 func change_linked_item(new_item:ItemInstance) -> void:
 	if new_item:
 		item_linked = new_item.descriptor
-		texture_rect.texture = new_item.descriptor.icon
+		texture_rect.texture = new_item.descriptor.get_icon()
 		instance_item = new_item
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey:

@@ -48,8 +48,9 @@ func bind_inventory(carried_inventories: PlayerCarriedInventories) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("ui_cancel"):
+	if event.is_action_pressed("ui_cancel") and not _loot_panels.is_empty():
 		close_loot()
+		get_viewport().set_input_as_handled()
 
 
 # --- API pública -----------------------------------------------------------
@@ -86,7 +87,8 @@ func unequip(slot: WearableItemDescriptor.EquipSlot) -> void:
 	carried.equipment.remove(item)
 	for i in item.descriptor.quick_slots:
 		if i >= 0:
-			quick_slots.get_child(i).queue_free()
+			if quick_slots.get_child_count() > i:
+				quick_slots.get_child(i).queue_free()
 			carried.refresh_quick_slots()
 		else:
 			break
@@ -219,7 +221,8 @@ func _end_drag() -> void:
 	_finish_drag()  # si no se pudo soltar, nada cambió: el objeto sigue donde estaba
 
 func _drop_on_quick_slot(target:QuickSlot) -> void:
-	target.change_linked_item(_drag_item)
+	if _drag_item != null and carried != null and carried.has_item(_drag_item):
+		target.change_linked_item(_drag_item)
 
 func _drop_on_inventory(view: InventoryView, mouse: Vector2) -> void:
 	var footprint := view.model.footprint_of(_drag_item, _drag_rotated)

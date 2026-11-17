@@ -4,7 +4,7 @@ class_name HandsModel extends Resource
 ## Avisa con `changed`, y con `main_weapon_changed` cuando cambia el arma que se ve en pantalla.
 
 signal main_weapon_changed(weapon: EquippableDescriptor)  # null = sin arma
-
+signal secondary_weapon_changed(weapon: EquippableDescriptor)
 enum Hand { LEFT, RIGHT }
 
 var _held: Dictionary[Hand, ItemInstance] = {}

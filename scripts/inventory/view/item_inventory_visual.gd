@@ -16,7 +16,7 @@ var _tooltip: Control
 
 func setup(new_item: ItemInstance, is_rotated: bool) -> void:
 	item = new_item
-	get_child(0).texture = item.descriptor.icon
+	get_child(0).texture = item.descriptor.get_icon()
 	set_rotated(is_rotated)
 
 
@@ -29,7 +29,7 @@ func _ready() -> void:
 		mouse_exited.connect(_on_mouse_exited)
 	if get_child(0).texture == null and item:
 		await item.descriptor.ensure_icon(self)
-		get_child(0).texture = item.descriptor.icon
+		get_child(0).texture = item.descriptor.get_icon()
 
 
 ## El control mantiene su tamaño "sin rotar" y se gira 90° alrededor de su centro.

@@ -10,14 +10,22 @@ func physics_update(_delta: float) -> void:
 func enter(previous_state_path: String, data := {}) -> void:
 	zombie.velocity = Vector3.ZERO
 	await zombie.at.animation_finished
-	finished.emit("chase")
+	# La espera puede terminar cuando el zombi ya está en grab, hurt, etc.
+	# Sin este guard, un `idle` pendiente pisa ese estado y suelta al jugador.
+	if zombie.state_machine.state != self:
+		return
 	zombie.state_machine.can_change_state = true
 	zombie.vision.can_see = true
+	finished.emit("chase")
 
 
 func _on_vision_target_spotted(_target: Node3D) -> void:
 	print_debug("SPOTTED: ", _target)
 
+	# La señal de visión está cableada permanentemente en la escena. Solo
+	# debe iniciar persecución si idle sigue siendo el estado activo.
+	if zombie.state_machine.state != self:
+		return
 	# El zombi NO gira la cabeza para clavar la mirada en el jugador: la
 	# detección y el "mirar de frente" los decide el cuerpo (ver D-018).
 	# Aquí solo arranca la persecución; `chase` gira andando.

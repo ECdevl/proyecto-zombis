@@ -1,3 +1,5 @@
+> **Nota de estructura:** este archivo continúa en `DECISIONES.md` (D-006..); `DECISIONS.md` conserva los registros D-001..D-005. No renombrar/fusionar sin acordar con el usuario.
+
 
 ## D-006 — Soltar objetos: la plantilla del mundo es `item_mesh`, no el empaquetado del nodo vivo (2026-10-29)
 
@@ -789,3 +791,173 @@ estiramiento final 0.049, estiramiento máximo histórico **0.251**, antes 0.255
 sin NaN, pelvis en rango, ningún hueso bajo el piso). `ragdoll_debug.gd`
 compila limpio (`--check-only`) y `ragdoll_testing.tscn` corre headless sin
 errores de script. Falta la validación visual del usuario con el panel.
+
+## D-022 — Ragdoll parcial: corrección del ascenso infinito, semántica honesta de la selección y arranque asentado (2026-11-06)
+
+**Contexto:** el usuario reportó (2026-11-06) que con la pelvis desmarcada en
+el wizard de RagdollDebug el ragdoll salía disparado hacia arriba sin límite,
+y que con la pelvis marcada arrancaban todos los huesos. El usuario autorizó
+explícitamente (su ausencia durante el trabajo) tomar la mejor decisión sin
+preguntar, aunque costara más tiempo.
+
+**Decisión (autónoma):**
+
+1. **Fix del ascenso infinito:** `ragdoll_component._physics_process()`
+   condiciona el teletransporte del `CharacterBody3D` y `velocity =
+   Vector3.ZERO` a `pelvis.is_simulating_physics()`. Desbloquea el modo
+   "ancla" (pelvis KINEMATIC quieta; los demás huesos cuelgan de ella).
+2. **Semántica de la selección = clausura de descendientes, comunicada.**
+   `physical_bones_start_simulation(names)` simula los huesos nombrados y
+   todos sus descendientes; la pelvis es la raíz. No existe start/stop por
+   hueso individual ni selección exacta en GDScript (verificado en el fuente
+   de 4.7-stable: `set_simulate_physics` / `reset_physics_simulation_state`
+   no están bindeados; lista vacía simula todo). En lugar de un comportamiento
+   "mágico", la UI dice la verdad: título "Huesos a simular (cada hueso
+   arrastra a sus descendientes)", checkbox **"pelvis (raíz)"**, hint con las
+   dos consecuencias (marcar pelvis = ragdoll completo; no marcarla = ancla
+   KINEMATIC) y status del reinicio con el recuento raíz + descendientes.
+3. **Huesos sin simular = fantasma:** `_ghost_unselected_bones()` pone
+   `collision_layer = 0` / `collision_mask = 0` en los huesos que no simulan y
+   restaura los que sí (backup en `_bone_physics_backup`), llamado en
+   reinicio / start / stop. Elimina los contactos accidentales del ancla con
+   los huesos dinámicos.
+4. **Arranque asentado:** `_on_restart_simulation()` espera **10 physics
+   frames** (`SETTLE_FRAMES_BEFORE_START`) antes de arrancar cuando el árbol
+   no está pausado. Medido: v≈280 m/s → 1.7 m/s (caída estable, sin NaN,
+   joints con estiramiento ≤0.056 m). El ragdoll completo no cambia.
+5. **Sonda de regresión** `tools/probe_ragdoll_partial.gd` con aserciones;
+   `MAX_BONE_SPEED` 8.0 → 12.0 calibrado contra el baseline sano del
+   ragdoll completo (11.7 m/s en el impacto desde 2 m; el umbral anterior
+   era inalcanzable sin ser un bug genuino). Escenarios: A (todos menos
+   pelvis, el caso original del usuario) y B (solo pelvis).
+6. **Limpieza:** sonda desechable `tools/probe_ragdoll_poses.*` eliminada;
+   `print_debug` de `_is_resting()` eliminado; registro de decisiones
+   partido `DECISIONS.md` (D-001..D-005) / `DECISIONES.md` (D-006..)
+   documentado con una nota en la cabecera.
+
+**Consecuencia / verificación:** `probe_ragdoll_partial` → *TODO OK*;
+`probe_ragdoll_behavior` (ragdoll completo) → *TODO OK*; panel de debug
+arranca headless sin errores de script. Ver ERRORES.md **E-022** para el
+detalle del bug y sus tres causas.
+
+**Limitación aceptada:** arrancar la simulación parcial desde una pose no
+asentada inyecta un "golpe" inicial proporcional al salto teleport-a-teleport
+de los huesos KINEMATIC; el asentamiento lo elimina. Si en el futuro se
+necesitara una selección exacta o un ancla con joint blando, habría que
+resolverlo con C++/GDExtension (los limit springs y el control fino del joint
+6DOF tampoco están expuestos, ver E-021).
+
+## D-023 — Sangre: chorro en la herida + salpicaduras donde cae (2026-11-06)
+
+**Contexto:** la sangre solo pintaba `Decal` en superficies (`Zombie._spawn_decals` → `BloodSplatter.splash`); la escena de partículas `blood.tscn` estaba desconectada (llamada comentada, `particle_direction` ignorada). El usuario pidió sangre "a chorros" desde la parte dañada y salpicaduras donde cae, con el fallback de limitarse a partículas si el rendimiento lo exigía.
+
+**Decisión:** chorros visuales sin física por partícula + decals existentes:
+- `BloodBurst` (`scenes/effects/blood_burst.tscn`, `local_coords = false`, gravedad −14) en el `hit_pos` exacto del hitbox; `spray(pos, exit_dir, strength)` duplica el `ParticleProcessMaterial` para orientar cada chorro y escalar velocidad/cantidad (`amount` 4..64). Se libera con `finished`; tope global de 12 chorros vivos.
+- Dirección de salida con prioridad `info.impulse` → atacante→herida → adelante del zombi. Intensidad por zona/daño (cabeza 1.4/1.6, mortal 1.0/1.1, normal 0.6, roce 0.3, sin daño 0.4).
+- `BloodSplatter.splash(..., intensity)` escala radios/distancias/tamaños y `_ground_drop()` proyecta el aterrizaje por delante, así que el piso recibe sangre aunque no haya pared detrás.
+- `GameManager.blood_splatter()` redirigido al sistema nuevo (firma compatible). La `blood.tscn` legacy queda huérfana (decidir si se borra).
+
+**Alternativa descartada:** colisión real de las partículas (`collision_mode` contra el mundo). O(n_por_partícula × colisiones con hordas), difícil de amarre a la herida y sin retorno visual frente a decals.
+
+**Verificación:** `tools/probe_blood.tscn` → *TODO OK* (8 aserciones: cabeza amount 20 vs pierna 6, dot de dirección 1.00, decals en piso 0.05 vs chorro 1.90); regresión `probe_zombie`, `probe_melee`, `probe_hitdir` → *TODO OK*; `check_tscn_connections.py` sin cambios (3 rotas preexistentes del wizard). Pendiente: ajuste visual en juego.
+
+## D-024 — Bullet holes con la textura de la partícula (2026-11-06)
+
+**Contexto:** el usuario ajustó el chorro a `RibbonTrailMesh` y pidió reutilizar la textura de la partícula (`assets/sprites/blood_particle.png`) para bullet holes en enemigos y mundo, "como decals nomas".
+
+**Decisión:**
+- `Projectile._spawn_bullet_hole(pos, normal)` crea un `Decal` con esa textura (size 0.18 m, modulate rojo, cull mundo, distance fade). Fijo en el mundo: no sigue al hueso.
+- En zombi la normal es hacia el tirador (`-exit_dir`); en mundo es `result.normal` del rayo. `fire()` pasa la normal real a `_apply_hit()`.
+- Sin melee (usa `_apply_hit_with_dir`). `probe_blood` migrada a medir `initial_velocity_max` (el amount quedó fijo en 24 con RibbonTrailMesh).
+
+**Alternativa descartada:** pegar el decal al hueso (BoneAttachment). El usuario eligió fijo-en-mundo; además, el hueso se mueve y el agujero arrastrado se vería raro.
+
+**Verificación:** `probe_bullet_hole` → *TODO OK* (4 aserciones); `probe_blood` → *TODO OK* tras la migración; regresión `probe_zombie`, `probe_melee`, `probe_hitdir` → *TODO OK*.
+
+## D-025 — Bullet hole pegado al hueso y mundo con icono placeholder (2026-11-06)
+
+**Contexto:** el usuario pidió (1) que el rayo no se bloqueara con pickups, (2) que el agujero en el zombi se pegara al cuerpo (la alternativa a fijo-en-mundo), y (3) que el mundo usara el icono de Godot como placeholder hasta reemplazarlo.
+
+**Decisión:**
+- `Projectile._spawn_bullet_hole_on_bone()`: `Decal` hijo del `BoneAttachment3D` del hitbox; `transform` local = `bone.global_transform.affine_inverse() *` global deseado (posición `hit_pos + normal*0.02`, base con `+Y=normal` y rollo aleatorio). Sigue al hueso; se libera con el zombi al morir (la raíz se libera en `death.gd`).
+- Mundo: `icon.svg` como textura placeholder (`WORLD_HOLE_TEX`, comentario TODO para reemplazar).
+- Rayo: `_camera_raycast()` excluye por RID todo `PickableItem` de la escena; `_apply_hit()` solo pone agujero de mundo si el collider es `StaticBody3D`. `test.tscn`: pickups en capa 2.
+
+**Verificación:** `probe_bullet_hole` → *TODO OK* (4 casos); regresión `probe_blood`, `probe_zombie`, `probe_melee`, `probe_hitdir` → *TODO OK*. Ver E-023.
+
+## D-026 — Viñeta a pantalla completa con shader de canvas (2026-11-10)
+
+**Contexto:** se necesita un efecto de pantalla reutilizable para poca vida y para la muerte.
+
+**Decisión:** `materials/vignette.gdshader` (`shader_type canvas_item`), aplicado a un `ColorRect` a pantalla completa mediante `materials/vignette.tres`. La máscara es una distancia radial en UV normalizada (0.0 en el centro, 1.0 en las esquinas y ~0.707 en el centro de cada borde), con degradado `smoothstep`, color, tinte plano (`screen_tint`) y latido opcional (`pulse_speed` / `pulse_strength`).
+
+No se muestrea la pantalla (`hint_screen_texture`): el efecto es una capa alpha sobre la escena. Razones: no fuerza copia de backbuffer, no desatura el HUD ya dibujado y el coste por píxel es trivial.
+
+**Consecuencia:** la opacidad se controla con `intensity` (no con el `color` del ColorRect, que debe quedar blanco con alpha 1); el nodo va por encima del HUD y con `mouse_filter = 2`. La integración en `scenes/ui/ui.tscn` queda pendiente en T-018.
+
+**Verificación:** escena temporal en Forward Mobile (Vulkan) → sin errores de shader; captura 640×360 con `intensity = 1`: centro intacto, bordes con mezcla roja y esquinas al máximo.
+
+## D-027 — Ícono manual por descriptor con respaldo automático (2026-11-16)
+
+**Contexto:** el usuario quedó disconforme con los íconos que genera `IconCreator` y pidió poder asignar a mano el ícono de cada objeto desde el editor, manteniendo el ícono automático como respaldo para los que no tengan uno manual.
+
+**Decisión:**
+- `ItemDescriptor.icon` pasa a ser el **ícono manual** (exportado, visible en el inspector del `.tres`; se asigna arrastrando una textura). `null` = sin ícono manual.
+- El ícono automático se guarda en `_auto_icon`, una variable de runtime que no se exporta ni se escribe en el `.tres` (es caché de la sesión).
+- `ItemDescriptor.get_icon()` es la única puerta de lectura para la UI: devuelve `icon` si existe y, si no, `_auto_icon`.
+- `ensure_icon()` no genera nada si `get_icon()` ya devuelve una textura (manual o automática), así el ícono manual nunca se sobrescribe. Si otro objeto del mismo tipo pidió el ícono mientras se estaba generando, espera la señal `icon_ready` en vez de quedarse con la textura en `null`.
+
+**Consecuencia:** la UI (`ItemVisual`, slots de mano/ropa, quick slot y menú de acciones) lee `descriptor.get_icon()` en vez de `descriptor.icon`. Para reemplazar un ícono automático basta asignar la textura en el `.tres` del descriptor; para volver al automático, vaciar ese campo y reiniciar la partida.
+
+**Verificación:** `godot --headless --check-only` limpio en `item_descriptor.gd` y en los seis consumidores modificados (`item_inventory_visual.gd`, `hand_slot_view.gd`, `equip_view.gd`, `item_actions.gd`, `quick_slot.gd`, `probe_abuse.gd`). Comprobación headless de la semántica: sin ícono `get_icon()` devuelve `null`; con ícono manual devuelve esa textura; `ensure_icon()` no la pisa; al vaciar el campo vuelve a `null`.
+
+## D-028 — Estudio IconCreator para íconos manuales (2026-11-17)
+
+**Contexto:** el usuario pidió que `IconCreator` sea una herramienta de editor: importar el modelo, posicionarlo en la escena, encuadrarlo con una cámara y presionar un botón para capturar el `SubViewport` con `get_texture().get_image()`, crear una `ImageTexture` y guardarla para asignarla al descriptor del objeto. Si el objeto no tiene ícono manual, se mantiene el generador automático.
+
+**Decisión:**
+- `scenes/ui/icon_creator.tscn` pasa a ser un estudio `@tool` con raíz `Node3D` (`scripts/core/icon_creator.gd`): `Modelo` (contenedor donde se arrastra el modelo importado), `Camera3D` y `OmniLight3D` del estudio, y un `SubViewport` aislado (`own_world_3d`, `transparent_bg`, 256×256, `UPDATE_DISABLED`) con su propia cámara y luz.
+- El modelo se posiciona **fuera** del `SubViewport` porque el editor no dibuja los hijos 3D de un `SubViewport` en la vista 3D. Al capturar, se duplica dentro del `SubViewport` con la transformación del estudio; la cámara y la luz de captura copian el encuadre y las propiedades de las del estudio.
+- `@export_tool_button("Capturar ícono")` ejecuta `capturar()`: renderiza con `UPDATE_ONCE` + `await RenderingServer.frame_post_draw`, toma `sub_viewport.get_texture().get_image()`, crea la textura con `ImageTexture.create_from_image()` y la guarda con `ResourceSaver.save()` en `res://assets/sprites/icons` como `.res` (por defecto) o `.tres`.
+- La captura se puede asignar automáticamente a un `ItemDescriptor` (`item_descriptor` exportado): carga la textura recién guardada, escribe `icon` y guarda el `.tres` del descriptor. El campo `icon` sigue siendo el ícono manual de D-027.
+- El respaldo automático se separó a `scenes/ui/icon_creator_auto.tscn` + `scripts/core/icon_creator_auto.gd` (SubViewport autocontenido, 512×512 por defecto). `ItemDescriptor.ensure_icon()` preloadea esa escena liviana, no el estudio, para no cargar el modelo del estudio en runtime.
+
+**Consecuencia:** el flujo manual es: abrir `icon_creator.tscn`, arrastrar el modelo importado dentro de `Modelo`, posicionarlo, encuadrarlo con `Camera3D`, elegir carpeta/nombre y presionar el botón. El `.res`/`.tres` queda en el FileSystem y, si se asignó descriptor, el ícono se escribe en su `.tres`. Los objetos sin ícono manual siguen usando `ensure_icon()` con el generador liviano.
+
+**Verificación:** `godot --headless --check-only` limpio en `icon_creator.gd`, `icon_creator_auto.gd`, `item_descriptor.gd` y el test temporal. Prueba no-headless (Vulkan/Forward Mobile): captura manual 256×256 con fondo transparente y modelo centrado (`used_rect` 202×202); guardado y recarga `.res` OK; asignación a un `MiscItemDescriptor` guardada y recargada OK; respaldo automático 512×512 con `used_rect` completo; `ItemDescriptor.ensure_icon()` devuelve la textura automática 512×512. La escena temporal de prueba se eliminó al cerrar.
+
+## D-029 — La linterna se ancla al esqueleto visible, no a un rig fijo (2026-11-17)
+
+**Contexto:** los brazos visibles cambian según el equipo. Sin arma se usa `armsy`; con arma, `weapon_controller` oculta `armsy` y muestra los brazos del viewmodel del arma. Anclar la linterna solo a `armsy` la hacía desaparecer con cualquier arma (E-024).
+
+**Decisión:** la linterna sigue al **esqueleto visible en cada momento**, no a un rig concreto. `player.gd` resuelve el `Skeleton3D` del `current_viewmodel` y localiza la cadena del brazo izquierdo por nombres normalizados, de modo que funciona con los rigs `upper_arm_left/forearm_left/hand_left` de los GLB actuales y con variantes `upper_arm_L/lower_arm_L/hand_L`. El IK y la rotación de mano se reutilizan si el esqueleto es el de `armsy`; si es un viewmodel, se crean nodos temporales (`FlashlightIK`, `FlashlightHandRot`) y un `pole` copiado del rig del jugador. Al cambiar de arma o desequipar, `refresh_flashlight_rig()` reconstruye el anclaje y libera los nodos anteriores.
+
+**Alternativa descartada:** mantener visible solo el brazo izquierdo de `armsy` y ocultar el derecho. Se descartó porque las animaciones del viewmodel mueven el brazo izquierdo y quedaría un brazo del rig del jugador mezclado con la pose del arma, además de duplicar la lógica de visibilidad por arma.
+
+**Consecuencia:** cualquier arma de una mano funciona sin cambios por arma, siempre que su viewmodel incluya la cadena del brazo izquierdo. Si un viewmodel no la incluye, la linterna se oculta en vez de quedar flotando. El `Marker3D` de `scenes/player.tscn` pasó a `(-0.20, -0.08, -0.42)` para que la mano y la linterna se vean completas en 16:9.
+
+**Verificación:** capturas 16:9 con Glock-17, cuchillo, Desert Eagle y machete, más el caso sin arma y el desequipado; un solo `FlashlightAttachment` por esqueleto e instancia/luz válidas en todos los casos.
+
+## D-030 — Animaciones contextuales reutilizables mediante AnimationTree compartido en los viewmodels (2026-11-17)
+
+**Contexto:** el usuario preguntó si era posible usar un `AnimationTree` con el propio esqueleto de los viewmodels de los equipables, para no repetir animaciones contextuales en cada arma y poder hacer animaciones contextuales (como la linterna) una sola vez. Se verificó que los GLB reales (`glock.glb`, `desert_eagle.glb`, `machete.glb`, `cuchillo_de_cocina.glb`) comparten el mismo rig (`rig/Skeleton3D`, huesos `upper_arm_left`/`forearm_left`/`hand_left`, etc.) y que **ninguno** trae `AnimationTree` (solo `AnimationPlayer`), por lo que `player.viewmodel_animation_tree` quedaba `null` con arma y el código caía al árbol del cuerpo.
+
+**Decisión:** se centraliza toda la animación del viewmodel en un `AnimationTree` construido en runtime por `scripts/core/viewmodel_animator.gd` (`ViewmodelAnimator`), que se instancia por arma en `weapon_controller._on_weapon_changed()`:
+
+- `AnimationNodeBlendTree` con nodos `base` (AnimationNodeAnimation), `shot` (AnimationNodeAnimation), `one_shot` (AnimationNodeOneShot, `in`=base, `shot`=shot), `context` (AnimationNodeAnimation con filtro al brazo izquierdo), `blend` (Blend2, `in`=one_shot, `blend`=context) y `output`.
+- Base: `idle`/`run` se cambian con `play_base()` asignando `base.animation` directamente (no es parámetro del árbol).
+- One-shots: `draw`, `shoot`, `swing1/2`, `reload`, `punch` se disparan con `fire_shot()` asignando `shot.animation` y poniendo `parameters/one_shot/request = FIRE`. Al terminar, el one-shot vuelve a `in` (base).
+- Contexto: capa filtrada al brazo izquierdo (`upper_arm_left`, `forearm_left`, `hand_left`) cuyo peso se controla con `parameters/blend/blend_amount`. La animación `ctx_flashlight` se genera una sola vez (`resources/viewmodels/ctx_flashlight.tres`) a partir de la pose resuelta por el IK de la linterna y se añade a la librería por defecto del `AnimationPlayer` de cada viewmodel, así que se reutiliza en todos los equipables.
+- `weapon_controller` y `run.gd` migran sus `weapon_ap.play/queue/play_backwards` a `ViewmodelAnimator` (con fallback al `AnimationPlayer` directo si no hay árbol). `play_grab_animation()` sigue usando el árbol del cuerpo, que es donde vive el one-shot `grab`.
+
+**Consecuencia:** cualquier animación contextual nueva se autoriza una sola vez (un `.tres` con pistas `rig/Skeleton3D:...`) y se activa por peso desde cualquier sistema (linterna, futuro estado agarrado, etc.) sin tocar los viewmodels. El IK de la linterna se mantiene como corrector final (híbrido): el árbol da la pose base del brazo y el IK ajusta la mano al `Marker3D`.
+
+**Verificación:** `godot --headless --path . --quit` sin errores de parseo; probe de equipar machete y Glock-17 con disparo de one-shot (`active=true`) y desequipado correcto; peso de contexto 1.0 con linterna equipada y 0.0 al quitarla; capturas 16:9 sin regresión visual.
+
+## Actualización D-030 (2026-11-17, misma sesión) — Árbol de viewmodel cargado desde escena
+
+**Contexto:** el Señor prefirió no construir el `AnimationTree` por código y en su lugar aportó `scenes/weapons/viewmodel_tree.tscn`, con un `AnimationNodeStateMachine` para las animaciones del arma (draw/idle/run/shoot/swing1/swing2/reload/punch) y un `BlendTree` con una capa `context` (Blend2) para animaciones contextuales filtradas al brazo izquierdo.
+
+**Decisión:** `ViewmodelAnimator.setup()` ahora instancia esa escena, asigna su `anim_player` al `AnimationPlayer` del viewmodel equipado y la activa. Las animaciones contextuales `ctx_*.tres` se siguen cargando automáticamente en la librería por defecto del `AnimationPlayer`, por lo que basta con soltar el recurso en `resources/viewmodels/` y (si se quiere un nuevo canal) añadir el nodo correspondiente en la escena. El control de la capa contextual se hace con `parameters/context/blend_amount`.
+
+**Consecuencia:** el state machine y la capa contextual son editables en el editor sin tocar código; `ViewmodelAnimator` queda reducido a instanciar, asignar y disparar transiciones (`travel`) por nombre.

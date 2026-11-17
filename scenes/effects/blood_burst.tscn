@@ -1,0 +1,52 @@
+[gd_scene format=3 uid="uid://bloodburst001"]
+
+[ext_resource type="Script" uid="uid://s03jnr82i6gr" path="res://scripts/effects/blood_burst.gd" id="1_burst"]
+
+[sub_resource type="Gradient" id="Gradient_col"]
+offsets = PackedFloat32Array(0, 0.7016129)
+colors = PackedColorArray(1, 0.019607844, 0.019607844, 1, 0.55, 0, 0, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture_col"]
+gradient = SubResource("Gradient_col")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_burst"]
+emission_shape = 1
+emission_sphere_radius = 0.02
+direction = Vector3(0, 1, 0)
+spread = 42.0
+initial_velocity_min = 2.5
+initial_velocity_max = 7.0
+angular_velocity_min = -90.0
+angular_velocity_max = 90.0
+gravity = Vector3(0, -14, 0)
+damping_min = 0.5
+damping_max = 1.5
+scale_min = 0.15
+scale_max = 0.45
+color_ramp = SubResource("GradientTexture_col")
+
+[sub_resource type="Curve" id="Curve_4rmmu"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0.53846157), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_b54h1"]
+albedo_color = Color(1, 0, 0, 1)
+
+[sub_resource type="RibbonTrailMesh" id="RibbonTrailMesh_8kpl3"]
+material = SubResource("StandardMaterial3D_b54h1")
+size = 0.1
+section_length = 0.1
+curve = SubResource("Curve_4rmmu")
+
+[node name="blood_burst" type="GPUParticles3D" unique_id=13610580]
+emitting = false
+amount = 64
+one_shot = true
+explosiveness = 0.9
+fixed_fps = 60
+transform_align = 2
+process_material = SubResource("ParticleProcessMaterial_burst")
+draw_pass_1 = SubResource("RibbonTrailMesh_8kpl3")
+script = ExtResource("1_burst")
+min_strength = 10.0
+max_strength = 20.0

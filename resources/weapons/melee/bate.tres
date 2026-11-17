@@ -1,5 +1,6 @@
 [gd_resource type="Resource" script_class="Melee" format=3 uid="uid://1pliys4sarhg"]
 
+[ext_resource type="Texture2D" uid="uid://dscgoskq0ykr7" path="res://assets/sprites/icons/bate_icon.res" id="1_dr6cj"]
 [ext_resource type="ArrayMesh" uid="uid://drd17ygmcujib" path="res://assets/models/weapons/melee/one_hand/bate_world.obj" id="1_i6vst"]
 [ext_resource type="Script" uid="uid://c5ccot1xni1sw" path="res://scripts/inventory/descriptors/melee.gd" id="2_j4gi4"]
 [ext_resource type="Script" uid="uid://dskngi7txlhue" path="res://scripts/inventory/descriptors/swing_data.gd" id="3_j4gi4"]
@@ -26,6 +27,7 @@ damage = 20.0
 fire_rate = 3.5
 weapon_range = 4.0
 item_name = "Bate de beisbol"
+icon = ExtResource("1_dr6cj")
 dimensions = Vector2i(3, 1)
 item_mesh = ExtResource("1_i6vst")
 metadata/_custom_type_script = "uid://c5ccot1xni1sw"

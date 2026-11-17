@@ -21,14 +21,15 @@ func check_current_weapon() -> void:
 			player.playback.travel("idle")
 
 func update(_delta: float) -> void:
-	if Input.is_action_pressed("M1"):
-		call_deferred("attack")
+	if not player.is_dead and not player.is_input_locked():
+		if Input.is_action_pressed("M1"):
+			call_deferred("attack")
 	can_transition = !player.weapon_controller.reloading
 	
 func handle_input(_event: InputEvent) -> void:
 
-
-
+	if player.is_dead or player.is_input_locked():
+		return
 	if _event.is_action_pressed("M2"):
 
 		if player.get_current_weapon():
@@ -62,6 +63,8 @@ func physics_update(_delta: float) -> void:
 
 var combo_index : int = 0
 func attack() -> void:
+	if player.is_dead or player.is_input_locked():
+		return
 	if player.weapon_controller.current_weapon is Weapon:
 		await player.weapon_controller.shoot()
 	else:

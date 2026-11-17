@@ -40,17 +40,23 @@ func interact(target:Node3D):
 	check_door(target)
 
 
+func _on_body_entered(body: Node3D) -> void:
+	check_door(body)
+
 
 func check_door(target: Node3D = null):
 	if target:
 		opener = target
+	if opener == null:
+		return
 	var door_direction : Vector3
+	var local_rot_amount : float = rot_amount
 	match forward_direction:
 		forward_dir.X:
 			door_direction = Vector3(1,0,0)
 		forward_dir.Z:
 			door_direction = Vector3(0,0,1)
-			rot_amount *= -1
+			local_rot_amount *= -1.0
 
 		forward_dir.Y:
 			door_direction = parent.global_transform.basis.y
@@ -74,7 +80,7 @@ func check_door(target: Node3D = null):
 
 	if !locked:
 		if !open:
-			open_door()
+			open_door(local_rot_amount)
 		else:
 			print_debug("no")
 	else:
@@ -83,16 +89,20 @@ func check_door(target: Node3D = null):
 		
 
 
-func open_door():
+func open_door(local_rot_amount: float = 0.0):
 
 	closing = false
-	open = true
 	match door_type:
 		Type.ROTATE:
+			open = true
 			var tween = create_tween()
-			tween.tween_property(parent,"rotation",origin_rot + (rotation_axis * rot_adjust * deg_to_rad(rot_amount)),.5).set_trans(transition).set_ease(tween_ease)
+			tween.tween_property(parent,"rotation",origin_rot + (rotation_axis * rot_adjust * deg_to_rad(local_rot_amount)),.5).set_trans(transition).set_ease(tween_ease)
 			emit_signal("door_opened")
 		Type.MOVE:
+			if direction.length_squared() <= 0.000001:
+				print_debug("door MOVE sin dirección")
+				return
+			open = true
 			var tween = create_tween()
 			tween.tween_property(parent,"position", origin_pos + (direction),.5).set_trans(transition).set_ease(tween_ease)
 

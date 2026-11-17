@@ -39,7 +39,16 @@ func bind_quick_slots(box: HBoxContainer) -> void:
 	refresh_quick_slots()
 
 func _quick_slot_called(item:ItemInstance) -> void:
+	if item == null or item.descriptor == null:
+		return
+	if not has_item(item):
+		# El slot quedó apuntando a un objeto que ya salió al mundo.
+		# No se resucita: evita que el mismo ItemInstance esté en mano y pickable.
+		return
 	if item.descriptor is EquippableDescriptor:
+		var already_held : ItemInstance = hands.get_held(HandsModel.Hand.RIGHT)
+		if already_held == item:
+			return
 		remove(item)
 		var holded_item = hands.get_held(HandsModel.Hand.RIGHT)
 		if holded_item:
@@ -49,6 +58,13 @@ func _quick_slot_called(item:ItemInstance) -> void:
 				hands.equip(item,HandsModel.Hand.RIGHT)
 		else:
 			hands.equip(item,HandsModel.Hand.RIGHT)
+
+
+func has_item(item: ItemInstance) -> bool:
+	for model: InventoryModel in models:
+		if model.has_item(item):
+			return true
+	return false
 
 func add_quick_slot() -> void:
 	if quick_slots == null:

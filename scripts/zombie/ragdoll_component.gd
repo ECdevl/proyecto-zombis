@@ -59,8 +59,13 @@ func _physics_process(delta: float) -> void:
 		return
 
 	# La pelvis manda: el zombi va donde esté ella.
-	body.global_position = pelvis.global_position
-	body.velocity = Vector3.ZERO  # evita que la gravedad se acumule
+	# Solo si la pelvis simula de verdad: si el ragdoll es parcial y la pelvis
+	# quedó sin simular (KINEMATIC, teletransportada a la pose de animación
+	# cada frame), copiar su posición a `body` realimenta el sistema
+	# (body → pelvis → body…) y el cuerpo sale lanzado hacia arriba.
+	if pelvis.is_simulating_physics():
+		body.global_position = pelvis.global_position
+		body.velocity = Vector3.ZERO  # evita que la gravedad se acumule
 
 	if permanent:
 		return
@@ -71,7 +76,6 @@ func _physics_process(delta: float) -> void:
 
 func _is_resting() -> bool:
 	# length_squared() evita la raíz cuadrada: v² < rest² equivale a v < rest.
-	print_debug(pelvis.linear_velocity.length_squared())
 	return pelvis.linear_velocity.length_squared() < rest_speed * rest_speed \
 			and _find_floor() != null
 

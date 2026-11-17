@@ -1,5 +1,6 @@
 [gd_scene format=3 uid="uid://b6idlm6tyvtrx"]
 
+[ext_resource type="FontFile" uid="uid://dqhl0g8aky4yf" path="res://assets/fonts/Stay With Me.otf" id="1_g424t"]
 [ext_resource type="Script" uid="uid://ddd3fjshi61gp" path="res://scripts/inventory/ui/game_instructor.gd" id="1_tpety"]
 [ext_resource type="Texture2D" uid="uid://ne5rkvqglemb" path="res://assets/sprites/arrow.png" id="2_fl5ee"]
 
@@ -9,8 +10,9 @@ offset_right = 48.0
 offset_bottom = 34.0
 mouse_filter = 2
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 11
-theme_override_font_sizes/normal_font_size = 24
+theme_override_constants/outline_size = 10
+theme_override_fonts/normal_font = ExtResource("1_g424t")
+theme_override_font_sizes/normal_font_size = 48
 bbcode_enabled = true
 text = "[img=40]res://assets/sprites/instructor_warn.png[/img] "
 scroll_active = false

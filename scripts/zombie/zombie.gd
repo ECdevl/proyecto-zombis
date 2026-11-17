@@ -46,6 +46,7 @@ var playback: AnimationNodeStateMachinePlayback
 signal pushed(direction: Vector3)
 
 const BLOOD_SPLATTER = preload("res://scenes/components/blood_splatter.tscn")
+const BLOOD_BURST = preload("res://scenes/effects/blood_burst.tscn")
 
 
 func _ready() -> void:
@@ -88,11 +89,9 @@ func hurted(damage: float, info: Dictionary) -> void:
 	var attacker := info.get("attacker") as Node3D
 	var hit_pos := _resolve_hit_pos(info, who)
 
-	# No attacker means no blood splash direction, but the hit still counts.
-	if attacker != null:
-		var towards_attacker := hit_pos.direction_to(attacker.global_position)
-		# GameManager.blood_splatter(hit_pos, towards_attacker, who)
-		_spawn_decals(hit_pos, towards_attacker)
+	# La sangre siempre sale de `hit_pos` (donde pega el arma) hacia la
+	# dirección de salida del proyectil/tajo; caerá al piso como decal.
+	_spawn_blood(hit_pos, info, who, attacker, damage)
 
 	if who != null:
 		if who.is_in_group("zombie_legs_left"):
@@ -189,10 +188,45 @@ func _num(info: Dictionary, key: String) -> float:
 	return float(v) if (v is float or v is int) else 0.0
 
 
-func _spawn_decals(pos: Vector3, to_attacker: Vector3) -> void:
+func _exit_direction(info: Dictionary, attacker: Node3D, hit_pos: Vector3) -> Vector3:
+	var impulse: Variant = info.get("impulse")
+	if impulse is Vector3 and (impulse as Vector3).length_squared() > 0.0001:
+		return (impulse as Vector3).normalized()
+	if attacker != null:
+		return attacker.global_position.direction_to(hit_pos)
+	return -global_basis.z
+
+
+func _blood_strength(damage: float, who: Node3D) -> float:
+	# Escala por zona/daño: cabeza y tiro mortal sangran mucho más;
+	# un roce de pierna (0.1 de melee) apenas salpica.
+	var dying: bool = health_component != null and health_component.current_health <= 0.0
+	if who != null and who.is_in_group("zombie_head"):
+		return 1.6 if dying else 1.4
+	if damage <= 0.0:
+		return 0.4
+	if damage < 1.0:
+		return 0.3
+	if damage >= 30.0:
+		return 1.1 if dying else 1.0
+	return 0.6
+
+
+func _spawn_blood(pos: Vector3, info: Dictionary, who: Node3D, attacker: Node3D, damage: float) -> void:
+	# Compatibilidad: los golpes sin atacante tampoco sangran.
+	if info.is_empty():
+		return
+	var exit_dir: Vector3 = _exit_direction(info, attacker, pos)
+	var strength: float = _blood_strength(damage, who)
+	# Chorro desde la herida.
+	var burst: BloodBurst = BLOOD_BURST.instantiate()
+	get_tree().current_scene.add_child(burst)
+	burst.spray(pos, exit_dir, strength)
+	# Salpicaduras donde cae (pared de atrás, rebote y piso).
 	var fx: BloodSplatter = BLOOD_SPLATTER.instantiate()
-	get_tree().current_scene.add_child(fx)
-	fx.splash(pos, to_attacker, -to_attacker)  # (point, normal, bullet direction)
+	who.add_child(fx)
+
+	fx.splash(pos, -exit_dir, exit_dir, strength)
 
 
 # ---------------------------------------------------------------------------

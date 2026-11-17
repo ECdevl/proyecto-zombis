@@ -5,6 +5,8 @@ func enter(previous_state_path: String, data := {}) -> void:
 	can_transition = false
 	zombie.playback.start(data.get("animation"))
 	await zombie.at.animation_finished
+	if zombie.state_machine.state != self:
+		return
 	can_transition = true
 	finished.emit("chase")
 

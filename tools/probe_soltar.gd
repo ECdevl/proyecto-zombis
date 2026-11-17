@@ -116,7 +116,7 @@ func _initialize() -> void:
 	plano.item_name = "objeto sin malla"
 	plano.dimensions = Vector2i(1, 1)
 	plano.item_mesh = null
-	plano.icon = PlaceholderTexture2D.new()  # evita pedir un ícono sin malla
+	plano.icon = PlaceholderTexture2D.new()  # ícono manual: evita pedir uno automático sin malla
 	var item3 := ItemInstance.new(plano)
 	ok(player.inventory.add_anywhere(item3), "el objeto sin malla entró al inventario")
 	var world_antes3 := _conteo_pickables(root)

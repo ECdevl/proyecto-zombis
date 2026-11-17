@@ -7,6 +7,8 @@ func enter(previous_state_path: String, data := {}) -> void:
 	player.camera_sensitivity = player.camera_sensitivity/2
 
 func handle_input(_event: InputEvent) -> void:
+	if player.is_dead or player.is_input_locked():
+		return
 	if _event.is_action_pressed("M1"):
 		player.weapon_controller.call_deferred("shoot")
 	if _event.is_action_released("M2"):

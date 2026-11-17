@@ -2,6 +2,43 @@
 
 ## En curso
 
+- [ ] **Fase crítica de mitigación de bugs del abuse (2026-11-10)** — aprobada por el Señor
+  tras el reporte de bugs del prototipo jugable
+  - [x] Bloqueo de input por motivo (muerte/agarrado/inventario) en `player.gd`
+  - [x] Muerte una sola vez (`HealthComponent`) + curación `HEALTH` en `PlayerNeeds`
+  - [x] Inventario modal/lazy: sin movimiento/ataque al jugador mientras está abierto
+  - [x] HUD de munición con arma válida (`Weapon`) y actualización en `UI`
+  - [x] Quick slot no resucita items huérfanos
+  - [x] Segundo zombi: ataca en vez de agarrar a un jugador ya agarrado
+  - [x] Guards de estado zombie (`idle`, `recover`, `stun`, `grab`) tras `await`/muerte del jugador
+  - [x] ViewPunch restaura cámara original (`WeaponPivot`) tras escape
+  - [x] Lean: reset en aire/muerto/agarrado, liberar uno no cancela el otro, clamp pared
+  - [x] Estado `fall` del jugador + transiciones coherentes
+  - [x] Melee con `WORLD_MASK | HITBOX_MASK` (paredes cortan)
+  - [x] WeaponController input/death/reload/shoot/swing guards + revalidación post-`await`
+  - [x] Recarga: aborta si cambia estado/arma, jugador muere o se bloquea
+  - [x] Puerta `MOVE`: no abre si `direction` es cero; `rot_amount` ya no se muta en checks
+  - [x] Iconos en headless: se omite generación para evitar bloqueo por `frame_post_draw`
+  - [x] Boot headless sin errores de `IconCreator`
+  - [x] Ícono manual por descriptor (`ItemDescriptor.icon`) con respaldo automático (`get_icon()`), UI migrada (D-027)
+  - [x] Estudio `IconCreator` `@tool` con SubViewport, botón de captura, guardado `.res`/`.tres` y asignación opcional al descriptor; respaldo automático separado en `icon_creator_auto.tscn` (D-028)
+  - [x] Linterna: el brazo izquierdo levantado se ancla al esqueleto visible del viewmodel y se mantiene con cualquier arma de una mano (E-024, D-029)
+- [x] AnimationTree compartido en viewmodels: `ViewmodelAnimator` centraliza base (idle/run), one-shots (draw/shoot/swing/reload/punch) y capas contextuales filtradas al brazo izquierdo; migrado `weapon_controller` y `run.gd`; animación contextual `ctx_flashlight` generada una sola vez y reutilizada en todos los viewmodels (D-030)
+  - [ ] Autoría de nuevas animaciones contextuales: añadir clips `ctx_*.tres` con pistas `rig/Skeleton3D:...` y registrarlos en `ViewmodelAnimator`.
+  - [ ] Sigue probando en runtime con `tools/probe_abuse.tscn` para casos residuales (swap de arma en recarga, muerte durante agarre/zombie, ejecución melee, etc.)
+
+- [ ] **T-018 Viñeta de pantalla para poca vida / muerte** (2026-11-10, D-026)
+  - [x] `materials/vignette.gdshader` + `materials/vignette.tres`: canvas_item
+        con `intensity`, `inner_radius`, `softness`, `screen_tint`,
+        `pulse_speed`, `pulse_strength` y `vignette_color`
+  - [x] Compilado en Forward Mobile (Vulkan) en una escena temporal, sin errores;
+        captura con `intensity = 1`: centro intacto, bordes rojos y esquinas
+        al máximo
+  - [ ] Integrar en `scenes/ui/ui.tscn` como ColorRect a pantalla completa
+        (por encima del HUD, `mouse_filter = 2`) y manejar `intensity` según
+        `player.health_component`; decidir si reemplaza a `hurt_flash`
+  - [ ] Afinar en juego: umbral de aparición, latido y tinte de muerte
+
 - [ ] **T-015 Movimiento del zombi: andar hacia adelante y girar el cuerpo**
       (2026-11-06, D-018)
   - [x] `chase`: se mantiene el andar solo hacia adelante (-Z) y el giro
@@ -102,6 +139,18 @@
   - [x] `ragdoll_debug.gd`: selector de huesos en la simulación (casillas por
         hueso + Todos/Ninguno/Reiniciar) que llama
         `physical_bones_start_simulation(names)` (D-021).
+  - [x] **Bug "el ragdoll se va a la estratosfera" (2026-11-06, E-022/D-022)**:
+        ascenso infinito corregido en `ragdoll_component.gd` (teletransporte
+        del body y `velocity = Vector3.ZERO` solo si la pelvis simula); UI del
+        selector con semántica de clausura de descendientes y checkbox
+        "pelvis (raíz)"; huesos sin simular quedan fantasma (capa/máscara 0,
+        `_ghost_unselected_bones()`); `_on_restart_simulation()` asienta 10
+        frames antes de arrancar (el "golpe" del joint pasó de v≈280 a v≈1.7
+        m/s); "pelvis marcada = ragdoll completo" es comportamiento del motor
+        (sin API pública de selección exacta) y queda documentado en la UI.
+        Sonda nueva `tools/probe_ragdoll_partial.gd` (A: todos menos pelvis;
+        B: solo pelvis) → *RESULTADO: TODO OK*; `probe_ragdoll_behavior` →
+        *TODO OK*.
   - [x] Subir el damping del cuerpo a `angular_damp` 0.90 / `linear_damp` 0.12,
         torso 1.10 / 0.14, y apretar hombros (x ±12, y ±15, z ±12) y manos
         (x ±45, y ±15, z ±30) y `spine` x lower −25 (D-021) → *probe TODO OK*
@@ -140,6 +189,41 @@
         4 rotas (las preexistentes).
   - [ ] Probar en el editor/juego: hordas grandes, que el avoidance no
         se note caro en rendimiento (el RVO cuesta con muchos agentes).
+
+- [ ] **T-016 Sangre: chorro en la herida + salpicaduras donde cae** (2026-11-06, D-023)
+  - [x] `scripts/effects/blood_burst.gd` + `scenes/effects/blood_burst.tscn`: GPUParticles3D en
+        espacio de mundo con gravedad (sin colisión por partícula), `local_coords = false`;
+        `spray(pos, exit_dir, strength)` duplica el `ParticleProcessMaterial` (orientación y
+        velocidad por chorro) y se libera con `finished`; tope 12 chorros vivos
+  - [x] `zombie.gd`: `_exit_direction()` (impulse → atacante→herida → adelante del zombi) y
+        `_blood_strength()` (cabeza 1.4/1.6, mortal 1.0/1.1, normal 0.6, roce 0.3, sin daño 0.4);
+        `_spawn_blood()` lanza chorro + `BloodSplatter` (posición de impacto + proyección al piso)
+  - [x] `blood_splatter.gd`: `splash(..., intensity)` escala radios/distancias/tamaños;
+        `_ground_drop()` proyecta el aterrizaje por delante del chorro
+  - [x] `game_manager.gd`: `blood_splatter()` redirigido al sistema nuevo (firma compatible)
+  - [x] Sonda `tools/probe_blood.tscn` → *TODO OK* (8 aserciones: cabeza vmax 7.0 vs pierna 2.1,
+        dirección dot 1.00, decals en piso 0.05 < chorro 1.90); regresión
+        `probe_zombie`, `probe_melee`, `probe_hitdir` → *TODO OK*
+  - [ ] Probar en el juego: que el chorro no nazca dentro del cuerpo y que la salpicadura
+        del piso no quede eclipsada por el `visibility_aabb`; afinar `spread`/`gravity`/`amount`
+        desde la escena si hace falta
+  - [ ] Decidir si se borra `scenes/effects/blood.tscn` (legacy, sin referencias) o se conserva
+        como variante
+
+- [ ] **T-017 Bullet holes: en el cuerpo + icono placeholder en el mundo** (2026-11-06, D-024/D-025)
+  - [x] En zombi: `Decal` hijo del `BoneAttachment` del hitbox (pega al cuerpo, sigue al
+        hueso al moverse); en mundo: fijo con el icono de Godot como placeholder
+  - [x] `projectile_resource.gd`: `_spawn_bullet_hole_on_bone()` (local = inversa del hueso
+        * global deseado); mundo solo si collider es `StaticBody3D`; rayo excluye por RID
+        todo `PickableItem` (E-023)
+  - [x] `test.tscn`: pickups de capa 3/16 → capa 2 (causa raíz del bloqueio)
+  - [x] Sonda `tools/probe_bullet_hole.tscn` → *TODO OK* (pegado al hueso, se mueve 5.00 m,
+        icono en el mundo, atraviesa pickup en capa 1); `probe_blood` corregida a velocidad
+        → *TODO OK*; regresión `probe_zombie`, `probe_melee`, `probe_hitdir` → *TODO OK*
+  - [ ] Reemplazar `icon.svg` del mundo por la textura definitiva
+  - [ ] Probar en el juego: distancias de desvanecido y solape con decals de sangre
+  - [ ] Decidir si el agujero debe respetarse al pegar bolsas (`BloodSplatter._track`) con
+        tope propio o sigue compartiendo vida útil
 
 ## Pendientes (detectado, no ejecutado)
 

@@ -13,9 +13,14 @@ signal progress_show
 
 var progress := 0.0
 var _weapon: Node3D
+## Cámara original de ViewPunch (el WeaponPivot configurado en la escena).
+## Se guarda para restaurarla al salir: antes se guardaba `camera2` y el arma
+## dejaba de recibir el punch para siempre.
+var _original_punch_camera: Node3D = null
 
 func enter(_previous_state_path: String, _data := {}) -> void:
 
+	_original_punch_camera = view_punch.camera
 	weapon_controller.push_enabled = false
 	progress = 0.0
 	_weapon = player.weapon_controller.weapon_node
@@ -32,9 +37,7 @@ func handle_input(event: InputEvent) -> void:
 		#player.animation_tree["parameters/struggle/request"] = AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE
 	if progress >= 1.0:
 		player.grab_escaped.emit()
-var view_punch_camera2 : Node3D
 func update(delta: float) -> void:
-	view_punch_camera2 = view_punch.camera2
 	view_punch.camera = null
 	view_punch.punch(Vector2(randf_range(-1,1),randf_range(-1,1)))
 	if progress > 0.0:
@@ -42,7 +45,7 @@ func update(delta: float) -> void:
 		progress_changed.emit(progress)
 
 func exit(_next_state_path: String) -> void:
-	view_punch.camera = view_punch_camera2
+	view_punch.camera = _original_punch_camera
 	player.playback.start("grabbed_end")
 	weapon_controller.push_enabled = true
 	if is_instance_valid(_weapon):

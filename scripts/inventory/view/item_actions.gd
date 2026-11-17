@@ -14,7 +14,7 @@ var _item: ItemInstance
 func open(item: ItemInstance, at: Vector2, extra: Array[String] = []) -> void:
 	_clear_buttons()
 	_item = item
-	item_icon.texture = item.descriptor.icon
+	item_icon.texture = item.descriptor.get_icon()
 	for action in extra + item.descriptor.get_actions():
 		var button := Button.new()
 		button.text = action

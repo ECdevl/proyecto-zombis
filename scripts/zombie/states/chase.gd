@@ -6,12 +6,24 @@ var target : Node3D = null
 @export var grab_range : float = 3
 @export var can_grab : bool = false
 
-@export var claw_rate : float = .5
+@export var claw_rate : float = 1.1
 
 ## Half-angle (degrees) of the cone in which the zombie can hit. Outside it,
 ## the zombie keeps walking (and therefore turning) instead of clawing over
 ## its shoulder. 70 deg matches the 120 deg sight cone loosely.
 @export var attack_angle_deg : float = 70.0
+
+## Producto punto (XZ) por debajo del cual el jugador cuenta como
+## "detras" al entrar en `chase`. 0.0 = hemisferio trasero estricto
+## (>90 grados respecto al frente). Ajustable desde el inspector.
+## `dot = frente · hacia_objetivo` (ambos en XZ, normalizados).
+@export var behind_dot : float = 0.0
+
+## True solo si al entrar en `chase` el jugador estaba detras: en ese
+## caso la entrada reproduce `turn_around1` en vez de `walk` hasta que
+## el cuerpo queda de frente. Si el jugador entraba de frente o de lado
+## (dot >= `behind_dot`), nunca se reproduce el giro en este `chase`.
+var _turning_on_enter : bool = false
 
 # Tiempo entre el arranque de la animacion de ataque y el momento del impacto.
 const ATTACK_IMPACT_DELAY : float = 0.46
@@ -27,7 +39,6 @@ const STILL_SPEED : float = 0.05
 
 func enter(previous_state_path: String, data := {}) -> void:
 	zombie.vision.can_see = true
-	zombie.playback.travel("walk")
 	target = zombie.vision.target
 	_steer_yaw = zombie.rotation.y
 	stop = false
@@ -39,7 +50,8 @@ func enter(previous_state_path: String, data := {}) -> void:
 
 func physics_update(delta: float) -> void:
 	zombie.handle_gravity(delta)
-
+	if zombie.zombie_ap.current_animation in ["turn_around1"]:
+		return
 
 	if not is_instance_valid(target):
 		zombie.nav.target_position = zombie.global_position
@@ -89,8 +101,9 @@ func update(_delta: float) -> void:
 		return
 
 	# El marcador de "objetivo perdido" no es un enemigo: se camina hasta él,
-	# se libera y se vuelve a idle. Nunca se ataca.
+	# se libera y se vuelve a idle. Nunca se ataca ni se gira por él.
 	if target is Marker3D:
+		_turning_on_enter = false
 		if _distance_to_target() <= grab_range:
 			stop = true
 			zombie.playback.travel("idle1")
@@ -105,12 +118,26 @@ func update(_delta: float) -> void:
 		# Solo ataca si ya quedó de frente. Si no, sigue caminando: el giro
 		# limitado del cuerpo es el que lo pone de cara al jugador.
 		# If the player moved away, the zombie should stop attacking.
+		_turning_on_enter = false
 		attack()
 		stop = true
 		zombie.playback.travel("idle1")
 	else:
 		stop = false
-		zombie.playback.travel("walk")
+		# Mientras dure el giro de entrada, no se pisa con `walk`: si ya
+		# quedo de frente, se libera a caminar; si no, se mantiene el giro.
+		# Si no hubo giro de entrada, siempre `walk` (nunca vira a `turn`
+		# a mitad de `chase` aunque el jugador pase a estar detras).
+		if _turning_on_enter:
+			if is_facing_target():
+				_turning_on_enter = false
+				zombie.playback.travel("walk")
+			else:
+				zombie.playback.travel("turn_around1")
+				await zombie.at.animation_finished
+				zombie.rotate_y(180.0)
+		else:
+			zombie.playback.travel("walk")
 	
 
 func exit(next_state_path:String) -> void:
@@ -119,6 +146,7 @@ func exit(next_state_path:String) -> void:
 	zombie.velocity = Vector3.ZERO
 	claw_timer.stop()
 	zombie.look_head.influence = 0.0
+	_turning_on_enter = false
 	
 
 func _on_vision_target_lost(lost: Node3D) -> void:
@@ -143,10 +171,10 @@ func attack() -> void:
 		return
 
 	if not claw_timer.is_stopped():
-		print_debug(claw_timer.time_left)
 		return
-	print_debug("KILL")
-	var want_grab : bool = can_grab and target is Player and randf() < 0.5
+	# Si otro zombi ya lo tiene agarrado, este debe atacar: dos zombis
+	# agarrando a la vez dejaban al segundo atascado para siempre.
+	var want_grab : bool = can_grab and target is Player and not _player_grabbed_by_other() and randf() < 0.5
 
 	if want_grab:
 		claw_timer.start(claw_rate)
@@ -172,6 +200,9 @@ func hurt_target(grab:bool = false) -> void:
 	if distance > grab_range:
 		return
 	var player : Player = target as Player
+	if grab and _player_grabbed_by_other():
+		# Otro zombi ya lo está agarrando: no se suma al agarre.
+		grab = false
 	if grab:
 		if zombie.state_machine.state == self:
 			
@@ -181,6 +212,12 @@ func hurt_target(grab:bool = false) -> void:
 		if zombie.state_machine.state == self:
 			
 			player.health_component.hurt(zombie.claw_damage, {"attacker": zombie, "hit_pos": zombie.global_position})
+
+
+## True si el objetivo es un Player agarrado por OTRO zombi.
+func _player_grabbed_by_other() -> bool:
+	var p : Player = target as Player
+	return p != null and p.grabber != null and p.grabber != zombie
 
 
 ## Distancia en metros al objetivo; INF si no hay objetivo válido.
@@ -206,6 +243,34 @@ func is_facing_target() -> bool:
 	return forward.normalized().dot(to_target.normalized()) >= cos(deg_to_rad(attack_angle_deg))
 
 
+## Producto punto normalizado (XZ) entre el frente (-Z) y el objetivo.
+## 1.0 = de frente, 0.0 = de lado, -1.0 = detras perfecto. Si el objetivo
+## esta encima del zombi devuelve 1.0 para no confundirlo con "detras".
+func _forward_dot_to_target() -> float:
+	if not is_instance_valid(target):
+		return 1.0
+	var to_target : Vector3 = target.global_position - zombie.global_position
+	to_target.y = 0.0
+	if to_target.length_squared() < 0.0001:
+		return 1.0
+	var forward : Vector3 = -zombie.global_basis.z
+	forward.y = 0.0
+	if forward.length_squared() < 0.0001:
+		return 1.0
+	return forward.normalized().dot(to_target.normalized())
+
+
+## True solo si en el instante de la entrada el jugador esta detras del
+## zombi (hemisferio trasero segun `behind_dot`). El marcador de
+## "objetivo perdido" nunca cuenta como detras.
+func _is_player_behind() -> bool:
+	if not is_instance_valid(target):
+		return false
+	if target is Marker3D:
+		return false
+	return _forward_dot_to_target() < behind_dot
+
+
 ## Callback del RVO: `Nav` devuelve la velocidad ya desviada para no chocar
 ## con los demás agentes. Es la única fuente de movimiento del zombi mientras
 ## persigue, así que esta función es la que aplica la velocidad a la escena.
@@ -214,7 +279,7 @@ func _on_nav_velocity_computed(safe_velocity: Vector3) -> void:
 	# La señal está cableada en la escena, así que sigue llegando aunque el
 	# zombi haya salido de `chase` (stun, death, stagger...). Si no somos el
 	# estado activo no pisamos la velocidad que esté usando el otro estado.
-	if zombie.state_machine.state != self:
+	if zombie.state_machine.state != self or zombie.zombie_ap.current_animation in ["turn_around1"]:
 		return
 
 	# `safe_velocity` ya viene en m/s: no se multiplica por `speed` otra vez.

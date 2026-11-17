@@ -16,22 +16,32 @@ static var _decals: Array[Decal] = []
 @export_flags_3d_render var decal_cull_mask: int = 1
 @export var decal_lifetime := 20.0
 @export var fade_time := 5.0
-
+var custom_parent : Node3D
 
 ## pos: punto de impacto. normal: normal de la superficie golpeada.
-## shot_dir: dirección de la bala (normalizada).
-func splash(pos: Vector3, normal: Vector3, shot_dir: Vector3) -> void:
+## shot_dir: dirección de salida del proyectil/tajo (normalizada).
+## intensity: 1 = golpe normal; los valores bajos (pierna 0.1) apenas
+## salpican y los altos (cabeza/muerte) ensucian más y más lejos.
+func splash(pos: Vector3, normal: Vector3, shot_dir: Vector3, intensity: float = 1.0) -> void:
 	global_position = pos + normal * 0.05
 	await get_tree().physics_frame  # el raycast directo se hace en frame de física
+	if not is_instance_valid(self):
+		return
 	var space := get_world_3d().direct_space_state
-	_spray(space, shot_dir, 35.0, 6, 4.0)       # salida de la bala: pared de atrás
-	_spray(space, normal, 60.0, 3, 2.0)         # rebote hacia el tirador
-	_spray(space, Vector3.DOWN, 50.0, 3, 2.5)   # gotas al piso
+	var k: float = clampf(intensity, 0.15, 1.6)
+	_spray(space, shot_dir, 35.0, maxi(2, int(6.0 * k)), 2.5 + 2.5 * k, k)  # salida: pared de atrás
+	_spray(space, normal, 60.0, maxi(1, int(3.0 * k)), 1.2 + 1.2 * k, k)  # rebote hacia el tirador
+	# Donde cae: la segunda mitad de las gotas va al piso. Se proyecta
+	# también el punto de aterrizaje por delante, siguiendo el chorro.
+	_spray(space, Vector3.DOWN, 50.0, maxi(1, int(4.0 * k)), 2.0 + 2.0 * k, k)
+	_ground_drop(space, shot_dir, 1.0 + 2.0 * k, k)
 	queue_free()
 
-
+func _process(delta: float) -> void:
+	if custom_parent:
+		global_position = custom_parent.global_position
 ## Lanza `count` rayos dentro de un cono alrededor de `axis`.
-func _spray(space: PhysicsDirectSpaceState3D, axis: Vector3, half_angle_deg: float, count: int, max_dist: float) -> void:
+func _spray(space: PhysicsDirectSpaceState3D, axis: Vector3, half_angle_deg: float, count: int, max_dist: float, size_scale: float = 1.0) -> void:
 	var frame := _basis_from_up(axis.normalized())
 	var cos_max := cos(deg_to_rad(half_angle_deg))
 	for i in count:
@@ -49,15 +59,29 @@ func _spray(space: PhysicsDirectSpaceState3D, axis: Vector3, half_angle_deg: flo
 		var hit: Dictionary = space.intersect_ray(query)
 		if hit.is_empty():
 			continue
-		_place_decal(hit.position, hit.normal)
+		_place_decal(hit.position, hit.normal, size_scale)
 
 
-func _place_decal(pos: Vector3, normal: Vector3) -> void:
+## Punto de aterrizaje: avanza `forward_dist` en la dirección del chorro y
+## deja un decal en el piso (si hay). Simula dónde caería la sangre.
+func _ground_drop(space: PhysicsDirectSpaceState3D, shot_dir: Vector3, forward_dist: float, size_scale: float) -> void:
+	var fwd: Vector3 = Vector3(shot_dir.x, 0.0, shot_dir.z)
+	if fwd.length_squared() < 0.0001:
+		fwd = -global_basis.z
+	var origin: Vector3 = global_position + fwd.normalized() * forward_dist
+	var query := PhysicsRayQueryParameters3D.create(origin, origin + Vector3.DOWN * 5.0)
+	query.collision_mask = world_mask
+	var hit: Dictionary = space.intersect_ray(query)
+	if not hit.is_empty():
+		_place_decal(hit.position, hit.normal, size_scale)
+
+
+func _place_decal(pos: Vector3, normal: Vector3, size_scale: float = 1.0) -> void:
 	if splat_textures.is_empty():
 		return
 	var decal := Decal.new()
 	decal.texture_albedo = splat_textures.pick_random()
-	var width := randf_range(0.4, 1.0)
+	var width: float = randf_range(0.35, 0.85) * size_scale
 	decal.modulate = Color(0.608, 0.0, 0.0)
 	decal.size = Vector3(width, 0.3, width)  # Y = profundidad de proyección
 	decal.cull_mask = decal_cull_mask

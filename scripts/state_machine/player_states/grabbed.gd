@@ -36,6 +36,11 @@ func physics_update(_delta: float) -> void:
 
 func exit(_next_state_path: String) -> void:
 	player.can_move = true
+	# Si el zombi murió o desapareció, `end_grab()` no llegó a limpiar esto.
+	if player.grabber == _grabber:
+		player.grabber = null
+		player.grab_anchor = null
+	player.set_input_lock(&"grabbed", false)
 	if is_instance_valid(_grabber):
 		player.remove_collision_exception_with(_grabber)
 		_grabber.remove_collision_exception_with(player)

@@ -40,4 +40,4 @@ func _gui_input(event: InputEvent) -> void:
 
 func _refresh() -> void:
 	var item := carried.hands.get_held(hand)
-	icon_rect.texture = item.descriptor.icon if item else null
+	icon_rect.texture = item.descriptor.get_icon() if item else null

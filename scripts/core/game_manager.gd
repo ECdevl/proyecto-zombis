@@ -1,6 +1,7 @@
 extends Node
 
-const BLOOD = preload("uid://t3pfbgv7i028")
+const BLOOD = preload("res://scenes/effects/blood_burst.tscn")
+const BLOOD_DECALS = preload("res://scenes/components/blood_splatter.tscn")
 
 var pause_menu_scene: PackedScene = preload("res://scenes/ui/pause_menu.tscn")
 var _pause_menu: CanvasLayer
@@ -19,52 +20,47 @@ func toggle_pause() -> void:
 	var current_scene := tree.current_scene
 	if current_scene == null:
 		return
-	# Solo pausar si hay un Player en la escena actual
-	if current_scene.find_child("Player", true, false) == null and get_tree().get_first_node_in_group("player") == null:
-		# Buscar por clase
-		var players = get_tree().get_nodes_in_group("player")
-		if players.is_empty():
-			# Intentar encontrar nodos con clase Player
-			var stack = [current_scene]
-			while not stack.is_empty():
-				var n = stack.pop_front()
-				if n is Player:
-					break
-				else:
-					return
-				for c in n.get_children():
-					stack.append(c)
-
-	get_tree().paused = not get_tree().paused
-	if get_tree().paused:
-		if _pause_menu == null or not is_instance_valid(_pause_menu):
-			_pause_menu = pause_menu_scene.instantiate()
-			add_child(_pause_menu)
-		_pause_menu.show()
-		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-	else:
-		if is_instance_valid(_pause_menu):
-			_pause_menu.hide()
-		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	var player : Player = null
+	for node in get_tree().get_nodes_in_group("player"):
+		if node is Player:
+			player = node
+			break
+	# No pausar mientras el jugador está muerto o con una UI bloqueada.
+	if player != null and (player.is_dead or player.is_input_locked()):
+		return
+	if tree.paused:
+		resume()
+		return
+	tree.paused = true
+	if _pause_menu == null or not is_instance_valid(_pause_menu):
+		_pause_menu = pause_menu_scene.instantiate()
+		add_child(_pause_menu)
+	_pause_menu.show()
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 func resume() -> void:
 	if get_tree().paused:
 		get_tree().paused = false
 	if is_instance_valid(_pause_menu):
 		_pause_menu.hide()
-	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	if not player_is_dead():
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
-func blood_splatter(hit_pos: Vector3, direction := Vector3.UP, follow: Node3D = null) -> void:
-	var sangre = BLOOD.instantiate()
-	sangre.particle_direction = direction
-	get_tree().current_scene.add_child(sangre)
-	sangre.global_position = hit_pos
-	if follow:
-		var local_offset := follow.global_transform.affine_inverse() * hit_pos
-		_follow(sangre, follow, local_offset)
+func player_is_dead() -> bool:
+	for node in get_tree().get_nodes_in_group("player"):
+		if node is Player and node.is_dead:
+			return true
+	return false
+
+func blood_splatter(hit_pos: Vector3, direction: Vector3 = Vector3.UP, strength: float = 1.0, follow: Node3D = null) -> void:
+	# `follow` se conserva por compatibilidad pero ya no se usa: el chorro es
+	# de mundo y vive 0.9 s; seguir al cuerpo no aporta nada. Queda ignorado.
+	var burst: BloodBurst = BLOOD.instantiate()
+	get_tree().current_scene.add_child(burst)
+	burst.spray(hit_pos, direction, strength)
+	var fx: BloodSplatter = BLOOD_DECALS.instantiate()
+	get_tree().current_scene.add_child(fx)
+	fx.splash(hit_pos, -direction, direction, strength)
 
 
-func _follow(fx: Node3D, target: Node3D, local_offset: Vector3) -> void:
-	while is_instance_valid(fx) and is_instance_valid(target):
-		fx.global_position = target.global_transform * local_offset
-		await get_tree().process_frame
+# _follow eliminado: el chorro actual es de mundo (ver blood_splatter).
