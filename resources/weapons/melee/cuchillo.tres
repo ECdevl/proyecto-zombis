@@ -40,6 +40,7 @@ swings = Array[ExtResource("3_1jgj1")]([SubResource("Resource_q8wwd"), SubResour
 melee_hit = SubResource("AudioStreamRandomizer_nfud8")
 viewmodel_model = ExtResource("1_nt4gf")
 damage = 10.0
+fire_rate = 0.1
 weapon_range = 1.0
 push_time = 0.0
 behaviour = SubResource("Resource_22fux")

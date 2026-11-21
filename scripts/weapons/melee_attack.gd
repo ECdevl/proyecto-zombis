@@ -22,11 +22,17 @@ func run() -> void:
 	if is_instance_valid(controller.weapon_ap) and controller.weapon_ap.has_animation(swing_data.animation):
 		controller.player.viewmodel_animator.play_base(swing_data.animation)
 	controller.fire_rate.start(melee.fire_rate)
-	
-	
-	
+
 	await controller.get_tree().create_timer(swing_data.hit_time).timeout
-	if not is_valid() or controller.reloading:
+	# Si este golpe fue cancelado (p. ej. por un swing posterior o un cambio de
+	# arma), ya no debe actuar: el swing que tomó el control es el que sigue.
+	# Si nadie lo reemplazó, limpiamos la vista para no quedarnos en `swing`.
+	if not controller.is_active_operation(self):
+		if controller._active_operation == null and cancelled:
+			controller.player.viewmodel_animator.play_base(&"idle")
+		return
+	if controller.reloading or not is_valid():
+		controller.player.viewmodel_animator.play_base(&"idle")
 		return
 	if not is_instance_valid(controller.player.viewmodel_animator):
 		return

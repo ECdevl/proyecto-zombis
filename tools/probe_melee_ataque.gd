@@ -44,6 +44,7 @@ func _ready() -> void:
 	print("  current_weapon=", wc.current_weapon)
 	print("  behaviour=", wc.current_weapon.behaviour if wc.current_weapon != null else "<null>")
 	wc.fire_rate.stop()
+	print("  fire_rate.time_left=", wc.fire_rate.time_left, " stopped=", wc.fire_rate.is_stopped())
 
 	print("  weapon_ap=", wc.weapon_ap)
 	print("  has_swing1=", wc.weapon_ap.has_animation(&"swing1") if wc.weapon_ap != null else "n/a")
@@ -52,14 +53,15 @@ func _ready() -> void:
 	var before: int = wc.swing_index
 	print("  esperando input M1...")
 	Input.action_press("M1")
-	await get_tree().create_timer(0.08).timeout
-	var during: int = wc.swing_index
+	for i in 3:
+		await get_tree().process_frame
 	Input.action_release("M1")
-	await get_tree().create_timer(0.8).timeout
-	print("  swing_index antes=", before, " durante=", during, " despues=", wc.swing_index)
+	await get_tree().create_timer(1.2).timeout
+	print("  swing_index antes=", before, " despues=", wc.swing_index)
 	print("  FSM after=", _fsm_state(player))
 	print("  anim='", wc.weapon_ap.current_animation if wc.weapon_ap != null else "<null>", "'")
 	print("  playback after=", wc.player.viewmodel_animator.playback.get_current_node() if wc.player.viewmodel_animator != null and wc.player.viewmodel_animator.playback != null else "<null>")
+	ok(not (wc.player.viewmodel_animator != null and wc.player.viewmodel_animator.is_swing_active()), "el swing finalizo y retorno a idle")
 	print("  op_activa=", wc.is_active_operation(wc._active_operation) if wc._active_operation != null else "null")
 	print("  reloading=", wc.reloading)
 	var hit_found: bool = false

@@ -1161,27 +1161,24 @@ por perdigón.
 
 ## E-050 — Los sonidos del swing y del hit del melee no se reproducían (melee "silencioso") (2026-11-21)
 
-**Estado: CORREGIDO.**
+**Estado: CORREGIDO.** (Corrección definitiva identificada el 2026-11-21.)
 
-**Situación:** tras el rework con behaviours (D-038, commit `4c6fdcf` — "WIP: melee silent
-after behaviour rework + audio steps + varios fixes"), el ataque melee no respondía con
-sonido: al golpear no se escuchaba el swing ni el impacto (el usuario lo reportó como "las
-armas a melee no hacen nada cuando ataco").
+**Situación:** tras el rework con behaviours (D-038), el ataque melee no producía el golpe:
+sin sonido de swing ni de hit, sin proyectil, sin daño, y el zombi no reaccionaba
+(el usuario lo reportó como "las armas a melee no hacen nada cuando ataco").
 
-**Causa real:** el rework introdujo en `scripts/weapons/melee_projectile.gd` los players
-`audio_swing` / `audio_hit` (`AudioStreamPlayer`) creados con `new()` y llamados con `play()`
-**antes** de que estuvieran dentro del árbol. Un nodo creado con `new()` no entra al árbol por
-sí solo; el motor aborta la reproducción con `Playback can only happen when a node is inside
-the scene tree` y el swing/hit quedaban en silencio. La lógica del golpe (animación, rayo,
-daño, stun) seguía operativa: las sondas `probe_melee` y la nueva `probe_melee_ataque`
-pasaban *TODO OK*.
+**Causa real (definitiva):** la cancelación de la operación de swing durante el
+post-tiempo de espera (`MeleeAttack.run`) provocaba un abort temprano (`return`) antes
+de spawnear el `MeleeProjectile`, reproducir el audio y aplicar el daño. La animación
+quedaba colgada en `swing` y el golpe se perdía.
 
-**Corrección:** en `scripts/weapons/melee_projectile.gd`, `setup()` hace `add_child(audio_swing)`
-y `add_child(audio_hit)` antes de asignar `stream` y llamar a `play()`.
+**Corrección:** `scripts/weapons/melee_attack.gd` comprueba ahora
+`controller.is_active_operation(self)` y limpia la vista (`play_base idle`) en los
+caminos de cancelación/limpieza antes de continuar.
 
-**Verificación:** `godot --headless --path . res://tools/probe_melee.tscn` → *TODO OK* sin
-errores de playback; `res://tools/probe_melee_ataque.tscn` → *TODO OK* (input `M1` real arranca
-el swing, playback `swing1`, operación cierra, `reloading=false`).
+**Verificación:** `godot --headless --path . res://tools/probe_melee_ataque.tscn` → *TODO OK*
+(input `M1` real arranca el swing, swing retorna a `idle`, operación cierra,
+`reloading=false`).
 
 **Lección:** un `AudioStreamPlayer` nuevo debe estar en el árbol antes de `play()`; los sfx
 transientes del melee viven dentro del propio `MeleeProjectile`, liberado tras el golpe.

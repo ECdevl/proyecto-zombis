@@ -340,6 +340,13 @@
 
 ## Hecho
 
+- [x] **Melee: el swing sobrevive a la cancelación y completa el golpe** (2026-11-21,
+      E-050, corrección definitiva): `MeleeAttack.run()` comprueba `controller.is_active_operation(self)`
+      tras el post-`await` y limpia la vista (`play_base idle`) en los caminos de cancelación
+      o condiciones no cumplidas; la cancelación durante el swing ya no aborta el golpe (sin
+      spawn de proyectil, sin audio ni daño) ni deja la animación colgada en `swing`. Sonda
+      `tools/probe_melee_ataque` con swing limpio → *TODO OK*.
+
 - [x] **Melee: sonidos de swing/hit reproducidos tras el rework con behaviours** (2026-11-21,
       E-050): `melee_projectile.gd` añade los `AudioStreamPlayer` al árbol antes de `play()`;
       `probe_melee` + `probe_melee_ataque` → *TODO OK*.
