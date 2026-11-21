@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="Melee" format=3 uid="uid://1pliys4sarhg"]
 
-[ext_resource type="Texture2D" uid="uid://bdojxkvraxsbm" path="res://assets/sprites/icons/bate_beisbol.res" id="1_dr6cj"]
+[ext_resource type="Texture2D" uid="uid://co2yhreyh682b" path="res://addons/at-icons/node3d/baseball_bat.svg" id="1_dr6cj"]
 [ext_resource type="ArrayMesh" uid="uid://drd17ygmcujib" path="res://assets/models/weapons/melee/one_hand/bate_world.obj" id="1_i6vst"]
 [ext_resource type="Script" uid="uid://c5ccot1xni1sw" path="res://scripts/inventory/descriptors/melee.gd" id="2_j4gi4"]
 [ext_resource type="AudioStream" uid="uid://wyqgk1itf4ce" path="res://assets/sounds/wood_bat_finisher_05.wav" id="3_adqno"]

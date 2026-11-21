@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://cg2alhn207kxn" path="res://scripts/inventory/descriptors/item_descriptor.gd" id="1_oug2j"]
 [ext_resource type="Script" uid="uid://dbklk7rcbx4yy" path="res://scripts/inventory/descriptors/weapon.gd" id="2_auq64"]
-[ext_resource type="Texture2D" uid="uid://cyfy5xnelonjw" path="res://assets/sprites/icons/remington.res" id="2_jkmi6"]
+[ext_resource type="Texture2D" uid="uid://ddv5m4r6ov7nd" path="res://addons/at-icons/node3d/gun.svg" id="2_jkmi6"]
 [ext_resource type="ArrayMesh" uid="uid://dej0yuuw58lom" path="res://assets/models/SHOTGUN.obj" id="2_v0etb"]
 [ext_resource type="PackedScene" uid="uid://b0w5fsjynlua1" path="res://assets/models/weapons/firearm/viewmodels/shotguns/REMINGTON.glb" id="3_auq64"]
 [ext_resource type="AudioStream" uid="uid://1l5oje1ucrcv" path="res://resources/new_audio_stream_randomizer.tres" id="3_pwmsv"]
