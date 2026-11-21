@@ -9,7 +9,6 @@
 [ext_resource type="AudioStream" uid="uid://b0w1tbcqpftu0" path="res://assets/sounds/swing.mp3" id="5_vlwra"]
 [ext_resource type="AudioStream" uid="uid://da3fxb5o7xcqd" path="res://assets/sounds/pistol_reload_sfx.ogg" id="6_jkow2"]
 [ext_resource type="AudioStream" uid="uid://desbtdb3ovats" path="res://resources/run.tres" id="6_uwamk"]
-[ext_resource type="Texture2D" uid="uid://ddv5m4r6ov7nd" path="res://addons/at-icons/node3d/gun.svg" id="9_glock"]
 [ext_resource type="AudioStream" uid="uid://nc6yqdbpgl8e" path="res://assets/sounds/pistol_shoot.wav" id="8_8uhmf"]
 
 [sub_resource type="Resource" id="Resource_qp4n5"]
@@ -34,7 +33,6 @@ weapon_range = 300.0
 knockback = 60.0
 behaviour = SubResource("Resource_qp4n5")
 item_name = "Glock-17"
-icon = ExtResource("9_glock")
 weight = 2.0
 dimensions = Vector2i(2, 2)
 item_mesh = ExtResource("2_0l6i6")

@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="FlashlightDescriptor" format=3 uid="uid://c8linterna001"]
 
 [ext_resource type="Script" uid="uid://b6ashb22rp4r6" path="res://scripts/inventory/descriptors/flashlight_descriptor.gd" id="1_desc"]
-[ext_resource type="Texture2D" uid="uid://2mfqn1wg6b7l" path="res://addons/at-icons/node3d/torch.svg" id="2_bqrb6"]
+[ext_resource type="Texture2D" uid="uid://dscgoskq0ykr7" path="res://assets/sprites/icons/bate_icon.res" id="2_bqrb6"]
 [ext_resource type="PackedScene" uid="uid://u5usm1jqa5d6" path="res://assets/models/item/linterna.glb" id="2_scene"]
 
 [resource]

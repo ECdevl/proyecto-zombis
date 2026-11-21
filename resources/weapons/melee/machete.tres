@@ -2,7 +2,7 @@
 
 [ext_resource type="ArrayMesh" uid="uid://c8tmtnuk8jdat" path="res://assets/models/weapons/melee/one_hand/machete_world.obj" id="1_1ujgm"]
 [ext_resource type="Script" uid="uid://cbokm6gn8tlms" path="res://scripts/weapons/melee_behaviour.gd" id="1_8g6cd"]
-[ext_resource type="Texture2D" uid="uid://cgxy8m7thdnst" path="res://addons/at-icons/node3d/axe.svg" id="1_gnu3u"]
+[ext_resource type="Texture2D" uid="uid://bbfehkq257d08" path="res://assets/sprites/icons/machete.res" id="1_gnu3u"]
 [ext_resource type="Script" uid="uid://c5ccot1xni1sw" path="res://scripts/inventory/descriptors/melee.gd" id="2_1ujgm"]
 [ext_resource type="Script" uid="uid://dskngi7txlhue" path="res://scripts/inventory/descriptors/swing_data.gd" id="3_1ujgm"]
 [ext_resource type="AudioStream" uid="uid://kcd5t25sq038" path="res://assets/sounds/blade_hit_08.wav" id="3_jbjwg"]

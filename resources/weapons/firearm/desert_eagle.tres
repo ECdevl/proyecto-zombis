@@ -9,7 +9,6 @@
 [ext_resource type="AudioStream" uid="uid://3o586grdukaj" path="res://assets/sounds/desert_reload.ogg" id="5_uitog"]
 [ext_resource type="AudioStream" uid="uid://desbtdb3ovats" path="res://resources/run.tres" id="6_0ixg1"]
 [ext_resource type="AudioStream" uid="uid://biege2xmqwd3l" path="res://assets/sounds/DE_shoot.wav" id="8_g0x84"]
-[ext_resource type="Texture2D" uid="uid://ddv5m4r6ov7nd" path="res://addons/at-icons/node3d/gun.svg" id="9_desert"]
 
 [resource]
 script = ExtResource("2_473yl")
@@ -26,7 +25,6 @@ damage = 20.0
 fire_rate = 0.1
 weapon_range = 400.0
 item_name = "Desert Eagle"
-icon = ExtResource("9_desert")
 weight = 2.0
 dimensions = Vector2i(2, 2)
 item_mesh = ExtResource("2_0ojjd")
