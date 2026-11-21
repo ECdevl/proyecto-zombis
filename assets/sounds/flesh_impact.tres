@@ -1,0 +1,9 @@
+[gd_resource type="AudioStreamRandomizer" format=3 uid="uid://8ng1b0jv6sow"]
+
+[ext_resource type="AudioStream" uid="uid://dc7wgw440lglu" path="res://assets/sounds/bullet_impact_flesh2.mp3" id="1_7fbsf"]
+[ext_resource type="AudioStream" uid="uid://b1bq5i0b3ffpa" path="res://assets/sounds/bullet_impact_flesh.mp3" id="2_bwqqo"]
+
+[resource]
+streams_count = 2
+stream_0/stream = ExtResource("1_7fbsf")
+stream_1/stream = ExtResource("2_bwqqo")

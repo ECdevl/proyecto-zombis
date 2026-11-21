@@ -1,10 +1,17 @@
 [gd_resource type="Resource" script_class="Melee" format=3 uid="uid://1pliys4sarhg"]
 
-[ext_resource type="Texture2D" uid="uid://dscgoskq0ykr7" path="res://assets/sprites/icons/bate_icon.res" id="1_dr6cj"]
+[ext_resource type="Texture2D" uid="uid://bdojxkvraxsbm" path="res://assets/sprites/icons/bate_beisbol.res" id="1_dr6cj"]
 [ext_resource type="ArrayMesh" uid="uid://drd17ygmcujib" path="res://assets/models/weapons/melee/one_hand/bate_world.obj" id="1_i6vst"]
 [ext_resource type="Script" uid="uid://c5ccot1xni1sw" path="res://scripts/inventory/descriptors/melee.gd" id="2_j4gi4"]
+[ext_resource type="AudioStream" uid="uid://wyqgk1itf4ce" path="res://assets/sounds/wood_bat_finisher_05.wav" id="3_adqno"]
 [ext_resource type="Script" uid="uid://dskngi7txlhue" path="res://scripts/inventory/descriptors/swing_data.gd" id="3_j4gi4"]
+[ext_resource type="AudioStream" uid="uid://duac6iayflpfe" path="res://resources/melee_swoosh.tres" id="4_8y70i"]
 [ext_resource type="PackedScene" uid="uid://csq7fuyt6hvdq" path="res://assets/models/weapons/melee/bate.glb" id="4_i6vst"]
+
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_y5slh"]
+random_pitch = 1.0594631
+streams_count = 1
+stream_0/stream = ExtResource("3_adqno")
 
 [sub_resource type="Resource" id="Resource_pf23h"]
 script = ExtResource("3_j4gi4")
@@ -21,6 +28,7 @@ recoil_kick = Vector2(0, -10)
 script = ExtResource("2_j4gi4")
 swings = Array[ExtResource("3_j4gi4")]([SubResource("Resource_pf23h"), SubResource("Resource_dt7fs")])
 hitbox_radius = 0.75
+melee_hit = SubResource("AudioStreamRandomizer_y5slh")
 weapon_handle = 1
 viewmodel_model = ExtResource("4_i6vst")
 damage = 20.0

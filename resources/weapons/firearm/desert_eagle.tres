@@ -3,16 +3,23 @@
 [ext_resource type="Script" uid="uid://cg2alhn207kxn" path="res://scripts/inventory/descriptors/item_descriptor.gd" id="1_473yl"]
 [ext_resource type="PackedScene" uid="uid://rwjbtdvie0b7" path="res://assets/models/weapons/firearm/desert_eagle.obj" id="2_0ojjd"]
 [ext_resource type="Script" uid="uid://dbklk7rcbx4yy" path="res://scripts/inventory/descriptors/weapon.gd" id="2_473yl"]
+[ext_resource type="AudioStream" uid="uid://1l5oje1ucrcv" path="res://resources/new_audio_stream_randomizer.tres" id="2_iip6s"]
 [ext_resource type="PackedScene" uid="uid://dm2n7ua2yp5t" path="res://assets/models/weapons/firearm/viewmodels/pistols/desert_eagle.glb" id="4_0ojjd"]
+[ext_resource type="AudioStream" uid="uid://b0w1tbcqpftu0" path="res://assets/sounds/swing.mp3" id="4_dacf6"]
+[ext_resource type="AudioStream" uid="uid://3o586grdukaj" path="res://assets/sounds/desert_reload.ogg" id="5_uitog"]
+[ext_resource type="AudioStream" uid="uid://desbtdb3ovats" path="res://resources/run.tres" id="6_0ixg1"]
+[ext_resource type="AudioStream" uid="uid://biege2xmqwd3l" path="res://assets/sounds/DE_shoot.wav" id="8_g0x84"]
 
 [resource]
 script = ExtResource("2_473yl")
 ammo_type = 2
 weapon_type = 1
-curr_bullets = 50
+curr_bullets = 8
 max_bullets = 100
 mag_size = 8
 recoil_kick = Vector2(6, 0)
+shoot_sound = ExtResource("8_g0x84")
+reload_sound = ExtResource("5_uitog")
 viewmodel_model = ExtResource("4_0ojjd")
 damage = 20.0
 fire_rate = 0.1

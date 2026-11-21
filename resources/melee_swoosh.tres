@@ -1,0 +1,10 @@
+[gd_resource type="AudioStreamRandomizer" format=3 uid="uid://duac6iayflpfe"]
+
+[ext_resource type="AudioStream" uid="uid://2e83hyybth1s" path="res://assets/sounds/push_short_whoosh_12.wav" id="1_rt11q"]
+[ext_resource type="AudioStream" uid="uid://dncr043tms7ya" path="res://assets/sounds/push_short_whoosh_23.wav" id="2_pb3a4"]
+
+[resource]
+random_pitch = 1.0594631
+streams_count = 2
+stream_0/stream = ExtResource("1_rt11q")
+stream_1/stream = ExtResource("2_pb3a4")

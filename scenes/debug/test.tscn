@@ -1,135 +1,65 @@
 [gd_scene format=3 uid="uid://dpmetpkjbanja"]
 
 [ext_resource type="PackedScene" uid="uid://3gnsls7jtuxo" path="res://scenes/player.tscn" id="1_37kl0"]
-[ext_resource type="Texture2D" uid="uid://bc0povc2pw7x8" path="res://assets/textures/sky/06_down.png" id="1_ibfy0"]
-[ext_resource type="Texture2D" uid="uid://ce2rcj4jb7dmi" path="res://assets/textures/dev/dev_blue.png" id="2_7rf62"]
-[ext_resource type="Resource" uid="uid://1pliys4sarhg" path="res://resources/weapons/melee/bate.tres" id="3_2rjyo"]
-[ext_resource type="Resource" uid="uid://b1ihtv4u6lxt6" path="res://resources/weapons/melee/cuchillo.tres" id="3_mx0de"]
-[ext_resource type="PackedScene" uid="uid://dftxseqmmjo35" path="res://scenes/zombies/zombie.tscn" id="4_ppyta"]
-[ext_resource type="PackedScene" uid="uid://dnwmecb1siwnm" path="res://scenes/components/pickable_object.tscn" id="6_hn7ej"]
-[ext_resource type="Texture2D" uid="uid://dl57j278n3x" path="res://assets/textures/dev/dev_cyan.png" id="8_2rjyo"]
-[ext_resource type="Resource" uid="uid://djhf1p03bo78d" path="res://resources/weapons/melee/machete.tres" id="12_i5s65"]
+[ext_resource type="MeshLibrary" uid="uid://nhh15blf1gxy" path="res://scenes/road.tres" id="2_d7gko"]
+[ext_resource type="PackedScene" uid="uid://d2rbxj31t6vbu" path="res://scenes/environment/day_night_cycle.tscn" id="3_aylw0"]
+[ext_resource type="PackedScene" uid="uid://dftxseqmmjo35" path="res://scenes/zombies/zombie.tscn" id="4_ildbv"]
 
 [sub_resource type="GDScript" id="GDScript_acgyg"]
 resource_name = "test"
-script/source = "extends Node3D
 
-@export var machete : Node3D
-@export var victim : Zombie
-@onready var player: Player = $player
+[sub_resource type="PlaneMesh" id="PlaneMesh_vyfcd"]
+size = Vector2(150, 150)
 
-func _ready() -> void:
-	
-	var text : String = \"Apreta %s para agarrar el machete\" % Instructor.get_action_key_bbcode(&\"use\",Input.is_action_pressed(\"use\"))
-	Instructor.show_world_hint(&\"hint_use\",machete,text)
-	await machete.tree_exited
-	Instructor.hide_hint(&\"hint_use\")
-	var equip_text : String = \"¡Bien!, ahora apreta %s para abrir tu inventario y equipa el machete\" % Instructor.get_action_key_bbcode(&\"toggle_inventory\")
-	Instructor.show_screen_hint(&\"hint_equip\",equip_text)
-	await player.weapon_changed
-	Instructor.hide_hint(&\"hint_equip\")
-	Instructor.show_world_hint(&\"hint_kill_zombie\",victim,\"Ahora mata al zombi con click izquierdo, ¡Apunta a la cabeza!\")
-	await victim.tree_exited
-	Instructor.show_screen_hint(&\"end\",\"LOGRO COMPLETADO: UN CUÑADO PARA JUAN\")
-"
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_hn7ej"]
+data = PackedVector3Array(75, 0, 75, -75, 0, 75, 75, 0, -75, -75, 0, 75, -75, 0, -75, 75, 0, -75)
 
-[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_hc2b7"]
-sky_cover = ExtResource("1_ibfy0")
+[sub_resource type="BoxMesh" id="BoxMesh_vyfcd"]
+size = Vector3(22.165, 15.405, 1)
 
-[sub_resource type="Sky" id="Sky_8uh7m"]
-sky_material = SubResource("ProceduralSkyMaterial_hc2b7")
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_r7dxx"]
+points = PackedVector3Array(11.082499, 7.7025, 0.5, 11.082499, 7.7025, -0.5, -11.0825, 7.7025, 0.5, 11.082499, -7.7025, 0.5, 11.082499, -7.7025, -0.5, -11.0825, 7.7025, -0.5, -11.0825, -7.7025, 0.5, -11.0825, -7.7025, -0.5)
 
-[sub_resource type="Environment" id="Environment_6uqi0"]
-background_mode = 2
-background_energy_multiplier = 0.0
-sky = SubResource("Sky_8uh7m")
-fog_light_color = Color(0.35713527, 0.38817412, 0.43646485, 1)
-fog_density = 0.05
-fog_depth_curve = 0.30778608
-
-[sub_resource type="NavigationMesh" id="NavigationMesh_vyfcd"]
-vertices = PackedVector3Array(-0.75, 0.400316, -1.7290039, 1.25, 0.400316, -1.7290039, 1.25, 0.400316, -13.229004, -1.5, 0.400316, -0.9790039, -24, 0.400316, -13.229004, -24, 0.400316, 4.270996, -1.5, 0.400316, 4.270996, 8.25, 0.400316, -1.7290039, 8.25, 0.400316, -13.229004, 10.25, 0.400316, -1.7290039, 11, 0.400316, -0.9790039, 24, 0.400316, 2.520996, 24, 0.400316, -13.229004, 11, 0.400316, 2.520996, 0.5, 5.900316, 0.2709961, 0.5, 5.900316, 3.270996, 9, 5.900316, 3.270996, 9, 5.900316, 0.2709961, 0.75, 0.400316, 0.5209961, 0.75, 0.400316, 3.020996, 8.75, 0.400316, 3.020996, 8.75, 0.400316, 0.5209961, 11, 0.400316, 4.520996, 10.25, 0.400316, 5.270996, 8.25, 0.400316, 20.770996, 24, 0.400316, 20.770996, 8.25, 0.400316, 5.270996, 1.25, 0.400316, 20.770996, 1.25, 0.400316, 5.270996, -0.75, 0.400316, 5.270996, -24, 0.400316, 20.770996)
-polygons = [PackedInt32Array(2, 1, 0), PackedInt32Array(0, 3, 2), PackedInt32Array(2, 3, 4), PackedInt32Array(4, 3, 5), PackedInt32Array(3, 6, 5), PackedInt32Array(2, 8, 1), PackedInt32Array(1, 8, 7), PackedInt32Array(9, 7, 8), PackedInt32Array(9, 8, 10), PackedInt32Array(10, 8, 12), PackedInt32Array(10, 12, 11), PackedInt32Array(11, 13, 10), PackedInt32Array(17, 16, 14), PackedInt32Array(14, 16, 15), PackedInt32Array(21, 20, 18), PackedInt32Array(18, 20, 19), PackedInt32Array(22, 13, 11), PackedInt32Array(22, 11, 23), PackedInt32Array(23, 11, 25), PackedInt32Array(23, 25, 24), PackedInt32Array(24, 26, 23), PackedInt32Array(29, 28, 27), PackedInt32Array(29, 27, 6), PackedInt32Array(6, 27, 5), PackedInt32Array(5, 27, 30), PackedInt32Array(28, 26, 27), PackedInt32Array(27, 26, 24)]
-agent_radius = 1.0
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5cao6"]
-albedo_texture = ExtResource("8_2rjyo")
-uv1_triplanar = true
-uv2_triplanar = true
-
-[sub_resource type="BoxMesh" id="BoxMesh_q8wwd"]
-material = SubResource("StandardMaterial3D_5cao6")
-size = Vector3(50, 1.725, 36)
-
-[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_q8wwd"]
-data = PackedVector3Array(-24.175, 0.86249995, 17.9585, 24.175, 0.86249995, 17.9585, -24.175, -0.86249995, 17.9585, 24.175, 0.86249995, 17.9585, 24.175, -0.86249995, 17.9585, -24.175, -0.86249995, 17.9585, 24.175, 0.86249995, -17.9585, -24.175, 0.86249995, -17.9585, 24.175, -0.86249995, -17.9585, -24.175, 0.86249995, -17.9585, -24.175, -0.86249995, -17.9585, 24.175, -0.86249995, -17.9585, 24.175, 0.86249995, 17.9585, 24.175, 0.86249995, -17.9585, 24.175, -0.86249995, 17.9585, 24.175, 0.86249995, -17.9585, 24.175, -0.86249995, -17.9585, 24.175, -0.86249995, 17.9585, -24.175, 0.86249995, -17.9585, -24.175, 0.86249995, 17.9585, -24.175, -0.86249995, -17.9585, -24.175, 0.86249995, 17.9585, -24.175, -0.86249995, 17.9585, -24.175, -0.86249995, -17.9585, 24.175, 0.86249995, 17.9585, -24.175, 0.86249995, 17.9585, 24.175, 0.86249995, -17.9585, -24.175, 0.86249995, 17.9585, -24.175, 0.86249995, -17.9585, 24.175, 0.86249995, -17.9585, -24.175, -0.86249995, 17.9585, 24.175, -0.86249995, 17.9585, -24.175, -0.86249995, -17.9585, 24.175, -0.86249995, 17.9585, 24.175, -0.86249995, -17.9585, -24.175, -0.86249995, -17.9585)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mx0de"]
-albedo_texture = ExtResource("2_7rf62")
-uv1_triplanar = true
-uv1_world_triplanar = true
-uv2_world_triplanar = true
-
-[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_mx0de"]
-data = PackedVector3Array(-5.147888, -3.0267944, 2.3208008, -5.147888, -3.0267944, -2.3208008, -5.147888, 3.0267944, -2.3208008, 5.147888, -3.0267944, -2.3208008, -5.147888, -3.0267944, -2.3208008, -5.147888, -3.0267944, 2.3208008, -5.147888, 3.0267944, -2.3208008, -5.147888, -3.0267944, -2.3208008, 5.147888, -3.0267944, -2.3208008, -5.147888, 3.0267944, -2.3208008, -5.147888, 3.0267944, 2.3208008, -5.147888, -3.0267944, 2.3208008, -5.147888, -3.0267944, 2.3208008, -5.147888, 3.0267944, 2.3208008, 5.147888, 3.0267944, 2.3208008, 5.147888, 3.0267944, 2.3208008, -5.147888, 3.0267944, 2.3208008, -5.147888, 3.0267944, -2.3208008, -5.147888, -3.0267944, 2.3208008, 5.147888, -3.0267944, 2.3208008, 5.147888, -3.0267944, -2.3208008, 5.147888, 3.0267944, 2.3208008, 5.147888, -3.0267944, 2.3208008, -5.147888, -3.0267944, 2.3208008, 5.147888, -3.0267944, -2.3208008, 5.147888, -3.0267944, 2.3208008, 5.147888, 3.0267944, 2.3208008, 5.147888, -3.0267944, -2.3208008, 5.147888, 3.0267944, -2.3208008, -5.147888, 3.0267944, -2.3208008, -5.147888, 3.0267944, -2.3208008, 5.147888, 3.0267944, -2.3208008, 5.147888, 3.0267944, 2.3208008, 5.147888, 3.0267944, 2.3208008, 5.147888, 3.0267944, -2.3208008, 5.147888, -3.0267944, -2.3208008)
-
-[node name="test" type="Node3D" unique_id=1207918251 node_paths=PackedStringArray("machete", "victim")]
+[node name="test" type="Node3D" unique_id=1207918251]
 script = SubResource("GDScript_acgyg")
-machete = NodePath("machete")
-victim = NodePath("zombie")
-
-[node name="machete" parent="." unique_id=747042647 instance=ExtResource("6_hn7ej")]
-unique_name_in_owner = true
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.2911944, 1.5109104, -2.633137)
-item_descriptor = ExtResource("12_i5s65")
-
-[node name="bate" parent="." unique_id=1272183585 instance=ExtResource("6_hn7ej")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.2911944, 1.5109104, -1.5980365)
-item_descriptor = ExtResource("3_2rjyo")
-
-[node name="cuchillo" parent="." unique_id=483477858 instance=ExtResource("6_hn7ej")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.2911944, 1.5109104, -0.16953707)
-item_descriptor = ExtResource("3_mx0de")
-
-[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1629053163]
-environment = SubResource("Environment_6uqi0")
 
 [node name="player" parent="." unique_id=583847357 instance=ExtResource("1_37kl0")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.209753, 0.79818475, -2.4651966)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.209753, 0.95157623, 5.207296)
 
-[node name="zombie" parent="." unique_id=495252481 instance=ExtResource("4_ppyta")]
-transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 11.092147, 0.14002538, 2.23852)
+[node name="floor" type="MeshInstance3D" parent="." unique_id=2099951536]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.95157623, 0)
+mesh = SubResource("PlaneMesh_vyfcd")
 
-[node name="zombie2" parent="." unique_id=898808481 instance=ExtResource("4_ppyta")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.2543035, 0.14002538, -2.1452744)
+[node name="StaticBody3D" type="StaticBody3D" parent="floor" unique_id=1952150775]
 
-[node name="zombie3" parent="." unique_id=1528392514 instance=ExtResource("4_ppyta")]
-transform = Transform3D(-0.8660254, 0, -0.50000006, 0, 1, 0, 0.50000006, 0, -0.8660254, 3.325004, 0.14002538, 8.811889)
+[node name="CollisionShape3D" type="CollisionShape3D" parent="floor/StaticBody3D" unique_id=1653678137]
+shape = SubResource("ConcavePolygonShape3D_hn7ej")
 
-[node name="zombie4" parent="." unique_id=1435421835 instance=ExtResource("4_ppyta")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.410116, 0.14002538, -2.1452744)
+[node name="GridMap" type="GridMap" parent="." unique_id=177710297]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.78, 0)
+mesh_library = ExtResource("2_d7gko")
+cell_size = Vector3(0.5, 0.5, 0.5)
+bake_navigation = true
+data = {
+"cells": PackedInt32Array(65472, 20, 2, 65518, 13, 0, 65531, 13, 0, 8, 13, 0, 21, 13, 0, 65492, 39, 0, 65492, 52, 0, 65492, 65, 0, 7, 84, 655362, 65497, 91, 655360, 65484, 91, 655360, 65471, 91, 655360, 65458, 91, 655360, 65445, 91, 655360, 65433, 91, 655360, 65420, 91, 655360, 65407, 91, 655360, 64, 13, 655360, 77, 13, 655360, 88, 13, 655360, 101, 13, 655360, 114, 13, 655360, 127, 13, 655360, 140, 13, 655360, 153, 13, 655360, 41, 15, 1048576, 41, 2, 1048576, 41, 65525, 1048576, 41, 65512, 1048576, 41, 65499, 1048576, 41, 65486, 1048576, 41, 65474, 1048576, 41, 65462, 1048576, 41, 65449, 1048576, 41, 65437, 1048576, 41, 65424, 1048576, 41, 65411, 1048576, 28, 65464, 1048576, 53, 65464, 1048576, 15, 65464, 1048576, 3, 65464, 1048576, 65526, 65464, 1048576, 66, 65464, 1048576, 79, 65464, 1048576, 91, 65464, 1048576, 104, 65464, 1048576, 117, 65464, 1048576, 130, 65464, 1048576, 143, 65464, 1048576, 65513, 65464, 1048576, 65500, 65464, 1048576, 65487, 65464, 1048576, 65474, 65464, 1048576, 65461, 65464, 1048576, 65448, 65464, 1048576, 65435, 65464, 1048576, 65422, 65464, 1048576, 65425, 65429, 1441795, 65410, 65446, 1441792, 65410, 65459, 1441792, 65410, 65472, 1441792, 65410, 65484, 1441792, 65410, 65497, 1441792, 65410, 65510, 1441792, 65491, 65421, 1441792, 65491, 65408, 1441792, 65491, 65395, 1441792, 65491, 65382, 1441792, 65490, 65446, 1441792, 65490, 65459, 1441792, 65490, 65472, 1441792, 65490, 65484, 1441792, 65490, 65497, 1441792, 65509, 65510, 131075, 65493, 65525, 131072, 65481, 65525, 131072, 65468, 65525, 131072, 65455, 65525, 131072, 65443, 65525, 131072, 65404, 65525, 524288)
+}
 
-[node name="NavigationRegion3D" type="NavigationRegion3D" parent="." unique_id=1057889258]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.08408499, 0.61329436, 0.8462405)
-navigation_mesh = SubResource("NavigationMesh_vyfcd")
+[node name="DayNightCycle" parent="." unique_id=1330462759 instance=ExtResource("3_aylw0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.5, 2, 36)
 
-[node name="floor" type="MeshInstance3D" parent="NavigationRegion3D" unique_id=1722483494]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.73718405, 3.770996)
-mesh = SubResource("BoxMesh_q8wwd")
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=309304196]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -14)
+mesh = SubResource("BoxMesh_vyfcd")
 
-[node name="StaticBody3D" type="StaticBody3D" parent="NavigationRegion3D/floor" unique_id=1302470355]
-collision_layer = 65535
+[node name="StaticBody3D" type="StaticBody3D" parent="MeshInstance3D" unique_id=1215350116]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="NavigationRegion3D/floor/StaticBody3D" unique_id=525096317]
-shape = SubResource("ConcavePolygonShape3D_q8wwd")
-debug_color = Color(1, 0, 0, 1)
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MeshInstance3D/StaticBody3D" unique_id=1235263271]
+shape = SubResource("ConvexPolygonShape3D_r7dxx")
 
-[node name="CSGBox3D" type="CSGBox3D" parent="NavigationRegion3D" unique_id=134708480]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.647888, 2.5267944, 1.8208008)
-size = Vector3(10.295776, 6.053589, 4.6416016)
-material = SubResource("StandardMaterial3D_mx0de")
+[node name="Label3D" type="Label3D" parent="MeshInstance3D" unique_id=644432880]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.5, 1)
+pixel_size = 0.065
+text = "Disparame!"
 
-[node name="StaticBody3D" type="StaticBody3D" parent="NavigationRegion3D/CSGBox3D" unique_id=1470433497]
-
-[node name="CSGBakedCollisionShape3D" type="CollisionShape3D" parent="NavigationRegion3D/CSGBox3D/StaticBody3D" unique_id=1914985239]
-shape = SubResource("ConcavePolygonShape3D_mx0de")
+[node name="zombie" parent="." unique_id=495252481 instance=ExtResource("4_ildbv")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 1, -1.5)

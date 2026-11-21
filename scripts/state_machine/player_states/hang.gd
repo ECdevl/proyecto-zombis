@@ -16,8 +16,8 @@ func enter(previous_state_path: String, data := {}) -> void:
 		player.arms_mesh.rotation_degrees = Vector3(0,-180.0,0)
 	player.speed = player.hang_velocity
 	yaw_rot = player.yaw.rotation.y
-	if player.playback:
-		player.playback.travel("Ledge")
+	if player.arms_animator != null:
+		player.arms_animator.play_base(&"grabbed")
 	
 	if is_instance_valid(player.weapon_grip):
 		player.weapon_grip.hide()
@@ -50,8 +50,8 @@ func exit(next_state_path:String) -> void:
 	if next_state_path != "Climb":
 		if is_instance_valid(player.weapon_grip):
 			player.weapon_grip.show()
-		if player.playback:
-			player.playback.travel("normal")
+		if player.arms_animator != null:
+			player.arms_animator.play_base(&"idle")
 		if is_instance_valid(player.arms_mesh):
 			player.arms_mesh.top_level = false
 		if is_instance_valid(player.current_viewmodel):

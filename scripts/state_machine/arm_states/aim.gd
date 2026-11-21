@@ -1,16 +1,17 @@
 extends PlayerState
 
-var original_sens : float
-func enter(previous_state_path: String, data := {}) -> void:
+var original_sens: float
+
+func enter(previous_state_path: String, data: Dictionary = {}) -> void:
 	player.ads_controller.aiming = true
 	original_sens = player.camera_sensitivity
-	player.camera_sensitivity = player.camera_sensitivity/2
+	player.camera_sensitivity = player.camera_sensitivity / 2
 
 func handle_input(_event: InputEvent) -> void:
-	if player.is_dead or player.is_input_locked():
+	if not player.can_act():
 		return
 	if _event.is_action_pressed("M1"):
-		player.weapon_controller.call_deferred("shoot")
+		player.weapon_controller.call_deferred("attack")
 	if _event.is_action_released("M2"):
 		finished.emit("normal")
 

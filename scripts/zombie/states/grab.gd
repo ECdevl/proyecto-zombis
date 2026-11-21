@@ -1,11 +1,13 @@
 extends ZombieState
 
 @export var grab_anchor: Marker3D
+@export var damage_tick : float = 1.5
 var player: Player
 
 func enter(previous_state_path: String, _data := {}) -> void:
 	_land_grab()
 
+@onready var hurt_grab: Timer = %HurtGrab
 
 # Call on the frame when the animation touches the player:
 func _land_grab() -> void:
@@ -24,7 +26,9 @@ func _land_grab() -> void:
 	player = target_player
 	player.playback.start("grabbed_start", true)
 	zombie.playback.start("grab_start", true)
+	hurt_grab.start(damage_tick)
 	player.grab_escaped.connect(_on_escaped, CONNECT_ONE_SHOT)
+	zombie.grab_sound.play()
 	if not player.player_death.is_connected(_on_player_died):
 		player.player_death.connect(_on_player_died)
 
@@ -69,3 +73,9 @@ func exit(_next_state_path: String) -> void:
 		if player.grabber == zombie:
 			player.end_grab()  # the grabber releases
 	player = null
+	zombie.grab_sound.stop()
+	zombie.hurt_sound.play()
+
+func _on_hurt_timer_timeout() -> void:
+	if player:
+		player.health_component.hurt(zombie.claw_damage + 5)

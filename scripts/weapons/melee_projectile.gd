@@ -20,7 +20,8 @@ var attacker : Node3D
 
 var push_direction : Vector3 = Vector3.ZERO  # en mundo
 var swing_data_ref: SwingData
-
+var audio_swing : AudioStreamPlayer
+var audio_hit : AudioStreamPlayer
 
 ## Se llama DESPUÉS de add_child (necesita estar en el árbol para usar la física).
 func setup(melee: Melee, swing: SwingData, by: Node3D) -> void:
@@ -32,7 +33,11 @@ func setup(melee: Melee, swing: SwingData, by: Node3D) -> void:
 	if push_direction.length_squared() < 0.0001:
 		push_direction = -get_viewport().get_camera_3d().global_basis.z
 	set_projectile(melee.damage, melee.weapon_range)
-
+	audio_swing = AudioStreamPlayer.new()
+	audio_hit = AudioStreamPlayer.new()
+	audio_swing.stream = melee.melee_swing
+	audio_swing.play()
+	audio_hit.stream = melee.melee_hit
 
 func fire() -> void:
 	await get_tree().physics_frame
@@ -66,17 +71,20 @@ func fire() -> void:
 
 		var result := cam.get_world_3d().direct_space_state.intersect_ray(query)
 		if result.is_empty():
+			
 			continue
 		var hitbox := result.collider as Node
 		if hitbox == null or not (hitbox.owner is Zombie):
 			continue
 		var zombie := hitbox.owner as Zombie
+		audio_hit.play()
+		
 		if ya_golpeado.has(zombie):
 			continue
 		ya_golpeado[zombie] = true
 		# intersect_ray sí devuelve el punto de contacto: se usa para la sangre.
 		_apply_hit_with_dir(hitbox, result.position, zombie)
-
+		
 	_draw_swing(origin, aim, axis, angles)
 	queue_free()
 

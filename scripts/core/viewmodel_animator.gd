@@ -55,7 +55,7 @@ func setup(p_root: Node3D) -> void:
 	var blend_node : AnimationNodeBlend2 = blend_tree.get_node("context")
 	var skeleton: Skeleton3D = root.find_child("Skeleton3D", true, false) as Skeleton3D
 	if skeleton != null:
-		var upper_idx: int = _find_upper_arm_left_index(skeleton)
+		var upper_idx: int = SkeletonUtils.find_upper_arm_left_index(skeleton)
 		if upper_idx >= 0:
 			var bone_names: PackedStringArray = PackedStringArray()
 			var stack: Array[int] = [upper_idx]
@@ -82,28 +82,16 @@ func _ensure_playback() -> AnimationNodeStateMachinePlayback:
 	return playback
 
 func play_base(anim_name: StringName) -> void:
-	
 	var pb: AnimationNodeStateMachinePlayback = _ensure_playback()
 	if pb == null:
-		if ap != null and ap.has_animation(anim_name):
-			ap.play(anim_name)
 		return
-	if anim_name == &"run":
-		pb.travel("run")
-	elif anim_name == &"idle":
-		pb.travel("idle")
-	else:
-		pb.travel(anim_name)
-
-func fire_shot(anim_name: StringName) -> void:
-	if ap == null or not ap.has_animation(anim_name):
-		return
-	var pb: AnimationNodeStateMachinePlayback = _ensure_playback()
-	if pb == null:
-		ap.stop()
-		ap.play(anim_name)
-		return
+		
 	pb.travel(anim_name)
+func fire_shot(anim_name: StringName) -> void:
+	var pb: AnimationNodeStateMachinePlayback = _ensure_playback()
+	if pb == null:
+		return
+	pb.start(anim_name)
 
 func set_context(anim_name: StringName, weight: float) -> void:
 	if tree != null and anim_name != &"":
@@ -124,25 +112,20 @@ func set_context_weight(weight: float) -> void:
 		tween.tween_property(tree,"parameters/context/blend_amount",clamp(weight, 0.0, 1.0),.25)
 
 
+func is_anim_active(anim_name: StringName) -> bool:
+	var pb: AnimationNodeStateMachinePlayback = _ensure_playback()
+	if pb == null:
+		return false
+	return pb.get_current_node() == anim_name
+
+
+func is_swing_active() -> bool:
+	return is_anim_active(&"swing1") or is_anim_active(&"swing2")
+
+
 func is_shot_active() -> bool:
 	var pb: AnimationNodeStateMachinePlayback = _ensure_playback()
 	if pb == null:
 		return false
 	var current: StringName = pb.get_current_node()
 	return current != &"idle" and current != &"run"
-
-func _normalize_bone_name(name: String) -> String:
-	var n: String = name.to_lower()
-	n = n.replace("_", "")
-	n = n.replace(".", "")
-	n = n.replace(" ", "")
-	return n
-
-func _find_upper_arm_left_index(skeleton: Skeleton3D) -> int:
-	if skeleton == null:
-		return -1
-	for i in skeleton.get_bone_count():
-		var norm: String = _normalize_bone_name(skeleton.get_bone_name(i))
-		if norm == "upperarmleft" or norm == "upperarml":
-			return i
-	return -1

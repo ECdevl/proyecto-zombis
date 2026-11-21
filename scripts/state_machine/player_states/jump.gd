@@ -1,7 +1,9 @@
 extends PlayerState
+@onready var footstep_player: FootstepPlayer = %FootstepPlayer
 
 func enter(previous_state_path: String, data := {}) -> void:
-	player.velocity.y = player.sprint_jump_velocity if previous_state_path == "run" else player.jump_velocity
+	footstep_player.play_step()
+	player.velocity.y = player.jump_velocity
 	player.body_at_playback.travel("jump")
 func update(_delta: float) -> void:
 	player._camera_movement()
@@ -14,4 +16,3 @@ func physics_update(_delta: float) -> void:
 		return
 	if player.velocity.y <= 0.0:
 		finished.emit("fall")
-

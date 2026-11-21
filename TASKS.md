@@ -256,7 +256,8 @@
         la vigente es `container_capability`
   - [ ] `PlayerCarriedInventories.take_ammo()` muta `descriptor.rounds`, que es un
         `Resource` compartido
-  - [ ] `PlayerNeeds.heal()` no tiene rama `HEALTH` pero `arm_states/consuming.gd:35` la invoca
+  - [x] ~~`PlayerNeeds.heal()` no tiene rama `HEALTH`~~ — DESACTUALIZADO:
+        `player_needs.gd:29-34` sí contiene la rama `Needs.HEALTH` (revisado en D-039)
   - [ ] `inventory_ui_controller.gd:72` y `:223` leen `descriptor.quick_slots`, que solo
         existe en `WearableItemDescriptor` (error de tipo estático en GDScript)
 
@@ -464,3 +465,163 @@
 
 Nota: en modo `--script` los autoloads todavía no existen cuando se compila la cadena de
 dependencias, así que aparecen errores de compilación falsos. Ver `ERRORES.md` E-004.
+
+- [x] **T-019 Linterna desacoplada de `WeaponController`** (2026-11-17, D-031)
+  - [x] `HoldableDescriptor` como base común de `EquippableDescriptor` y
+        `FlashlightDescriptor`; se eliminan `get_hands_required()` / `get_actions()`
+        duplicados y la linterna deja de ser candidata a arma principal
+  - [x] `FlashlightController` extraído de `WeaponController` (~170 líneas menos):
+        nodo hermano bajo el Player con `%FlashlightController`, dueño del toggle,
+        del rig óseo y del modelo, suscrito a `hands.changed` y `weapon_changed`
+  - [x] `SkeletonUtils` centraliza la normalización de huesos y la búsqueda del
+        brazo izquierdo; se eliminan las copias en `ViewmodelAnimator` y en el
+        viejo bloque de linterna
+  - [x] Corregidos `caster_mask` sobrescrito, `_rig_skeleton` marcado sin
+        attachment, `_flashlight_light` no nulificado al desmontar y toggle
+        que ignoraba la mano derecha; parámetros de luz pasan a exports
+  - [x] `tools/probe_linterna.gd`: 15 aserciones → *TODO OK* (jerarquía,
+        existencia del controlador y toggle con la linterna en mano derecha)
+  - [ ] Probar en juego: anclaje/pose del brazo izquierdo con cada viewmodel y
+        encendido/apagado con la linterna en ambas manos
+
+- [x] **T-020 Animación de la linterna con manos vacías** (2026-11-17, D-032)
+  - [x] `ArmsAnimator` reutiliza el AnimationTree ya presente en `player.tscn`
+        y se activa desde `Player._ready()`; se retiró `arms_ap.play("idle")`
+  - [x] `FlashlightController` aplica `ctx_flashlight` al viewmodel y a armsy,
+        con refresco diferido al arranque
+  - [x] Migrados todos los `weapon_ap.play`/`play_backwards`/`queue` de
+        `WeaponController` y los fallbacks de `run.gd` al AnimationTree
+  - [x] Corregidos los `travel()` a estados inexistentes (`pistol_idle`, `Ledge`,
+        `normal`) que el tree apagado hacía inofensivos (E-031 incluida)
+  - [x] `tools/probe_linterna.gd`: 22 aserciones → *TODO OK* (armsy sin arma,
+        viewmodel + armsy simultáneos, soltar arma y desequipar linterna)
+  - [ ] Probar en juego la pose de armsy al soltar el arma y el one-shot de punch
+
+- [x] **T-021 Cámara FPS anclada al hueso del cuello** (2026-11-17, D-033)
+  - [x] `scripts/components/camera_rig.gd` (`NeckCameraRig`): copia la posición
+        del `BoneAttachment3D` al espacio local de `Yaw`, compensa el `z` de
+        `Pitch` y deja la rotación a `Yaw`/`Pitch`; `process_priority = 1`
+  - [x] `scenes/player.tscn`: `CameraRig` insertado entre `Yaw` y `Pitch`, con
+        `neck_attachment` enlazado por `node_paths`; reparentado `Pitch` y todos
+        sus descendientes; corregidas las 6 `NodePath`, el `[editable path]` y
+        las sondas que usaban la ruta antigua (E-033)
+  - [x] `Player`: referencia `%CameraRig`, asserts actualizados y eliminados
+        `CAM_HEIGHT_*`, `CAM_LERP_TIME` y `tween_cam_height()`
+  - [x] `idle.gd`, `crouch.gd`, `prone.gd`: retirados los ajustes de altura
+  - [x] `tools/probe_neck_cam.gd`: 18 comprobaciones → *TODO OK* (seguimiento en
+        idle, con rotación, en crouch y al volver; rotación intacta)
+  - [x] Sin regresiones en `probe_linterna.gd` (0 fallos) ni en
+        `probe_abuse.tscn -- --case=lean`
+  - [ ] Probar en juego el seguimiento con las animaciones nuevas de Mixamo
+        (caminar, agacharse, saltar) y ajustar el hueso si el encuadre no agrada
+
+- [x] **T-022 Ciclo día/noche desacoplado** (2026-11-18, D-034)
+  - [x] `scripts/world/day_night_cycle.gd` (`DayNightCycle`): reloj continuo
+        0..24, fases con duración real configurable, trayectoria del sol y de
+        la luna, crepúsculos y API/señales públicas
+  - [x] `scenes/environment/day_night_cycle.tscn`: `Node3D` raíz con
+        `WorldEnvironment`, `Sun` y `Moon`; autocontenida, sin referencias externas
+  - [x] Reescaneo de clases con `godot --headless --path . --editor --quit` (E-034)
+  - [x] `tools/probe_dia_noche.gd`: 15 comprobaciones → *TODO OK*
+  - [ ] Probar en juego la escena instanciada en `scenes/debug/test.tscn`:
+        comprobar que el entorno propio no pelea con el `WorldEnvironment` de
+        la escena, el cambio de luz al amanecer/atardecer y el cielo nocturno
+  - [ ] Ajustar `day_start_hour`/`night_start_hour` y las duraciones al gusto
+        del Señor (convención: cada hora de fase dura `span/duración` segundos)
+
+- [x] **T-023 Skyboxes por hora en el ciclo día/noche** (2026-11-18, D-035)
+  - [x] `scripts/world/day_night_cycle.gd`: exports de las tres texturas y de
+        los umbrales `morning_sky_end_hour` / `night_sky_start_hour`; selección
+        por rangos circulares y `BG_SKY` con respaldo `BG_COLOR`
+  - [x] `scenes/environment/day_night_cycle.tscn`: texturas de mañana, tarde y
+        noche enlazadas por UID, preservando el trabajo previo del Señor
+  - [x] Corregido el override `env`: se aplica antes de `_apply_all()` (E-038)
+  - [x] `tools/probe_dia_noche.gd`: 22 comprobaciones → *TODO OK* (7 nuevas de
+        skybox + las 15 originales)
+  - [ ] Probar en juego los tres skyboxes y ajustar los umbrales de cambio
+        (ahora 12:00 y 19:00) al gusto del Señor
+
+- [x] **T-024 Fundido continuo entre skyboxes** (2026-11-18, D-036)
+  - [x] `shaders/sky_blend.gdshader`: `shader_type sky;` con dos panoramas y
+        `sky_blend`, mezclados con `mix()` sobre `SKY_COORDS`
+  - [x] `scenes/environment/day_night_cycle.tscn`: `ShaderMaterial` con
+        `resource_local_to_scene` en material, Sky y Environment;
+        `Sky.process_mode = 2`; export `sky_transition_hours = 1.0`
+  - [x] `scripts/world/day_night_cycle.gd`: `_apply_sky()`, `_wrapped_offset()`,
+        `_validate_sky_thresholds()` y respaldo a `BG_COLOR`
+  - [x] Corregido E-039 (`;` en `shader_type`) y revalidado el editor headless
+  - [x] `tools/probe_dia_noche.gd`: 27 comprobaciones → *TODO OK* (fundidos
+        parciales a las 11:45 y 05:45)
+  - [ ] Probar en juego los tres fundidos y ajustar `sky_transition_hours`
+        al gusto del Señor
+
+- [ ] **T-025 Escopeta: perdigones dispersos con daño dividido** (2026-11-19, D-037)
+  - [x] `Projectile._camera_raycast()` separado en envoltorio + `_trace_ray()` sin
+        `await` (un solo frame físico para toda la descarga)
+  - [x] `ShotgunProjectile`: perdigón 0 siempre al centro, N−1 aleatorios en cono
+        de ángulo sólido, `_damage_for()` = daño por perdigón en cualquier zona
+  - [x] `Weapon.pellets_per_shot` / `pellet_spread_deg` como exports;
+        `WeaponController.load_projectile(gun)` elige subclase solo para SHOTGUN
+  - [x] `remington.tres`: 8 perdigones, 4° de semiángulo, 8 cartuchos iniciales
+  - [x] Ejecutar `tools/probe_escopeta.tscn` → TODO OK (18 comprobaciones);
+        corregida la sonda: `fire()` libera el proyectil, así que las direcciones
+        se capturan en un Array externo y se comprueba el último hijo del holder
+  - [ ] Probar en juego: ajustar `pellets_per_shot` / `pellet_spread_deg` desde
+        el inspector y revisar el balance (50 total frente al 9999 de un headshot)
+  - [ ] Al definir la tabla de daño por zona, revisar la excepción de
+        `ShotgunProjectile._damage_for()` (D-037, punto 4)
+
+- [ ] **T-026 Refactor de `WeaponController` — operaciones + behaviour inyectado** (2026-11-19, D-038)
+  - [x] Respaldo `/tmp/opencode/weapon_refactor_backup_20261119_195213.tar.gz`
+  - [x] Línea base de sondas capturada antes de editar (4 conexiones rotas preexistentes,
+        2 errores de editor preexistentes, `Instructor`-only en modo `--script`)
+  - [x] `Player.can_act()` como única fuente de verdad; usado en `normal.gd`,
+        `aim.gd`, `consuming.gd` y `AttackOperation.is_valid()`
+  - [x] `AttackOperation`/`AttackBehaviour` (`Resource`, `@abstract`) y subclases
+        `FirearmAttack`, `MeleeAttack`, `ReloadOperation`, `FirearmBehaviour`,
+        `ShotgunBehaviour`, `MeleeBehaviour`
+  - [x] `ReloadOperation`: un solo `cancel()`, recarga escalonada no reentrante
+  - [x] `WeaponController` reescrito: `attack()` central, wrappers `shoot()`/`swing()`,
+        `load_projectile(gun)` delega en `gun.create_projectile()`
+  - [x] Descriptores delegan en `behaviour`; `remington.tres` usa `ShotgunBehaviour`
+  - [x] Corregido el orden `ext_resource` → `sub_resource` en `remington.tres`
+        (`Can't load cached ext-resource id` → behaviour caía al default)
+  - [x] Eliminados TODOS los comentarios de los archivos tocados; `:=` preexistentes
+        corregidos a tipos explícitos en esos mismos archivos
+  - [x] Editor reescaneado; `--quit`, `probe_escopeta`, `probe_melee`,
+        `probe_linterna` (Fallos: 0), `probe_abuse --case=lean` y
+        `check_tscn_connections.py` sin regresiones
+  - [ ] Probar en juego: recarga escalonada, interrupción por muerte/agarre a mitad
+        de `await`, y dispara/apuntar con arma nueva sin tocar el controlador
+  - [ ] Revisar E-041 (knockback de melee anulado) — pendiente de autorización
+
+- [ ] **T-027 Auditoría de sistemas y refactor quirúrgico** (2026-11-20, D-039)
+  - [x] Auditoría de inventario, armas y movimiento; decisiones D-039 y
+        hallazgos E-042..E-049 registrados
+  - [x] E-042: `swing_index` declarado en `WeaponController` y `MeleeAttack.run()`
+        ejercitado por `tools/probe_refactor_d038_fixes.tscn`
+  - [x] E-043: `is_active_operation()` y guards de identidad en
+        `ReloadOperation`; carrera A/B verificada en la misma sonda
+  - [x] Sonda nueva: 9/9 comprobaciones; `probe_escopeta` y `probe_melee` sin
+        regresiones; `check_tscn_connections.py` = 4 rotas preexistentes
+  - [x] TASKS.md:259 corregido: `PlayerNeeds.heal()` sí tiene rama `HEALTH`
+  - [ ] E-044: estado de munición/cargador fuera de los descriptores compartidos
+  - [ ] E-045: devolver `quick_slots` a `InventoryUIController`
+  - [ ] E-046: corregir `mochila.tres` a `container_capability`
+  - [ ] E-047: pasar el descriptor correcto a `update_inventory_ammo`; quitar
+        la llamada muerta a `ensure_item_mesh()`
+  - [ ] E-048: transición `jump` → `walk` al aterrizar en movimiento
+  - [ ] E-049: tabla de daño por zona y revisar la excepción de escopeta
+  - [ ] Revisar E-041 (knockback de melee) con autorización del Señor
+  - [ ] Probar en juego: combo melee, interrupción de recarga y recarga escalonada
+
+- [ ] **T-028 Sonidos de pasos por la fase del sway** (2026-11-20, D-040)
+  - [x] `ViewmodelSway` emite `footstep` al cruzar `fmod(bob_time, PI)`, también sin arma
+  - [x] `FootstepPlayer` con `AudioStreamPlayer` propio; no comparte el reproductor del arma
+  - [x] `resources/footsteps_stone.tres`: randomizer de los cuatro `Footstep Stone *.ogg`
+  - [x] Conexión en `player.tscn` y `:=` corregidos en `viewmodel_sway.gd`
+  - [x] `tools/probe_pasos.gd` → *TODO OK* (7 comprobaciones); sin regresiones en
+        `probe_linterna`, `probe_abuse --case=lean` ni `check_tscn_connections.py`
+  - [ ] Probar en juego: cadencia de caminar/correr y volumen del randomizer
+  - [ ] Corregir `run.gd:15`: `play_audio(run_sounds)` se reinicia en cada `update()`
+  - [ ] Decidir si los pasos deben seguir sonando al apuntar (hoy se inhiben con ADS, E-027)

@@ -118,7 +118,10 @@ func _key_of(action: StringName) -> String:
 
 
 func set_text_hint(text: String) -> void:
-	text_hint.text = text
+	if text == "":
+		text_hint.text = text
+	else:
+		text_hint.text = Instructor.get_action_key_bbcode(&"use") 
 
 
 func toggle_inventory() -> void:

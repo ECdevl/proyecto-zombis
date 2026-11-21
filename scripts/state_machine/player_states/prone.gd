@@ -4,8 +4,7 @@ extends PlayerState
 
 func enter(previous_state_path: String, data := {}) -> void:
 	player.body_at_playback.travel("prone")
-	player.speed = player.crouch_speed 
-	player.tween_cam_height(player.CAM_HEIGHT_PRONE)
+	player.speed = player.crouch_speed
 	player.collision_prone.disabled = false
 	player.collision_standing.disabled = true
 	player.collision_crouched.disabled = true
@@ -21,8 +20,6 @@ func physics_update(_delta: float) -> void:
 
 func exit(next_state_path:String) -> void:
 	if next_state_path != "prone" and next_state_path != "crouch":
-		player.yaw.position = Vector3(0.0,1.0,0.0)
 		player.collision_standing.disabled = false
 		player.collision_crouched.disabled =true
 		player.collision_prone.disabled = true
-		player.tween_cam_height(player.CAM_HEIGHT_STAND)

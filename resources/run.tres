@@ -1,0 +1,9 @@
+[gd_resource type="AudioStreamRandomizer" format=3 uid="uid://desbtdb3ovats"]
+
+[ext_resource type="AudioStream" uid="uid://d0h10gp06ba0j" path="res://assets/sounds/gunrun.ogg" id="1_guhb1"]
+
+[resource]
+playback_mode = 1
+random_pitch = 1.122462
+streams_count = 1
+stream_0/stream = ExtResource("1_guhb1")

@@ -18,6 +18,8 @@ const HITBOX_MASK := 512
 ## Capa del mundo (paredes, piso).
 const WORLD_MASK := 1
 
+signal hit(what:Node3D)
+
 var damage : float = 0
 var range: float = 100
 var knockback : float = 20.0
@@ -46,6 +48,13 @@ func fire() -> void:
 ## usa la normal real del rayo.
 func _apply_hit(collider: Object, hit_pos: Vector3, hit_normal: Vector3 = Vector3.ZERO) -> void:
 	var hitbox := collider as Node
+	var impact_audio : AudioStreamPlayer3D = AudioStreamPlayer3D.new()
+	
+	get_tree().current_scene.add_child(impact_audio)
+	impact_audio.global_position = hit_pos
+	impact_audio.max_distance = 50
+	impact_audio.max_db = 1.5
+
 	if hitbox == null:
 		return
 	if hitbox.owner is Zombie:
@@ -56,10 +65,18 @@ func _apply_hit(collider: Object, hit_pos: Vector3, hit_normal: Vector3 = Vector
 		zombie.health_component.hurt(_damage_for(hitbox),{"who":hitbox,"attacker":_attacker(),"hit_pos":hit_pos,"impulse":exit_dir,"force":knockback})
 		if _attacker() is Player:
 			_attacker().attacked_close.emit()
+			
+		impact_audio.stream = preload("uid://8ng1b0jv6sow")
+		impact_audio.play()
+		await impact_audio.finished
+		impact_audio.queue_free()
 	elif collider is StaticBody3D and hit_normal.length_squared() > 0.0001:
 		# Solo paredes/piso: no hay agujero sobre pickups ni otros cuerpos.
+		impact_audio.stream = preload("uid://d2h2ihvtjlkpj")
 		_spawn_bullet_hole(hit_pos, hit_normal)
-
+		impact_audio.play()
+		await impact_audio.finished
+		impact_audio.queue_free()
 
 ## Agujero de bala fijo en el mundo: se queda en `pos` con la normal dada.
 ## Textura placeholder (icono de Godot) a reemplazar por el usuario.
@@ -70,6 +87,7 @@ func _spawn_bullet_hole(pos: Vector3, surface_normal: Vector3) -> void:
 	get_tree().current_scene.add_child(decal)
 	decal.global_position = pos + surface_normal.normalized() * 0.05
 	decal.global_basis = _basis_from_up(surface_normal.normalized())
+
 
 
 ## Agujero pegado al cuerpo del zombi (hijo del BoneAttachment del hitbox):
@@ -97,7 +115,7 @@ func _make_hole_decal(tex: Texture2D) -> Decal:
 	decal.size = Vector3(BULLET_HOLE_SIZE, 0.2, BULLET_HOLE_SIZE)
 	decal.cull_mask = 1
 	decal.distance_fade_enabled = true
-	decal.distance_fade_begin = 20.0
+	decal.distance_fade_begin = 50.0
 	return decal
 
 
@@ -130,12 +148,20 @@ func _spawn_trace(result: Dictionary) -> void:
 	bullet_trace.target_pos = target
 
 
+## Un rayo desde la cámara. Espera un frame físico y delega en `_trace_ray()`.
 func _camera_raycast(max_range: float, _by: Node3D = null) -> Dictionary:
 	await get_tree().physics_frame
 	var cam_xform : Transform3D = get_viewport().get_camera_3d().global_transform
+	return _trace_ray(cam_xform.origin, -cam_xform.basis.z, max_range)
+
+
+## Un rayo hacia `direction`, sin `await`. Las subclases con varios rayos
+## (escopeta) lo llaman en bucle después de un único `physics_frame`, para no
+## repartir la descarga entre varios frames.
+func _trace_ray(origin: Vector3, direction: Vector3, max_range: float) -> Dictionary:
+	var dir: Vector3 = direction.normalized()
+	_ray_end = origin + dir * max_range
 	var space_state : PhysicsDirectSpaceState3D = get_viewport().get_camera_3d().get_world_3d().direct_space_state
-	var origin: Vector3 = cam_xform.origin
-	_ray_end = origin + (-cam_xform.basis.z * max_range)
 
 	var query := PhysicsRayQueryParameters3D.create(origin, _ray_end)
 	query.collide_with_areas = true

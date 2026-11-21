@@ -1,27 +1,30 @@
 [gd_scene format=3 uid="uid://w8pon5lrn51x"]
 
 [ext_resource type="Script" uid="uid://cqbyk8peirpxy" path="res://scripts/core/icon_creator.gd" id="1_go1vf"]
-[ext_resource type="Resource" uid="uid://c8linterna001" path="res://resources/items/linterna.tres" id="2_gv2av"]
-[ext_resource type="PackedScene" uid="uid://u5usm1jqa5d6" path="res://assets/models/item/linterna.glb" id="3_gv2av"]
+[ext_resource type="Resource" uid="uid://bhffwbhundwl8" path="res://resources/ammo/9mm.tres" id="2_gv2av"]
+[ext_resource type="ArrayMesh" uid="uid://d37sf7lhfo3ch" path="res://assets/models/item/9mm.obj" id="3_w03gq"]
 
 [node name="IconCreator" type="Node3D" unique_id=1103188379]
 editor_description = "Arrastrá el modelo importado dentro de 'Modelo', posicionalo, encuadralo con 'Camera3D' y presioná 'Capturar ícono' en el inspector."
 script = ExtResource("1_go1vf")
-nombre_archivo = "bate_icon"
+nombre_archivo = "9mm"
 item_descriptor = ExtResource("2_gv2av")
 
 [node name="Modelo" type="Node3D" parent="." unique_id=1942887904]
 editor_description = "Arrastrá acá el modelo importado y posicionalo. Es lo que se captura."
 
-[node name="linterna2" parent="Modelo" unique_id=598196735 instance=ExtResource("3_gv2av")]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, 0, 0)
+[node name="50ae" type="MeshInstance3D" parent="Modelo" unique_id=1621311615]
+transform = Transform3D(1.9106855e-15, -4.371139e-08, -1, -1, -4.371139e-08, 0, -4.371139e-08, 1, -4.371139e-08, 0.11, -0.019, 1.935)
+mesh = ExtResource("3_w03gq")
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=973281850]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.5)
+projection = 1
 fov = 35.0
+size = 0.125
 
 [node name="OmniLight3D" type="OmniLight3D" parent="." unique_id=1789367460]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6, 1.2, 1.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6, 0.12776017, 2.2693427)
 
 [node name="SubViewport" type="SubViewport" parent="." unique_id=937790535]
 own_world_3d = true
@@ -31,8 +34,10 @@ render_target_update_mode = 0
 
 [node name="Camera3D" type="Camera3D" parent="SubViewport" unique_id=1670062548]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.5)
+projection = 1
 current = true
 fov = 35.0
+size = 0.08
 
 [node name="OmniLight3D" type="OmniLight3D" parent="SubViewport" unique_id=323486921]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6, 1.2, 1.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6, 0.12776017, 2.2693427)

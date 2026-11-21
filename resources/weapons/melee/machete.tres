@@ -1,9 +1,24 @@
 [gd_resource type="Resource" script_class="Melee" format=3 uid="uid://djhf1p03bo78d"]
 
 [ext_resource type="ArrayMesh" uid="uid://c8tmtnuk8jdat" path="res://assets/models/weapons/melee/one_hand/machete_world.obj" id="1_1ujgm"]
+[ext_resource type="Script" uid="uid://cbokm6gn8tlms" path="res://scripts/weapons/melee_behaviour.gd" id="1_8g6cd"]
+[ext_resource type="Texture2D" uid="uid://bbfehkq257d08" path="res://assets/sprites/icons/machete.res" id="1_gnu3u"]
 [ext_resource type="Script" uid="uid://c5ccot1xni1sw" path="res://scripts/inventory/descriptors/melee.gd" id="2_1ujgm"]
 [ext_resource type="Script" uid="uid://dskngi7txlhue" path="res://scripts/inventory/descriptors/swing_data.gd" id="3_1ujgm"]
+[ext_resource type="AudioStream" uid="uid://kcd5t25sq038" path="res://assets/sounds/blade_hit_08.wav" id="3_jbjwg"]
+[ext_resource type="AudioStream" uid="uid://duac6iayflpfe" path="res://resources/melee_swoosh.tres" id="3_tmjqr"]
 [ext_resource type="PackedScene" uid="uid://dsugcersjogck" path="res://assets/models/weapons/melee/one_hand/machete.glb" id="4_1ujgm"]
+[ext_resource type="AudioStream" uid="uid://cum6gv02yd0ac" path="res://assets/sounds/blade_hit_07.wav" id="4_8g6cd"]
+
+[sub_resource type="Resource" id="Resource_pm7mj"]
+script = ExtResource("1_8g6cd")
+metadata/_custom_type_script = "uid://cbokm6gn8tlms"
+
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_gur73"]
+random_pitch = 1.0594631
+streams_count = 2
+stream_0/stream = ExtResource("3_jbjwg")
+stream_1/stream = ExtResource("4_8g6cd")
 
 [sub_resource type="Resource" id="Resource_vau08"]
 script = ExtResource("3_1ujgm")
@@ -20,12 +35,16 @@ recoil_kick = Vector2(0, -1)
 script = ExtResource("2_1ujgm")
 swings = Array[ExtResource("3_1ujgm")]([SubResource("Resource_vau08"), SubResource("Resource_gnu3u")])
 hitbox_radius = 0.5
+melee_hit = SubResource("AudioStreamRandomizer_gur73")
 viewmodel_model = ExtResource("4_1ujgm")
 damage = 100.0
 fire_rate = 0.2
 weapon_range = 2.0
+push_time = 0.0
 knockback = 10.0
+behaviour = SubResource("Resource_pm7mj")
 item_name = "Machete"
-dimensions = Vector2i(4, 1)
+icon = ExtResource("1_gnu3u")
+dimensions = Vector2i(3, 1)
 item_mesh = ExtResource("1_1ujgm")
 metadata/_custom_type_script = "uid://c5ccot1xni1sw"

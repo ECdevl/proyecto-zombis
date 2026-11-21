@@ -16,6 +16,10 @@ signal item_dropped(item: ItemInstance)  # sale al mundo; quien escuche lo insta
 var _player_panels: Dictionary[InventoryModel, Control] = {}
 var _loot_panels: Dictionary[InventoryModel, Control] = {}
 
+@onready var item_move: AudioStreamPlayer = %ItemMove
+@onready var item_equip: AudioStreamPlayer = %ItemEquip
+@onready var cloth_equip_sound: AudioStreamPlayer = %ClothEquip
+
 ## Lo que el jugador carga. Lo inyecta la UI (que lo toma del Player) porque
 ## este nodo vive en la escena de la interfaz y el inventario en la del Player.
 var carried: PlayerCarriedInventories
@@ -85,13 +89,11 @@ func unequip(slot: WearableItemDescriptor.EquipSlot) -> void:
 	if not carried.add_anywhere(item):
 		item_dropped.emit(item)
 	carried.equipment.remove(item)
-	for i in item.descriptor.quick_slots:
-		if i >= 0:
-			if quick_slots.get_child_count() > i:
-				quick_slots.get_child(i).queue_free()
-			carried.refresh_quick_slots()
-		else:
-			break
+	var count := _quick_slot_count(item)
+	for i in count:
+		if quick_slots.get_child_count() > i:
+			quick_slots.get_child(i).queue_free()
+	carried.refresh_quick_slots()
 
 
 ## Clic derecho sobre un slot de mano (lo llama HandSlotView).
@@ -171,6 +173,7 @@ func _begin_drag(item: ItemInstance, rotated: bool, source_model: InventoryModel
 	_drag_preview.z_index = 10
 	add_child(_drag_preview)
 	_move_drag()
+	item_move.play()
 
 
 func _input(event: InputEvent) -> void:
@@ -204,6 +207,8 @@ func _rotate_drag() -> void:
 	_drag_rotated = not _drag_rotated
 	_drag_preview.set_rotated(_drag_rotated)
 	_move_drag()
+	item_move.play()
+
 
 
 func _end_drag() -> void:
@@ -219,7 +224,7 @@ func _end_drag() -> void:
 	elif target is QuickSlot:
 		_drop_on_quick_slot(target as QuickSlot)
 	_finish_drag()  # si no se pudo soltar, nada cambió: el objeto sigue donde estaba
-
+	item_move.play()
 func _drop_on_quick_slot(target:QuickSlot) -> void:
 	if _drag_item != null and carried != null and carried.has_item(_drag_item):
 		target.change_linked_item(_drag_item)
@@ -238,10 +243,18 @@ func _drop_on_inventory(view: InventoryView, mouse: Vector2) -> void:
 func _drop_on_equip_slot(slot: EquipSlotView) -> void:
 	if _drag_model and slot.accepts(_drag_item) and slot.equipment_model.equip(_drag_item):
 		_drag_model.remove(_drag_item)
-		for i in _drag_item.descriptor.quick_slots:
+		var count := _quick_slot_count(_drag_item)
+		for i in count:
+			carried.add_quick_slot()
+		cloth_equip_sound.play()
 
-			if i >= 0:
-				carried.add_quick_slot()
+
+## `quick_slots` vive en WearableItemDescriptor (int = cantidad de slots), no en
+## ItemDescriptor: hay que leerlo con type check o GDScript falla en compilacion.
+func _quick_slot_count(item: ItemInstance) -> int:
+	if item.descriptor is WearableItemDescriptor:
+		return item.descriptor.quick_slots
+	return 0
 
 func _drop_on_hand(slot: HandSlotView) -> void:
 	if _drag_model:

@@ -8,6 +8,13 @@ extends Node
 const INSTRUCTOR_ICON_WARN: String = "res://assets/sprites/instructor_warn.png"
 const KEY_DARK_DIR: String = "res://assets/sprites/keys/Dark/"
 const KEY_LIGHT_DIR: String = "res://assets/sprites/keys/Light/"
+const INSTRUCT_DOOR : String = "res://assets/sprites/instructor/INSTRUCT_DOOR.png"
+const INSTRUCT_GRAB : String = "res://assets/sprites/instructor/INSTRUCT_GRAB.png"
+const INSTRUCT_GUARD : String = "res://assets/sprites/instructor/INSTRUCT_GUARD.png"
+const INSTRUCT_HINT : String = "res://assets/sprites/instructor/INSTRUCT_HINT.png"
+const INSTRUCT_INFO : String = "res://assets/sprites/instructor/INSTRUCT_INFO.png"
+const INSTRUCT_USE : String = "res://assets/sprites/instructor/INSTRUCT_USE.png"
+
 
 
 func _get_ui() -> UI:

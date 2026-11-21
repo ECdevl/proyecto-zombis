@@ -233,7 +233,7 @@ func _case_lean() -> void:
 	if player == null:
 		return
 	var pitch: Node3D = player.pitch
-	var camera: Camera3D = player.get_node("Yaw/Pitch/Camera3D") as Camera3D
+	var camera: Camera3D = player.get_node("Yaw/CameraRig/Pitch/Camera3D") as Camera3D
 	_lean(&"lean_left", true)
 	await _wait(0.35)
 	print("LEAN left pitch_z=", pitch.rotation_degrees.z, " pitch_x=", pitch.position.x)

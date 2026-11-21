@@ -664,3 +664,495 @@ que exponerlos vía GDExtension.
 
 **Verificación:** documentado en D-021; el ragdoll se afinó con damping y
 límites (`probe_ragdoll_behavior` → *TODO OK*).
+
+---
+
+## E-022 — El toggle de la linterna disparaba dos veces por press (crítico) (2026-11-17)
+
+**Síntoma:** cada press de la acción `toggle_flashlight` apagaba/encendía la
+linterna dos veces seguidas (o bien no respondía, según el orden de propagación).
+
+**Causa real:** el mismo evento era consumido por dos handlers: `WeaponController._input`
+(`event.is_action("toggle_flashlight")`) y `Player._unhandled_input`
+(`event.is_action_pressed("toggle_flashlight")`). El handler de `WeaponController`
+no marcaba el evento como handled, por lo que el flujo llegó también al del `Player`,
+que alternaba `_flashlight_on` de nuevo → toggle doble.
+
+**Corrección:** se retiró el branch del toggle de `WeaponController._input`; la única
+ruta de entrada es ahora `Player._unhandled_input` (que además respeta los input locks).
+
+**Verificación:** `godot --headless --path . --quit` → 0 errores de script nuevos.
+
+---
+
+## E-023 — `AnimationPlayer.speed_scale` quedaba en 1.5 tras un swing melee (2026-11-17)
+
+**Síntoma:** tras un golpe cuerpo a cuerpo (`WeaponController.swing`) el
+`speed_scale` del `AnimationPlayer` quedaba en 1.5 sin restaurarse; las animaciones
+posteriores (idle, draw, shoot, reload) se reprodujeron al 1.5× de velocidad.
+
+**Corrección:** `WeaponController.swing` resetea `weapon_ap.speed_scale = 1.0` antes de
+volver al idle.
+
+**Verificación:** revisión estática; `godot --headless --path . --quit` → 0 errores de script.
+
+---
+
+## E-024 — La rama `skeleton == null` de `_refresh_flashlight` no reseteaba el estado (2026-11-17)
+
+**Síntoma:** si el skeleton de brazo izquierdo no se encontraba (rig sin cadena de
+brazo izquierdo), la linterna quedaba con `_flashlight_on` y el blend weight del
+contexto sin reset, dejando estados fantasma al re-intentar el equip.
+
+**Corrección:** la rama de fallback resetea `_flashlight_on = false`, oculta la luz y
+pone el contexto `ctx_flashlight` en peso 0.
+
+**Verificación:** revisión estática; `godot --headless --path . --quit` → 0 errores de script.
+
+---
+
+## E-025 — `Player.equip_weapon` invertía/alteraba la señal de cambio de arma (2026-11-17)
+
+**Síntoma:** cuando el arma recibida era igual a la actual (`resource == get_current_weapon()`),
+el Player emitía `weapon_changed(null)`, lo que desequipaba el arma que ya tenía equipada.
+
+**Corrección:** si el recurso es igual al actual, no hay cambio que notificar (retornar);
+si difiere, se emite el cambio.
+
+**Verificación:** revisión estática; `godot --headless --path . --quit` → 0 errores de script.
+
+---
+
+## E-026 — Referencias a nodos liberados en `_on_weapon_changed`/`_register_sight` (2026-11-17)
+
+**Síntoma:** tras `await animation_finished` en el desarmado, si el arma cambiaba durante
+la animación, el handler seguía con referencias locales a nodos ya liberados (`weapon_ap`,
+`weapon_node`), con riesgo de operación sobre instancia invalidada.
+
+**Corrección:** se agregaron guards `is_instance_valid` tras los `await` antes de seguir.
+
+**Verificación:** revisión estática; `godot --headless --path . --quit` → 0 errores de script.
+
+---
+
+## E-027 — El sway del viewmodel pisaba el weapon_pivot mientras el ADS también lo controlaba (2026-11-17)
+
+**Síntoma:** el sway/bob escribían `weapon_pivot.position` cada frame mientras el
+`ADSController` reescribía `weapon_pivot.transform` en su blend → conflicto/jitter visual
+al apuntar.
+
+**Corrección:** el sway salta (`return`) mientras `ads_controller.aiming` está activo.
+
+**Verificación:** revisión estática; `godot --headless --path . --quit` → 0 errores de script.
+
+---
+
+## E-028 — El loop de consumo no tenía guards de estado (2026-11-17)
+
+**Síntoma:** `ConsumeState` seguía mutando stats/temporizadores aunque el jugador hubiera
+muerto, agarrado o con input lock.
+
+**Corrección:** el loop corta si `player.is_dead`, `player.is_input_locked()` o
+`player.grabber != null`.
+
+**Verificación:** revisión estática; `godot --headless --path . --quit` → 0 errores de script.
+
+---
+
+## E-029 — Bloque muerto en `WeaponController.reload` (2026-11-17)
+
+**Síntoma:** un `if ... : pass` sin efecto que confundía el flujo de recarga.
+
+**Corrección:** eliminado el bloque.
+
+**Verificación:** revisión estática; `godot --headless --path . --quit` → 0 errores de script.
+
+---
+
+## E-030 — `descriptor.quick_slots` accedido fuera de `WearableItemDescriptor` (2026-11-17)
+
+**Síntoma:** se leía `ItemDescriptor.quick_slots`, que solo existe en
+`WearableItemDescriptor` (int = cantidad de slots) → error de tipo estático en GDScript y
+lógica de slots rota al soltar en un slot de equip.
+
+**Corrección:** helper `_quick_slot_count(item)` con type check en
+`InventoryUIController`.
+
+**Verificación:** revisión estática; `godot --headless --path . --quit` → 0 errores de script.
+
+---
+
+## E-031 — `AnimationNodeStateMachinePlayback.is_started()` no existe (2026-11-17)
+
+**Síntoma:** `SCRIPT ERROR: Invalid call. Nonexistent function 'is_started' in base
+'AnimationNodeStateMachinePlayback'` al configurar `ArmsAnimator`. El método no está en la
+API de Godot 4.7.2; se asumió su existencia sin verificarla.
+
+**Corrección:** `setup()` llama a `playback.start("idle")` sin condición previa. Solo se
+ejecuta una vez por instancia, así que reiniciar el state machine no tiene efecto adverso.
+
+**Verificación:** `tools/probe_linterna.gd` → 22 aserciones, 0 fallos; el error desaparece.
+
+---
+
+## E-032 — Godot 4.7.2 SÍ importa `.blend` directo (corrección a una respuesta del asistente) (2026-11-17)
+
+**Situación:** al preguntar si convenía usar `.blend` directo para los viewmodels de las armas, el asistente respondió que Godot "carece de importador nativo de ese formato" y que había que exportar a glTF. El Señor corrigió la afirmación.
+
+**Causa del error:** respuesta dada sin verificar contra la documentación oficial (incumplimiento de la regla de veracidad). La doc de Godot 4.7 —*Available 3D formats*, `docs.godotengine.org/en/stable/tutorials/assets_pipeline/importing_3d_scenes/available_formats.html`— dice textualmente que `.blend` (Blender) se importa **llamando al exportador glTF de Blender de forma transparente**, y que requiere Blender instalado. El importador existe en el motor (`EditorSceneFormatImporterBlend`, `modules/gltf/editor/editor_scene_importer_blend.cpp`). Mi respuesta confundió "Godot no tiene un parser propio de `.blend`" con "Godot no soporta importar `.blend`".
+
+**Corrección:** importar `.blend` directo está soportado; el proceso convierte a glTF con Blender y después usa el mismo pipeline glTF de siempre, así que no añade fidelidad, solo comodidad de iteración y evita versionar la copia exportada. Requisitos verificados en la doc:
+
+- Blender 3.0 o posterior (recomendado 3.5+ por correcciones del exportador glTF).
+- Ruta al ejecutable en **Editor Settings → Filesystem → Import → Blender → Blender Path**. En este equipo: `/usr/bin/blender` (configurado en `editor_settings-4.7.tres`), `blender --version` → 5.2.2 LTS, compilado como paquete de distro (`makepkg (modified)`). La doc recomienda **encarecidamente** el release oficial de blender.org frente a paquetes de distro/Flatpak por incompatibilidades y sandboxing.
+- Todo el equipo necesita Blender instalado; el import `.blend` no está disponible en los editores Android/web.
+
+**Hallazgo empírico adicional (2026-11-17):** en un proyecto mínimo limpio (`/tmp/opencode/blend_probe`) con un `.blend` válido, `godot --headless --path . --import` emite
+`ERROR: Blender path is invalid or not set, check your Editor Settings. Cannot configure blender path in headless mode.`
+en `modules/gltf/editor/editor_scene_importer_blend.cpp:552` y **no genera** el `.import` ni el `.gltf` intermedio, aunque la ruta `/usr/bin/blender` existe y está configurada. Causa raíz no investigada a fondo: el mensaje proviene del `query()` del diálogo de configuración, que en modo headless se aborta; no se pudo probar el editor con GUI porque no hay `Xvfb`/`xvfb-run` en el entorno. Consecuencia práctica: el flujo de validación del repo basado en `godot --headless --import` (T-001/T-006) no puede validar un proyecto que contenga `.blend`; **no afirmar** que el editor GUI lo importa correctamente sin probarlo.
+
+**Lección:** verificar siempre en docs.godotengine.org antes de afirmar que una función no existe. "No es nativo" no equivale a "no está soportado".
+
+---
+
+## E-033 — Insertar un nodo intermedio rompe los `NodePath` de hijos escritos a mano (2026-11-17)
+
+**Situación:** al insertar `CameraRig` entre `Yaw` y `Pitch` en `scenes/player.tscn`, el plan inicial decía que los `NodePath("../Yaw/Pitch/...")` seguirían resolviendo "porque Yaw y Pitch siguen existiendo con esos nombres". Es falso: una ruta `Yaw/Pitch/...` exige que `Pitch` sea **hijo directo** de `Yaw`, aunque los nombres no cambien.
+
+**Causa real:** `NodePath` es una cadena de hijos, no una búsqueda por nombre. Al reparentar `Pitch` bajo `Yaw/CameraRig`, quedaron rotos:
+
+- `AnimationTree.anim_player` (6 rutas `NodePath("../Yaw/Pitch/...")` en total, incluidas `ADSController`, `ViewPunch` y `CameraShake`).
+- `[editable path="Yaw/Pitch/WeaponPivot/armsy"]`.
+- Dos sondas con `get_node("Yaw/Pitch/Camera3D")` (`tools/probe_abuse.gd`, `tools/probe_neck_cam.gd`).
+
+El error se detectó **antes** de ejecutar, al hacer un grep global de `Yaw/Pitch` tras el reparentado. `unique_name_in_owner` (`%Pitch`, `%Camera3D`) sí sobrevive porque se resuelve por dueño, no por ruta.
+
+**Corrección:** actualizar las 6 `NodePath`, el `[editable path]` y las dos sondas a `Yaw/CameraRig/Pitch/...`. Verificación: `tools/probe_neck_cam.gd` (18 comprobaciones, 0 fallos) y `tools/probe_abuse.tscn -- --case=lean` (lean sigue moviendo `pitch.position.x`).
+
+**Lección:** después de reparentar, hacer `grep -R "RutaVieja" .` y revisar también los `NodePath` serializados en `.tscn` y los `get_node()` de `tools/`.
+
+---
+
+## E-034 — `class_name` nuevo no visible hasta reescanear el editor (2026-11-17)
+
+**Situación:** tras crear `scripts/components/camera_rig.gd` con `class_name NeckCameraRig`, `godot --headless --path . --quit` fallaba:
+
+```
+SCRIPT ERROR: Parse Error: Could not find type "NeckCameraRig" in the current scope.
+          at: GDScript::reload (res://scripts/core/player.gd:65)
+```
+
+**Causa real:** el caché global de clases (`.godot/global_script_class_cache.cfg`) se genera en el editor. Un script nuevo con `class_name` no entra en ese caché solo con crear el archivo ni con ejecutar el juego en headless, así que `player.gd` no podía resolver el tipo en la declaración `@onready var camera_rig: NeckCameraRig`.
+
+**Corrección:** ejecutar una vez `godot --headless --path . --editor --quit`; el log mostró `update_scripts_classes | NeckCameraRig` y el caché quedó actualizado. Después, `--quit` compila sin errores.
+
+**Lección:** al añadir un script con `class_name`, reescanear con el editor headless antes de validar con `--quit` o `--script`.
+
+---
+
+## E-035 — Funciones con sufijo `f` inexistentes en GDScript (2026-11-18)
+
+**Situación:** `tools/probe_dia_noche.gd` no compilaba:
+
+```
+SCRIPT ERROR: Parse Error: Function "smoothstepf()" not found in base self.
+          at: GDScript::reload (res://scripts/world/day_night_cycle.gd:242)
+```
+
+**Causa real:** `smoothstepf()` no existe en Godot 4.7.2. La función global es
+`smoothstep(from: float, to: float, value: float)`. Sí existen en cambio las
+variantes `maxf`, `minf` y `lerpf` usadas en el mismo archivo (el parser no las
+rechazó).
+
+**Corrección:** reemplazar `smoothstepf(0.0, half, distance)` por
+`smoothstep(0.0, half, distance)`.
+
+**Lección:** no asumir que todas las funciones globales tienen variante `f`;
+validar con el parser headless antes de dar por buen un script nuevo.
+
+---
+
+## E-036 — `Basis.looking_at()` ya apunta −Z al objetivo (2026-11-18)
+
+**Situación:** al implementar la dirección del sol se había escrito
+`sun.global_rotation = _rotation_from_azimuth_elevation(...)`, con retorno
+`Quaternion`, y además se invertía el eje Z del basis devuelto por
+`Basis.looking_at()`.
+
+**Causa real:** dos errores distintos:
+1. `Node3D.global_rotation` es `Vector3` (Euler), no `Quaternion`; asignar un
+   Quaternion es inválido. La propiedad correcta para una `Basis` es
+   `global_basis`.
+2. `Basis.looking_at(target)` con `use_model_front = false` (por defecto) ya
+   produce un basis cuyo **−Z apunta al objetivo**, según la documentación de
+   Godot 4.7. Invertir `z` hacía que la luz se emitiera en dirección contraria
+   al sol.
+
+**Corrección:** la función helper devuelve `Basis` y se asigna directamente a
+`sun.global_basis` y `moon.global_basis`, sin inversiones.
+
+**Lección:** verificar la convención de eje delante/atrás en la documentación
+antes de construir rotaciones para luces direccionales.
+
+---
+
+## E-037 — `quit()` dentro de `_init()` no termina una sonda SceneTree (2026-11-18)
+
+**Situación:** `tools/probe_dia_noche.gd` se quedaba ejecutándose indefinidamente
+cuando el script compilaba; en la ejecución anterior (con error de compilación)
+sí terminaba.
+
+**Causa real:** en `_init()` el `SceneTree` todavía no ha entrado en el bucle
+principal, por lo que `quit()` no surte efecto y el proceso sigue vivo. Además,
+los `@onready` del nodo instanciado no se habían inicializado en ese momento,
+lo que daba `null` en `Sun`, `Moon` y `WorldEnvironment`.
+
+**Corrección:** `_init()` solo llama a `call_deferred("_run")`; toda la lógica y
+el `quit()` final se ejecutan en `_run()`, ya dentro del primer turno del loop.
+
+**Lección:** en sondas `extends SceneTree`, diferir el trabajo desde `_init()`
+al primer turno del bucle.
+
+---
+
+## E-038 — Skybox anulado por `BG_COLOR` y override de `Environment` tarde (2026-11-18)
+
+**Situación:** al enlazar `06_psx_morning_fog.png` a un `PanoramaSkyMaterial`
+en `day_night_cycle.tscn`, el cielo no cambiaba visualmente.
+
+**Causa real:**
+1. `_apply_environment()` asignaba `env.background_mode = Environment.BG_COLOR`
+   en cada llamada, sobrescribiendo el `BG_SKY` y el `Sky` de la escena.
+2. El `@export var env` añadido al script se asignaba en `_ready()` **después**
+   de `_apply_all()`, así que el `Environment` modificado se descartaba al
+   sustituirlo por el externo.
+
+**Corrección:** `_apply_environment()` elige `BG_SKY` cuando existe `Sky` con
+`PanoramaSkyMaterial` y textura asignada, y usa `BG_COLOR` solo como respaldo.
+El override `env` se instala antes de `_apply_all()` y todas las lecturas del
+entorno pasan por `_get_environment()`.
+
+**Lección:** aplicar primero las referencias override y después las mutaciones;
+un `background_mode` forzado en cada frame invalida cualquier `Sky` configurado
+en la escena.
+
+---
+
+## E-039 — Falta el punto y coma en `shader_type` (2026-11-18)
+
+**Situación:** al reescanear el proyecto, el shader nuevo no compilaba:
+`SHADER ERROR: Se esperaba un(a) ';' después de 'shader_type sky'` en
+`shaders/sky_blend.gdshader:1`.
+
+**Causa real:** la declaración correcta en el lenguaje de shaders de Godot es
+`shader_type sky;` (con `;`), no `shader_type sky`.
+
+**Corrección:** se añadió el `;`. El reescaneo posterior ya no reporta errores
+del shader (solo los `decorar_malla` preexistentes).
+
+**Lección:** la documentación puede mostrar fragmentos sin el `;`; en el
+archivo `.gdshader` la directiva `shader_type` lo exige.
+
+---
+
+## E-040 — Ventana de fundido mal situada en la sonda (2026-11-18)
+
+**Situación:** la sonda falló en dos comprobaciones nuevas: «fundido parcial a
+las 11:30 (0.000)» y «fundido noche→mañana a las 23:30».
+
+**Causa real:** el código era correcto; las expectativas de la sonda eran
+erróneas. Con `sky_transition_hours = 1.0`, el fundido mañana→tarde arranca a
+las 11:30 (peso 0), no a mitad. Además el fundido noche→mañana está centrado en
+`day_start_hour = 6:00`, no en la medianoche: la coordenada local se mide desde
+el amanecer, por lo que 6:00 equivale a local 24≡0.
+
+**Corrección:** se cambiaron las marcas de prueba a las 11:45 (peso parcial
+0.156) y a las 05:45 (ventana noche→mañana). La sonda quedó en 27/27 PASS.
+
+**Lección:** al probar ventanas circulares, expresar los umbrales en la misma
+coordenada local que usa la implementación y comprobar el peso en el interior
+de la ventana, no en su borde.
+
+---
+
+## E-041 — `knockback` del melee anulado por el default del proyectil (2026-11-19)
+
+**Estado: HALLAZGO NO CORREGIDO — pendiente de autorización del Señor.**
+
+**Situación:** durante el refactor D-038 se revisó el código de melee y se
+detectó que el `knockback` configurado en los `.tres` no llega al golpe.
+
+**Causa real:** `scripts/weapons/melee_projectile.gd:27` asigna
+`knockback = melee.knockback`, pero en `:34` llama
+`set_projectile(melee.damage, melee.weapon_range)` sin el tercer argumento.
+`Projectile.set_projectile(damage, range, knockback=20.0)` (`projectile_resource.gd:27-30`)
+sobrescribe el valor con el default `20.0`. Resultado: el machete, con
+`knockback = 10.0` en `resources/weapons/melee/machete.tres:29`, empuja con
+`force = 20.0`. Esto contradice lo registrado en ERRORES.md:430-433 y
+TASKS.md:162-164, que daban por buena la transmisión del valor.
+
+**Corrección propuesta (NO aplicada):** pasar el tercer argumento en la llamada
+de `melee_projectile.gd:34`:
+`set_projectile(melee.damage, melee.weapon_range, knockback)`. Debe verificarse
+después con `probe_melee.tscn` y revisarse el impacto en el balance.
+
+**Lección:** los valores por defecto de un constructor silenciosamente sobrescriben
+cualquier asignación previa al campo si no se pasan explícitamente; verificar el
+valor final en el punto de consumo, no solo la asignación intermedia.
+
+---
+
+## E-042 — `MeleeAttack` usa `controller.swing_index` sin declarar (2026-11-20)
+
+**Situación:** auditoría posterior a D-038. `scripts/weapons/melee_attack.gd:18-21`
+lee y escribe `controller.swing_index`, pero ni `WeaponController` ni `Player`
+declaran esa propiedad (grep: 4 coincidencias, todas en `melee_attack.gd`).
+
+**Causa real:** D-038 movió el golpe desde `WeaponController.swing()` a la
+operación `MeleeAttack`, pero no trasladó el estado del índice de combo. El
+escaneo del editor no lo detecta: GDScript no valida estáticamente el acceso a
+propiedades dinámicas. Las sondas existentes (`probe_melee.tscn`) instancian
+`MeleeProjectile` directamente y nunca ejecutan `MeleeAttack`, por lo que el
+fallo quedó oculto.
+
+**Corrección:** declarar `var swing_index: int = 0` en `weapon_controller.gd`.
+Se mantiene en el controlador porque la operación se recrea en cada golpe y el
+combo debe sobrevivir entre golpes; no está en un `Resource`, así que no comparte
+estado entre copias. Pendiente de revisar al pasar el estado de armas a la
+instancia (E-044).
+
+**Verificación:** `tools/probe_refactor_d038_fixes.tscn` ejecuta `MeleeAttack.run()`
+de punta a punta y comprueba que `swing_index` pasa de 0 a 1 sin errores.
+
+**Lección:** una sonda debe ejecutar la nueva capa introducida por un refactor;
+probar solo el objeto final (`MeleeProjectile`) deja sin cubrir la operación que
+lo crea.
+
+---
+
+## E-043 — Recarga cancelada clobbera el estado de la recarga nueva (2026-11-20)
+
+**Situación:** `reload_operation.gd:37-65` despertaba tras el `await`, hacía
+`break` por `is_valid() == false` y de todos modos ejecutaba
+`controller.reloading = false` y `controller.play_reload_idle()`.
+
+**Causa real:** `_abort_operation()` cancela la operación y limpia `reloading`,
+pero la corrutina cancelada sigue despertando. Si ya empezó otra recarga, la
+vieja escribe `false` sobre el flag de la nueva y reproduce la animación `idle`
+sobre el arma nueva. `play_reload_animation()` y `play_reload_idle()` solo
+comprobaban que existiera *alguna* operación activa, no que fuera la suya.
+
+**Corrección:** `WeaponController.is_active_operation(operation)` compara
+identidad y estado `cancelled`. `ReloadOperation` comprueba esa identidad tras
+cada `await` y antes de limpiar, y ambas funciones de animación exigen el token
+de la operación que las llama.
+
+**Verificación:** `tools/probe_refactor_d038_fixes.tscn` inicia A, la cancela al
+empezar B y comprueba que, tras despertar A, B sigue activa y `reloading == true`;
+además verifica que una recarga normal termina y limpia el flag.
+
+**Lección:** en corrutinas cancelables, todo efecto posterior a un `await` debe
+ir protegido por identidad de la operación, no solo por un boolean global.
+
+---
+
+## E-044 — Estado mutable en descriptores `Resource` compartidos (2026-11-20)
+
+**Estado: HALLAZGO NO CORREGIDO.**
+
+**Situación:** `item_descriptor.gd:1-4` prohíbe guardar estado en el descriptor,
+pero `weapon.gd:10` expone `curr_bullets` y `ammo_item_descriptor.gd:4` expone
+`rounds`. Los mutan `firearm_attack.gd:20`, `reload_operation.gd:54,56,59` y
+`player_carried_inventories.gd:141-149,163-167`. `remington.tres:17` persiste
+`curr_bullets = 8`.
+
+**Causa real:** los descriptores son `.tres` compartidos por todas las copias.
+Dos machetes o dos cajas del mismo tipo comparten cargador y contador. Es la
+causa de fondo de la tarea abierta TASKS.md:257.
+
+**Corrección propuesta (NO aplicada):** mover munición y contador a
+`ItemInstance` (o a un objeto de estado por instancia referenciado desde ella),
+dejando el `.tres` como plantilla inmutable.
+
+**Lección:** un `Resource` es datos compartidos por diseño; si un campo cambia
+durante la partida, no pertenece al `Resource`.
+
+---
+
+## E-045 — El nodo de autoridad del inventario retiene widgets de UI (2026-11-20)
+
+**Estado: HALLAZGO NO CORREGIDO.**
+
+**Situación:** `player_carried_inventories.gd:19` guarda `quick_slots:
+HBoxContainer` y `:69-76` instancia `QuickSlot` (`uid://fs2royy3djt`) desde el
+propio nodo del inventario. Además, `_quick_slot_called()` (:41-60) duplica la
+lógica de equipar y falla si el objeto está en la mano izquierda.
+
+**Causa real:** D-004 prohibía que el Player buscara la UI por nombre; inyectarle
+el widget en el nodo de autoridad no elimina el acoplamiento, solo lo invierte.
+La UI deja de ser una vista y pasa a formar parte del modelo de juego.
+
+**Corrección propuesta (NO aplicada):** `quick_slots` vive en
+`InventoryUIController`; el inventario solo expone señales/consultas.
+
+**Lección:** la dirección de la dependencia se mide por quién contiene a quién,
+no por el mecanismo usado para obtener la referencia.
+
+---
+
+## E-046 — `mochila.tres` usa una propiedad eliminada (2026-11-20)
+
+**Estado: HALLAZGO NO CORREGIDO.**
+
+**Situación:** `resources/clothes/mochila.tres:16` declara `container_model`,
+pero la propiedad vigente es `container_capability` (`item_descriptor.gd:29`).
+La mochila no aporta contenedor. Ya estaba listado en TASKS.md:255.
+
+**Lección:** al renombrar un `@export`, hay que revisar los `.tres`: Godot no
+avisa de las propiedades que desaparecen del archivo de recurso.
+
+---
+
+## E-047 — `drop_item` no actualiza la munición y llama a un método inexistente (2026-11-20)
+
+**Estado: HALLAZGO NO CORREGIDO.**
+
+**Situación:** `player.gd:297` pasa un `ItemInstance` a
+`weapon_controller.update_inventory_ammo()`, que solo acepta
+`EquippableDescriptor` o `PickableItem` (`weapon_controller.gd:211-227`).
+Además, `player.gd:284-285` comprueba `has_method("ensure_item_mesh")`, método
+que no existe en ningún script: es código muerto.
+
+**Causa real:** el tipo del argumento cambió durante el refactor de inventario y
+la llamada no se actualizó; el `has_method` enmascaró la otra referencia rota.
+
+**Lección:** los `has_method` usados como parche convierten errores de API en
+código silenciosamente inactivo.
+
+---
+
+## E-048 — `jump.gd` no transita a `walk` al aterrizar en movimiento (2026-11-20)
+
+**Estado: HALLAZGO NO CORREGIDO.**
+
+**Situación:** `scripts/state_machine/player_states/jump.gd:9-14` emite `idle` al
+aterrizar sin velocidad horizontal, pero con velocidad horizontal hace `return`
+sin emitir `walk`; la FSM se queda en `jump`. `fall.gd:9-13` sí emite `idle`.
+
+**Lección:** toda rama de una transición debe emitir un estado destino; un
+`return` temprano dentro de una condición de aterrizaje deja la FSM pegada.
+
+---
+
+## E-049 — Daño por zona placeholder y escaneo por perdigón (2026-11-20)
+
+**Estado: HALLAZGO NO CORREGIDO.**
+
+**Situación:** `projectile_resource.gd:111-114` devuelve 9999 para cabeza y 0 para
+el resto, ignorando `damage` del descriptor. D-037 documenta la excepción de
+escopeta. Además `:161-165` recorre todos los `PickableItem` de `current_scene`
+en cada rayo, con 8 perdigones por disparo.
+
+**Lección:** un placeholder con daño infinito enmascara la tabla de daño real;
+los bucles de exclusión por rayo deben resolverse una vez por disparo, no una
+por perdigón.

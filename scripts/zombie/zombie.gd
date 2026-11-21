@@ -48,6 +48,11 @@ signal pushed(direction: Vector3)
 const BLOOD_SPLATTER = preload("res://scenes/components/blood_splatter.tscn")
 const BLOOD_BURST = preload("res://scenes/effects/blood_burst.tscn")
 
+@onready var zombie_sounds: AudioStreamPlayer3D = %zombie_sounds
+@onready var seen_sound: AudioStreamPlayer3D = %seen_sound
+@onready var hurt_sound: AudioStreamPlayer3D = %hurt_sound
+@onready var grab_sound: AudioStreamPlayer3D = %grab_sound
+@onready var attack_sound: AudioStreamPlayer3D = %attack_sound
 
 func _ready() -> void:
 	playback = at.get("parameters/zombie_sm/playback")
@@ -70,7 +75,7 @@ func _input(event: InputEvent) -> void:
 ## Pushes the zombie: listened by `stagger` and `stun` states.
 func push(direction: Vector3) -> void:
 	pushed.emit(direction)
-
+	hurt_sound.play()
 
 # ---------------------------------------------------------------------------
 # Damage
@@ -84,7 +89,7 @@ func hurted(damage: float, info: Dictionary) -> void:
 
 	if info.is_empty():
 		return
-
+	hurt_sound.play()
 	var who := info.get("who") as Node3D
 	var attacker := info.get("attacker") as Node3D
 	var hit_pos := _resolve_hit_pos(info, who)
@@ -121,6 +126,7 @@ func hurted(damage: float, info: Dictionary) -> void:
 func _on_hurted(_damage: float, _info: Dictionary) -> void:
 	pass
 
+@onready var death_sound: AudioStreamPlayer3D = %death_sound
 
 ## Dies (connected to `health_component.death`): transitions to the `death`
 ## state, which starts the permanent ragdoll with the impact impulse.
@@ -135,7 +141,7 @@ func die(damage: float, info: Dictionary) -> void:
 		impulse = get_meta("melee_hit_dir") as Vector3
 		if force <= 0.0:
 			force = 800.0
-
+	
 	ragdoll_component.start(true, impulse, force, _find_hit_bone(info))
 
 	if has_meta("melee_hit_dir"):

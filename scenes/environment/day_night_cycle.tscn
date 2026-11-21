@@ -1,0 +1,48 @@
+[gd_scene format=3 uid="uid://d2rbxj31t6vbu"]
+
+[ext_resource type="Script" uid="uid://ch2p3g573i067" path="res://scripts/world/day_night_cycle.gd" id="1_dncycle"]
+[ext_resource type="Texture2D" uid="uid://drdawpa0chuik" path="res://assets/sprites/skys/06_psx_morning_fog.png" id="2_o7osv"]
+[ext_resource type="Texture2D" uid="uid://qqcm5wlawjyf" path="res://assets/sprites/skys/02_psx_golden_hour.png" id="3_golden"]
+[ext_resource type="Texture2D" uid="uid://bskybywtmignr" path="res://assets/sprites/skys/10_psx_night.png" id="4_night"]
+[ext_resource type="Shader" path="res://shaders/sky_blend.gdshader" id="5_skyblend"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_skyblend"]
+resource_local_to_scene = true
+shader = ExtResource("5_skyblend")
+shader_parameter/sky_from = ExtResource("2_o7osv")
+shader_parameter/sky_to = ExtResource("2_o7osv")
+shader_parameter/sky_blend = 0.0
+
+[sub_resource type="Sky" id="Sky_mx0de"]
+resource_local_to_scene = true
+sky_material = SubResource("ShaderMaterial_skyblend")
+process_mode = 2
+
+[sub_resource type="Environment" id="Environment_dncycle"]
+resource_local_to_scene = true
+background_mode = 2
+background_color = Color(0.45, 0.65, 0.9, 1)
+sky = SubResource("Sky_mx0de")
+ambient_light_source = 2
+ambient_light_color = Color(0.45, 0.65, 0.9, 1)
+ambient_light_sky_contribution = 0.0
+ambient_light_energy = 0.6
+
+[node name="DayNightCycle" type="Node3D" unique_id=1330462759]
+script = ExtResource("1_dncycle")
+morning_sky_texture = ExtResource("2_o7osv")
+afternoon_sky_texture = ExtResource("3_golden")
+night_sky_texture = ExtResource("4_night")
+sky_transition_hours = 1.0
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1283073260]
+environment = SubResource("Environment_dncycle")
+
+[node name="Sun" type="DirectionalLight3D" parent="." unique_id=802409339]
+light_color = Color(1, 0.95, 0.85, 1)
+light_energy = 1.2
+shadow_enabled = true
+
+[node name="Moon" type="DirectionalLight3D" parent="." unique_id=1066438560]
+light_color = Color(0.45, 0.55, 0.85, 1)
+light_energy = 0.25

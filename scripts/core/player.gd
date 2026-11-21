@@ -5,33 +5,17 @@ class_name Player
 signal item_consumed(proceed:bool)
 signal attacked_close
 
-const CAM_HEIGHT_STAND  : float = 1.5
-const CAM_HEIGHT_CROUCH : float = 0.75
-const CAM_HEIGHT_PRONE  : float = 0.2
-const CAM_LERP_TIME     : float = 0.2
-
-func tween_cam_height(target: float, duration: float = CAM_LERP_TIME) -> void:
-	if not is_instance_valid(yaw):
-		return
-	var t := create_tween()
-	t.set_trans(Tween.TRANS_CUBIC)
-	t.set_ease(Tween.EASE_OUT)
-	t.tween_property(yaw, "position:y", target, duration)
-
 @export var player_needs : PlayerNeeds
 @export var player_stats : PlayerStats
 @export var health_component : HealthComponent
-## Lo que el jugador carga. Lo tiene el Player (es estado de juego), no la UI.
 @export var inventory: PlayerCarriedInventories
 @export var can_swing : bool = true
 @export var can_debug : bool = false
 @export_category("To Assign")
-## Set action to change Input.mouse_mode to Input.MOUSE_MODE_VISIBLE. 
-## Default is "ui_cancel", set to the Escape key.
 @export_custom(PROPERTY_HINT_INPUT_NAME, "show_builtin") var input_mouse_mode  : StringName = "ui_cancel"
 @export_group("Movement Actions")
 @export_subgroup("Movement Keys")
-@export_custom(PROPERTY_HINT_INPUT_NAME, "") var forward  : StringName 
+@export_custom(PROPERTY_HINT_INPUT_NAME, "") var forward  : StringName
 @export_custom(PROPERTY_HINT_INPUT_NAME, "") var backward : StringName
 @export_custom(PROPERTY_HINT_INPUT_NAME, "") var left     : StringName
 @export_custom(PROPERTY_HINT_INPUT_NAME, "") var right    : StringName
@@ -42,29 +26,13 @@ func tween_cam_height(target: float, duration: float = CAM_LERP_TIME) -> void:
 @export_custom(PROPERTY_HINT_INPUT_NAME, "") var prone     : StringName
 @export_group("")
 @export_category("Character Settings")
-## Character's walk speed.
-## This controls how fast the character
-## walks.
 @export var walk_speed    : float = 5.0
-## Character's sprint speed.
-## This controls how fast the character
-## sprints.
 @export var sprint_speed  : float = 8.0
-## Character's crouch speed.
-## This controls how fast the character
-## moves while crouched.
 @export var crouch_speed : float = 1.5
-## Character's jump velocity.
-## This controls how high the character
-## jumps.
 @export var jump_velocity : float = 4.5
-## Character's sprint jump velocity.
-## This controls how high the character
-## jumps during sprint.
-@export var sprint_jump_velocity : float = 9.0
+
 @export var hang_velocity : float = 2.0
 @export_category("Camera Settings")
-## Affects camera sensitivity. Ranges from 0.0 to 10.0.
 @export_range(0.0, 10.0, 0.1) var camera_sensitivity : float = 5.0
 @export_category("Nodes References")
 @export var ARMS_PISTOL : Node3D
@@ -74,9 +42,10 @@ var weapon_AP : AnimationPlayer
 @onready var weapon_pivot: Node3D = %WeaponPivot
 @onready var ads_controller: ADSController = %ADSController
 
-@onready var yaw    : Node3D   = %Yaw
-@onready var pitch  : Node3D   = %Pitch
-@onready var camera : Camera3D = %Camera3D
+@onready var yaw         : Node3D        = %Yaw
+@onready var camera_rig  : NeckCameraRig = %CameraRig
+@onready var pitch       : Node3D        = %Pitch
+@onready var camera      : Camera3D      = %Camera3D
 
 
 
@@ -87,8 +56,8 @@ var weapon_AP : AnimationPlayer
 @onready var view_punch: ViewPunch = %ViewPunch
 
 @onready var weapon_controller: WeaponController = %WeaponController
+@onready var flashlight_controller: FlashlightController = %FlashlightController
 
-## Viewmodel unificado (arma + brazos juntos)
 var current_viewmodel: Node3D
 var viewmodel_ap: AnimationPlayer
 var viewmodel_animation_tree: AnimationTree
@@ -96,24 +65,23 @@ var viewmodel_animator: ViewmodelAnimator = null
 var viewmodel_playback: AnimationNodeStateMachinePlayback
 
 
-var arms_ap: AnimationPlayer 
+var arms_ap: AnimationPlayer
 @onready var body_at: AnimationTree = %BodyAT
 var body_at_playback : AnimationNodeStateMachinePlayback
 
 @onready var animation_tree: AnimationTree = %AnimationTree
 
-var arms_mesh: MeshInstance3D 
+var arms_mesh: MeshInstance3D
 var can_move : bool = true
-var playback : AnimationNodeStateMachinePlayback 
+var playback : AnimationNodeStateMachinePlayback
+var arms_animator: ArmsAnimator = ArmsAnimator.new()
 var looking_at_obj : Node3D = null
 var is_dead : bool = false
-## Motivos activos por los que el jugador no debe recibir input de juego.
-## Es un conjunto, no un bool: inventario, agarre y muerte pueden solaparse.
 var _input_locks : Dictionary = {}
 
-var _input_direction := Vector2.ZERO
+var _input_direction: Vector2 = Vector2.ZERO
 var direction : Vector3
-var _mouse_delta := Vector2.ZERO
+var _mouse_delta: Vector2 = Vector2.ZERO
 
 var speed : float = 3.0
 @onready var ui: UI = %UI
@@ -124,21 +92,18 @@ func _ready() -> void:
 	health_component.death.connect(die)
 	if player_needs:
 		player_needs.health_component = health_component
-	#ui.inventory_manager.connect("equip_weapon",Callable(self,"equip_weapon"))
 	inventory.hands.main_weapon_changed.connect(equip_weapon)
 	grabbed_object.connect(_on_grabbed_object)
 	arms_ap = armsy.get_node("AnimationPlayer")
 	arms_mesh = armsy.find_child("PiernaIzquierda",true,false)
-	playback = animation_tree.get("parameters/player_sm/playback")
-	# Redundancy checks to avoid mistakes
-	#assert(camera.get_parent() == pitch, "Camera needs to be a child of pitch")
-	assert(pitch.get_parent() == yaw, "Pitch needs to be a child of yaw")
+	arms_animator.setup(animation_tree, arms_ap)
+	playback = arms_animator.playback
+	assert(camera.get_parent() == pitch, "Camera needs to be a child of pitch")
+	assert(pitch.get_parent() == camera_rig, "Pitch needs to be a child of CameraRig")
+	assert(camera_rig.get_parent() == yaw, "CameraRig needs to be a child of yaw")
 	assert(yaw.get_parent() == self, "Yaw needs to be a child of this CharacterBody3D")
 	camera_sensitivity = camera_sensitivity / 1000
-	yaw.position.y = CAM_HEIGHT_STAND
 	speed = walk_speed
-	if arms_ap:
-		arms_ap.play("idle")
 	body_at_playback = body_at["parameters/body/playback"]
 
 
@@ -150,15 +115,18 @@ signal weapon_changed(gun:Resource)
 signal grabbed_object(world_obj:Node3D)
 signal loot_opened(model:InventoryModel,display:String)
 signal player_death
+@onready var hurt_claw: AudioStreamPlayer = %HurtClaw
 
 func hurted(damage:float,info:Dictionary) -> void:
 	if is_dead:
 		return
+	if info:
+		if info.get("attacker"):
+			if info.get("attacker") is Zombie:
+				hurt_claw.play()
 	view_punch.punch(Vector2(damage,0))
 	ui.flash_hurt()
 
-## Bloquea el input de juego por un motivo concreto. Usar un conjunto evita que
-## cerrar el inventario reactive al jugador mientras sigue muerto o agarrado.
 func set_input_lock(reason: StringName, locked: bool) -> void:
 	if locked:
 		_input_locks[reason] = true
@@ -167,6 +135,19 @@ func set_input_lock(reason: StringName, locked: bool) -> void:
 
 func is_input_locked() -> bool:
 	return not _input_locks.is_empty()
+
+func can_perform(action: StringName) -> bool:
+	if not can_act():
+		return false
+	var current_state : PlayerState = %StateMachine.state
+	return current_state == null or current_state.is_action_allowed(action)
+
+func can_act() -> bool:
+	if is_dead or is_input_locked():
+		return false
+	if %ArmsFSM and %ArmsFSM.state and %ArmsFSM.state.name == "grabbed":
+		return false
+	return true
 
 func can_be_grabbed() -> bool:
 	return not is_dead and grabber == null
@@ -203,8 +184,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	__camera_input(event)
 	if event.is_action_pressed("toggle_flashlight"):
-		if weapon_controller:
-			weapon_controller.toggle_flashlight()
+		if flashlight_controller:
+			flashlight_controller.toggle_flashlight()
 	if event.is_action_pressed("use"):
 		var object
 		if look_at_component.is_colliding():
@@ -212,7 +193,9 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 
+
 	
+
 
 
 
@@ -257,8 +240,6 @@ func __player_movement(delta:float) -> void:
 	if not can_move:
 		return
 	if is_input_locked():
-		# La gravedad sigue actuando, pero el jugador no camina ni conserva
-		# impulso horizontal mientras una UI o la muerte tienen el control.
 		velocity.x = 0.0
 		velocity.z = 0.0
 		move_and_slide()
@@ -272,17 +253,11 @@ func __player_movement(delta:float) -> void:
 
 	if direction == Vector3.ZERO:
 		if is_on_floor():
-			# Sin input en el suelo: frenar hasta 0 con deceleration.
 			horizontal = horizontal.move_toward(Vector3.ZERO, player_stats.deceleration * delta)
 			velocity.x = horizontal.x
 			velocity.z = horizontal.z
-		# Sin input en el aire: no tocar la horizontal, el impulso del salto
-		# se conserva (el aire no frena).
 	else:
 		var target: Vector3 = direction * speed / player_stats.base_speed
-		# Contra-giro: si la velocidad actual apunta en CONTRA de la dirección
-		# pedida, frenar (respuesta inmediata); si va a favor (o estamos
-		# parados), acelerar.
 		var rate: float = player_stats.deceleration
 		if horizontal == Vector3.ZERO or horizontal.normalized().dot(direction) >= 0.0:
 			rate = player_stats.acceleration
@@ -296,39 +271,32 @@ func __player_movement(delta:float) -> void:
 
 
 
-## Velocidad de salida al soltar un objeto (m/s). Es VELOCIDAD, no fuerza:
-## al fijar la velocidad directamente, el lanzamiento se siente igual
-## cualquier que sea la masa del objeto (una mochila y una lata salen igual).
+
+
 const THROW_SPEED: float = 6.0
-## Distancia frente a la cámara donde aparece el objeto soltado.
 const DROP_DISTANCE: float = 0.6
 
 
-## Escena prefabricada del objeto agarrable (D-009): al soltar se instancia
-## SIEMPRE ésta; el descriptor solo aporta el mesh (ItemDescriptor.item_mesh).
-const PICKABLE_SCENE := preload("res://scenes/components/pickable_object.tscn")
+const PICKABLE_SCENE: PackedScene = preload("res://scenes/components/pickable_object.tscn")
 
 
-## Suelta un objeto del inventario en el mundo físico.
-## Quien llame (UI o estado de brazos) debe sacarlo del inventario ANTES.
-## Si no se puede soltar, el item se devuelve al inventario: nunca se pierde.
 func drop_item(item: ItemInstance) -> void:
 	if item == null or is_dead:
 		return
-	if not %normal.can_transition:  # recargando: no se suelta (y no se pierde)
+	if not %normal.can_transition:
 		inventory.add_anywhere(item)
 		return
 	if item.descriptor.item_mesh == null and item.descriptor.has_method("ensure_item_mesh"):
 		item.descriptor.ensure_item_mesh()
 	if item.descriptor.item_mesh == null:
 		push_warning("drop_item: '%s' no tiene item_mesh." % item.descriptor.item_name)
-		inventory.add_anywhere(item)  # se devuelve: el item no se pierde
+		inventory.add_anywhere(item)
 		return
 	var pickable: PickableItem = PICKABLE_SCENE.instantiate()
 	pickable.item_descriptor = item.descriptor
-	pickable.item = item  # conserva contenido y estado (antes de entrar al árbol)
+	pickable.item = item
 	get_tree().current_scene.add_child(pickable)
-	var forward := -camera.global_transform.basis.z
+	var forward: Vector3 = -camera.global_transform.basis.z
 	pickable.global_position = camera.global_position + forward * DROP_DISTANCE
 	pickable.launch(forward * THROW_SPEED)
 	weapon_controller.update_inventory_ammo(item)
@@ -336,10 +304,9 @@ func drop_item(item: ItemInstance) -> void:
 
 
 func equip_weapon(resource:EquippableDescriptor) -> void:
-	if resource != get_current_weapon():
-		weapon_changed.emit(resource)
+	if resource == get_current_weapon():
 		return
-	weapon_changed.emit(null)
+	weapon_changed.emit(resource)
 
 
 
@@ -348,8 +315,6 @@ func get_current_weapon() -> EquippableDescriptor:
 	
 
 
-## La UI pidió usar un objeto (comida, bebida, medicina): el Player decide qué
-## estado del FSM de brazos corresponde y lo pide.
 func use_item(item: ItemInstance) -> void:
 	if is_dead or grabber != null:
 		return
@@ -360,7 +325,6 @@ func use_item(item: ItemInstance) -> void:
 	%ArmsFSM.state.finished.emit("consuming", {"item": item})
 
 
-## El jugador agarró un objeto del mundo: entra al inventario y se anima.
 func _on_grabbed_object(world_obj: Node3D) -> void:
 	if not inventory.pick_up(world_obj.item):
 		print_debug("No entra en ningún lado")
@@ -371,22 +335,21 @@ func _on_grabbed_object(world_obj: Node3D) -> void:
 	weapon_controller.update_inventory_ammo(world_obj)
 	
 
+@onready var grab: AudioStreamPlayer3D = %grab
 
-## Arrastra el objeto del mundo hasta el jugador y lo libera.
 func _animate_grab(what: PickableItem) -> void:
+	grab.play()
 	var tween = create_tween()
 	tween.tween_property(what,"global_position",global_position,0.15)
 	await tween.finished
 	if is_instance_valid(what):
 		what.queue_free()
 
-signal grab_escaped  # el jugador llenó la barra de escape
+signal grab_escaped
 
 var grabber: CharacterBody3D
 var grab_anchor: Node3D
 
-## Devuelve true solo si este zombi consiguió agarrar al jugador. Si ya había
-## otro agarrándolo, el llamador debe atacar en vez de quedar en estado grab.
 func get_grabbed(by: CharacterBody3D, anchor: Node3D) -> bool:
 	if not can_be_grabbed():
 		return false
@@ -395,9 +358,9 @@ func get_grabbed(by: CharacterBody3D, anchor: Node3D) -> bool:
 	if is_instance_valid(ui):
 		ui.close_inventory()
 	set_input_lock(&"grabbed", true)
-	var data := {"grabber": by, "anchor": anchor}
+	var data: Dictionary = {"grabber": by, "anchor": anchor}
 	%StateMachine.state.finished.emit("grabbed", data)
-	%ArmsFSM.state.can_transition = true  # aunque esté recargando
+	%ArmsFSM.state.can_transition = true
 	%ArmsFSM.state.finished.emit("grabbed", data)
 	return true
 

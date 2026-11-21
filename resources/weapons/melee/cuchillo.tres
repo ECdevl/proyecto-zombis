@@ -2,8 +2,22 @@
 
 [ext_resource type="ArrayMesh" uid="uid://dahlk3dalh5yr" path="res://assets/models/weapons/melee/one_hand/cuchillo_de_cocina.obj" id="1_1jgj1"]
 [ext_resource type="PackedScene" uid="uid://bbrmitlbgp0gf" path="res://assets/models/weapons/melee/one_hand/cuchillo_de_cocina.glb" id="1_nt4gf"]
+[ext_resource type="Script" uid="uid://cbokm6gn8tlms" path="res://scripts/weapons/melee_behaviour.gd" id="1_pucw1"]
 [ext_resource type="Script" uid="uid://c5ccot1xni1sw" path="res://scripts/inventory/descriptors/melee.gd" id="2_2ek2h"]
+[ext_resource type="AudioStream" uid="uid://kcd5t25sq038" path="res://assets/sounds/blade_hit_08.wav" id="2_ol2rb"]
 [ext_resource type="Script" uid="uid://dskngi7txlhue" path="res://scripts/inventory/descriptors/swing_data.gd" id="3_1jgj1"]
+[ext_resource type="AudioStream" uid="uid://cum6gv02yd0ac" path="res://assets/sounds/blade_hit_07.wav" id="3_pucw1"]
+[ext_resource type="AudioStream" uid="uid://duac6iayflpfe" path="res://resources/melee_swoosh.tres" id="4_22fux"]
+
+[sub_resource type="Resource" id="Resource_22fux"]
+script = ExtResource("1_pucw1")
+metadata/_custom_type_script = "uid://cbokm6gn8tlms"
+
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_nfud8"]
+random_pitch = 1.0594631
+streams_count = 2
+stream_0/stream = ExtResource("2_ol2rb")
+stream_1/stream = ExtResource("3_pucw1")
 
 [sub_resource type="Resource" id="Resource_q8wwd"]
 script = ExtResource("3_1jgj1")
@@ -23,9 +37,12 @@ metadata/_custom_type_script = "uid://dskngi7txlhue"
 [resource]
 script = ExtResource("2_2ek2h")
 swings = Array[ExtResource("3_1jgj1")]([SubResource("Resource_q8wwd"), SubResource("Resource_lu6ae")])
+melee_hit = SubResource("AudioStreamRandomizer_nfud8")
 viewmodel_model = ExtResource("1_nt4gf")
 damage = 10.0
 weapon_range = 1.0
+push_time = 0.0
+behaviour = SubResource("Resource_22fux")
 item_name = "Cuchillo de cocina"
 dimensions = Vector2i(3, 1)
 item_mesh = ExtResource("1_1jgj1")

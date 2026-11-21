@@ -36,10 +36,12 @@ switch_mode = 2
 advance_mode = 2
 
 [sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_tsucr"]
+xfade_time = 0.2
 switch_mode = 2
 advance_mode = 2
 
 [sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_u34qu"]
+xfade_time = 0.1
 switch_mode = 1
 
 [sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_cyd0j"]
@@ -69,16 +71,18 @@ switch_mode = 2
 advance_mode = 2
 
 [sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_y00f2"]
+xfade_time = 0.1
 switch_mode = 1
 
 [sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_tttll"]
-switch_mode = 2
-advance_mode = 2
+xfade_time = 0.1
+break_loop_at_end = true
 
 [sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_pnc85"]
 switch_mode = 1
 
 [sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_43pu7"]
+xfade_time = 0.1
 switch_mode = 2
 advance_mode = 2
 
@@ -91,7 +95,7 @@ states/idle/position = Vector2(379, 151)
 states/punch/node = SubResource("AnimationNodeAnimation_8n1qa")
 states/punch/position = Vector2(512, 293)
 states/reload/node = SubResource("AnimationNodeAnimation_wlwhn")
-states/reload/position = Vector2(512, 59)
+states/reload/position = Vector2(602, 240)
 states/run/node = SubResource("AnimationNodeAnimation_gcwjr")
 states/run/position = Vector2(379, 293)
 states/shoot/node = SubResource("AnimationNodeAnimation_i5cl0")
@@ -101,10 +105,10 @@ states/swing1/position = Vector2(199, 185)
 states/swing2/node = SubResource("AnimationNodeAnimation_4hdqn")
 states/swing2/position = Vector2(199, 293)
 transitions = ["Start", "draw", SubResource("AnimationNodeStateMachineTransition_2qv5g"), "draw", "idle", SubResource("AnimationNodeStateMachineTransition_tsucr"), "idle", "punch", SubResource("AnimationNodeStateMachineTransition_u34qu"), "punch", "idle", SubResource("AnimationNodeStateMachineTransition_cyd0j"), "idle", "run", SubResource("AnimationNodeStateMachineTransition_gj86k"), "run", "idle", SubResource("AnimationNodeStateMachineTransition_xq0mi"), "idle", "swing1", SubResource("AnimationNodeStateMachineTransition_magsc"), "swing1", "idle", SubResource("AnimationNodeStateMachineTransition_jelwh"), "swing1", "swing2", SubResource("AnimationNodeStateMachineTransition_8b3vv"), "swing2", "idle", SubResource("AnimationNodeStateMachineTransition_67elt"), "idle", "reload", SubResource("AnimationNodeStateMachineTransition_y00f2"), "reload", "idle", SubResource("AnimationNodeStateMachineTransition_tttll"), "idle", "shoot", SubResource("AnimationNodeStateMachineTransition_pnc85"), "shoot", "idle", SubResource("AnimationNodeStateMachineTransition_43pu7")]
-graph_offset = Vector2(-116, 0)
+graph_offset = Vector2(-176, 90)
 
 [sub_resource type="AnimationNodeBlendTree" id="AnimationNodeBlendTree_vyfcd"]
-graph_offset = Vector2(-687.37976, 254.05481)
+graph_offset = Vector2(-504, 139)
 nodes/main_sfm/node = SubResource("AnimationNodeStateMachine_ryr74")
 nodes/main_sfm/position = Vector2(-320, 120)
 nodes/context_anim/node = SubResource("AnimationNodeAnimation_ctxfl")

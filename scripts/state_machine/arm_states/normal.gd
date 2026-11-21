@@ -1,50 +1,40 @@
 extends PlayerState
 
-@export var two_hand_aniumation_names : Dictionary[StringName,Vector3] = {"two_hand_swing_1":Vector3.DOWN,"two_hand_swing_2":Vector3.RIGHT,"two_hand_swing_3":Vector3.RIGHT}
-var weapon_swing_direction : Vector3 = Vector3.LEFT
+@export var two_hand_aniumation_names: Dictionary[StringName,Vector3] = {"two_hand_swing_1":Vector3.DOWN,"two_hand_swing_2":Vector3.RIGHT,"two_hand_swing_3":Vector3.RIGHT}
+var weapon_swing_direction: Vector3 = Vector3.LEFT
 @onready var check_ledge_l: RayCast3D = %CheckLedgeL
 @onready var check_ledge_r: RayCast3D = %CheckLedgeR
 @onready var check_ledge_2: RayCast3D = %CheckLedge2
 @onready var fire_rate: Timer = %FireRate
 
-
-
-func enter(previous_state_path: String, data := {}) -> void:
-
+func enter(previous_state_path: String, data: Dictionary = {}) -> void:
 	check_current_weapon()
 
 func check_current_weapon() -> void:
-	if player.weapon_controller.current_weapon is Weapon:
-		pass
-	else:
-		if player.playback:
-			player.playback.travel("idle")
+	if not (player.weapon_controller.current_weapon is Weapon):
+		if player.arms_animator != null:
+			player.arms_animator.play_base(&"idle")
 
 func update(_delta: float) -> void:
-	if not player.is_dead and not player.is_input_locked():
-		if Input.is_action_pressed("M1"):
-			call_deferred("attack")
+	if player.can_act() and Input.is_action_pressed("M1"):
+		call_deferred("attack")
 	can_transition = !player.weapon_controller.reloading
-	
-func handle_input(_event: InputEvent) -> void:
 
-	if player.is_dead or player.is_input_locked():
+func handle_input(_event: InputEvent) -> void:
+	if not player.can_act():
 		return
 	if _event.is_action_pressed("M2"):
-
 		if player.get_current_weapon():
 			finished.emit("aim")
 	if _event.is_action_pressed("reload"):
-
 		player.weapon_controller.reload()
-
 	if _event.is_action_pressed("drop"):
-		if not can_transition:  # recargando: no se suelta (antes el item se perdía)
+		if not can_transition:
 			return
-		var player_inventory : PlayerCarriedInventories = player.inventory
+		var player_inventory: PlayerCarriedInventories = player.inventory
 		if player_inventory.hands.items().is_empty():
 			return
-		var held_instance : ItemInstance = player_inventory.hands.get_held(HandsModel.Hand.RIGHT)
+		var held_instance: ItemInstance = player_inventory.hands.get_held(HandsModel.Hand.RIGHT)
 		if not held_instance:
 			held_instance = player_inventory.hands.get_held(HandsModel.Hand.LEFT)
 		player_inventory.remove(held_instance)
@@ -58,14 +48,8 @@ func physics_update(_delta: float) -> void:
 					finished.emit("climb")
 					return
 
-
-
-
-var combo_index : int = 0
+var combo_index: int = 0
 func attack() -> void:
-	if player.is_dead or player.is_input_locked():
+	if not player.can_act():
 		return
-	if player.weapon_controller.current_weapon is Weapon:
-		await player.weapon_controller.shoot()
-	else:
-		await player.weapon_controller.swing()
+	await player.weapon_controller.attack()

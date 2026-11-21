@@ -1,7 +1,6 @@
 extends PlayerState
 
 func enter(previous_state_path: String, data := {}) -> void:
-	player.yaw.position = Vector3(0,player.CAM_HEIGHT_STAND,0)
 	player.collision_standing.disabled = false
 	player.collision_crouched.disabled =true
 	player.collision_prone.disabled = true

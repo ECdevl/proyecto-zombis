@@ -3,8 +3,17 @@ extends PlayerState
 
 @export var stamina_cost : float = 1.5
 func enter(previous_state_path: String, data := {}) -> void:
+	player.weapon_controller._abort_operation()
 	viewmodel_sway.bob_speed = 10.0
-	player.body_at_playback.travel("walk_dir")
+	player.body_at_playback.travel("run")
+	
+	
+	player.speed = player.sprint_speed
+
+func update(_delta: float) -> void:
+	player._camera_movement()
+	if player.get_current_weapon() and "run_sounds" in player.get_current_weapon():
+		player.weapon_controller.play_audio(player.weapon_controller.current_weapon.run_sounds,true)
 	var tree := player.viewmodel_animation_tree if player.viewmodel_animation_tree else player.animation_tree
 	if not player.get_current_weapon():
 		if tree:
@@ -12,12 +21,9 @@ func enter(previous_state_path: String, data := {}) -> void:
 	else:
 		if is_instance_valid(player.viewmodel_animator):
 			player.viewmodel_animator.play_base(&"run")
-		elif player.weapon_controller.weapon_ap:
-			player.weapon_controller.weapon_ap.play("run")
-	player.speed = player.sprint_speed
-
-func update(_delta: float) -> void:
-	player._camera_movement()
+	var player_input = Input.get_vector(player.left, player.right, player.forward, player.backward)
+	if player_input != Vector2(0.0,-1.0):
+		finished.emit("walk")
 	if player.is_on_floor():
 		player.player_needs.current_stamina -= 5.0 * _delta
 	if player.player_needs.current_stamina <= 0:
@@ -53,8 +59,6 @@ func exit(next_state_path:String) -> void:
 	else:
 		if is_instance_valid(player.viewmodel_animator):
 			player.viewmodel_animator.play_base(&"idle")
-		elif player.weapon_controller.weapon_ap:
-			player.weapon_controller.weapon_ap.play("idle")
 	if not player.get_current_weapon():
 		if player.playback:
 			player.playback.travel("idle")

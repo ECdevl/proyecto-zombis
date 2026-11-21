@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="AmmoItemDescriptor" format=3 uid="uid://bsqn0n8uw8hv0"]
+
+[ext_resource type="Texture2D" uid="uid://1iamsgqigtbr" path="res://assets/sprites/icons/50_ae.res" id="1_1j25l"]
+[ext_resource type="ArrayMesh" uid="uid://c2nemrt6osftm" path="res://assets/models/item/50AE.obj" id="1_hcdpy"]
+[ext_resource type="Script" uid="uid://orlxlnvacg2d" path="res://scripts/inventory/descriptors/ammo_item_descriptor.gd" id="1_siukp"]
+
+[resource]
+script = ExtResource("1_siukp")
+ammo_type = 2
+item_name = ".50 AE - Municion"
+icon = ExtResource("1_1j25l")
+item_mesh = ExtResource("1_hcdpy")
+metadata/_custom_type_script = "uid://orlxlnvacg2d"

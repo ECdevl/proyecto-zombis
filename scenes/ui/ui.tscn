@@ -10,6 +10,11 @@
 [ext_resource type="Script" uid="uid://x065rabl4u3m" path="res://scripts/inventory/view/hand_slot_view.gd" id="10_4kltc"]
 [ext_resource type="Texture2D" uid="uid://1vtuu81dox33" path="res://assets/sprites/keys/Dark/Enter-Key.png" id="10_hl07w"]
 [ext_resource type="Texture2D" uid="uid://csnjpx6ohqe73" path="res://assets/sprites/grid.png" id="10_y220t"]
+[ext_resource type="AudioStream" uid="uid://bv24chpmqndpk" path="res://assets/sounds/clothing_1.wav" id="11_hl07w"]
+[ext_resource type="AudioStream" uid="uid://cwjtre40g3pbt" path="res://assets/sounds/clothing_2.wav" id="12_swkix"]
+[ext_resource type="AudioStream" uid="uid://chgrwnuh6w13k" path="res://assets/sounds/grab2.ogg" id="13_n3vwu"]
+[ext_resource type="AudioStream" uid="uid://dscin1ss3jqv8" path="res://assets/sounds/item_equip.wav" id="13_swkix"]
+[ext_resource type="AudioStream" uid="uid://bkqq5i1bm688t" path="res://assets/sounds/grab3.ogg" id="14_0i47d"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_7vp6q"]
 shader = ExtResource("8_jcn1r")
@@ -67,6 +72,22 @@ keycode = 4194309
 
 [sub_resource type="Shortcut" id="Shortcut_y220t"]
 events = [SubResource("InputEventKey_y220t")]
+
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_jkow2"]
+streams_count = 2
+stream_0/stream = ExtResource("11_hl07w")
+stream_1/stream = ExtResource("12_swkix")
+
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_swkix"]
+random_pitch = 1.0293022
+streams_count = 2
+stream_0/stream = ExtResource("13_n3vwu")
+stream_1/stream = ExtResource("14_0i47d")
+
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_vyfcd"]
+random_pitch = 1.0594631
+streams_count = 1
+stream_0/stream = ExtResource("13_swkix")
 
 [node name="UI" type="Control" unique_id=1877997638]
 layout_mode = 3
@@ -186,7 +207,7 @@ offset_right = 576.0
 offset_bottom = 182.0
 grow_horizontal = 2
 grow_vertical = 2
-text = "Press nigga to"
+bbcode_enabled = true
 horizontal_alignment = 1
 
 [node name="Combat" type="Control" parent="." unique_id=1253725278]
@@ -628,5 +649,19 @@ shortcut = SubResource("Shortcut_y220t")
 text = "Reiniciar"
 icon = ExtResource("10_hl07w")
 expand_icon = true
+
+[node name="UISounds" type="Node" parent="." unique_id=892719920]
+
+[node name="ClothEquip" type="AudioStreamPlayer" parent="UISounds" unique_id=442838940]
+unique_name_in_owner = true
+stream = SubResource("AudioStreamRandomizer_jkow2")
+
+[node name="ItemMove" type="AudioStreamPlayer" parent="UISounds" unique_id=1258014383]
+unique_name_in_owner = true
+stream = SubResource("AudioStreamRandomizer_swkix")
+
+[node name="ItemEquip" type="AudioStreamPlayer" parent="UISounds" unique_id=2087851201]
+unique_name_in_owner = true
+stream = SubResource("AudioStreamRandomizer_vyfcd")
 
 [connection signal="pressed" from="DeathScreen/restart" to="." method="_on_restart_pressed"]

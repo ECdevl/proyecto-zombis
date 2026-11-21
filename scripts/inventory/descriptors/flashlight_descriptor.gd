@@ -1,21 +1,21 @@
-class_name FlashlightDescriptor extends ItemDescriptor
-## Linterna de mano: se sostiene en la mano izquierda.
-## No es EquippableDescriptor para que HandsModel no la trate como arma principal.
+class_name FlashlightDescriptor extends HoldableDescriptor
+## Linterna de mano: se sostiene en cualquiera de las dos manos, pero se ancla
+## visualmente al hueso de la mano izquierda del viewmodel.
+## No es EquippableDescriptor: HandsModel usa ese tipo para decidir el arma
+## principal. HoldableDescriptor aporta "se puede sostener" + acción "equipar".
 
-## Escena completa del modelo (p. ej. linterna.glb): se instancia en la mano y
-## debe contener un nodo llamado "light_marker" donde se coloca el SpotLight3D.
+## Escena completa del modelo (p. ej. linterna.glb): se instancia en la mano.
+## Si trae un SpotLight3D se usa; si no, FlashlightController crea uno con los
+## parámetros de abajo.
 @export var held_scene: PackedScene
 @export var hand_offset: Vector3 = Vector3.ZERO
 @export var hand_rot : Vector3 = Vector3.ZERO
-func get_hands_required() -> int:
-	return 1
-
-
-func get_actions() -> Array[String]:
-	var actions := super.get_actions()
-	actions.append("equipar")
-	return actions
-
+@export_flags_3d_physics var caster_mask : int = 1
+## Parámetros del SpotLight3D creado por defecto (el modelo puede traer el suyo).
+@export var light_energy: float = 2.0
+@export var spot_range: float = 12.0
+@export var spot_angle: float = 30.0
+@export var shadow_enabled: bool = false
 
 ## Asegura que item_mesh exista (necesaria para soltar al mundo y para el icono)
 ## tomándola de la escena del modelo si hace falta.

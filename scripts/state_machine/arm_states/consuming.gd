@@ -1,7 +1,7 @@
 extends PlayerState
 class_name ConsumeState
 
-signal consumed(item: ItemInstance)  # null si se canceló
+signal consumed(item: ItemInstance)
 signal tick_consumed(duration: float, max_duration: float)
 
 var item: ItemInstance
@@ -12,8 +12,7 @@ var rate_per_second: float
 var fully_consumed: bool = false
 var cancel: bool = false
 
-
-func enter(_previous_state_path: String, data := {}) -> void:
+func enter(_previous_state_path: String, data: Dictionary = {}) -> void:
 	item = data.get("item")
 	descriptor = null
 	if item:
@@ -35,7 +34,9 @@ func enter(_previous_state_path: String, data := {}) -> void:
 			stat_enum = PlayerNeeds.Needs.HEALTH
 
 	while not fully_consumed and not cancel:
-		var delta := get_process_delta_time()
+		if not player.can_act():
+			break
+		var delta: float = get_process_delta_time()
 		remaining_duration -= delta
 		player.player_needs.heal(stat_enum, rate_per_second * delta)
 		tick_consumed.emit(remaining_duration, descriptor.effect_duration)
@@ -44,12 +45,10 @@ func enter(_previous_state_path: String, data := {}) -> void:
 			finished.emit("normal")
 		await get_tree().process_frame
 
-
 func handle_input(event: InputEvent) -> void:
 	if event.is_action_pressed("cancel"):
 		cancel = true
 		finished.emit("normal")
-
 
 func exit(_next_state_path: String) -> void:
 	if item == null:
@@ -57,6 +56,5 @@ func exit(_next_state_path: String) -> void:
 	elif fully_consumed:
 		consumed.emit(item)
 	else:
-		# Se guarda en ESTE objeto (no en el descriptor compartido) lo que falta.
 		item.remaining_ratio = remaining_duration / descriptor.effect_duration
 		consumed.emit(null)

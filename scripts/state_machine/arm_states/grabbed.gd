@@ -46,9 +46,10 @@ func update(delta: float) -> void:
 
 func exit(_next_state_path: String) -> void:
 	view_punch.camera = _original_punch_camera
-	player.playback.start("grabbed_end")
 	weapon_controller.push_enabled = true
 	if is_instance_valid(_weapon):
 		_weapon.show()
-	# Por ahora solo pistola; después se elige según el tipo de arma.
-	player.playback.travel("pistol_idle" if player.get_current_weapon() else "idle")
+	# El state machine de armsy no tiene "pistol_idle": la pose del viewmodel
+	# la controla su propio animador, así que armsy siempre vuelve a idle.
+	if player.arms_animator != null:
+		player.arms_animator.play_base(&"idle")

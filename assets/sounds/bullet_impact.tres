@@ -1,0 +1,12 @@
+[gd_resource type="AudioStreamRandomizer" format=3 uid="uid://d2h2ihvtjlkpj"]
+
+[ext_resource type="AudioStream" uid="uid://ch35c6pjsq47a" path="res://assets/sounds/bullet_impact.ogg" id="1_d2q50"]
+[ext_resource type="AudioStream" uid="uid://cfbtoxktx4m8s" path="res://assets/sounds/bullet_impact2.ogg" id="2_ceib3"]
+[ext_resource type="AudioStream" uid="uid://cqpkygoo7fvuf" path="res://assets/sounds/bullet_impact3.ogg" id="3_qnnpl"]
+
+[resource]
+random_pitch = 1.0594631
+streams_count = 3
+stream_0/stream = ExtResource("1_d2q50")
+stream_1/stream = ExtResource("2_ceib3")
+stream_2/stream = ExtResource("3_qnnpl")

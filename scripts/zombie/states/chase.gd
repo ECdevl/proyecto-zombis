@@ -38,6 +38,7 @@ var _steer_yaw : float = 0.0
 const STILL_SPEED : float = 0.05
 
 func enter(previous_state_path: String, data := {}) -> void:
+	zombie.seen_sound.play()
 	zombie.vision.can_see = true
 	target = zombie.vision.target
 	_steer_yaw = zombie.rotation.y
@@ -188,6 +189,7 @@ func attack() -> void:
 	zombie.at["parameters/attack_var/blend_position"] = random_attack
 	zombie.at["parameters/attack/request"] = 1
 	await get_tree().create_timer(ATTACK_IMPACT_DELAY).timeout
+	zombie.attack_sound.play()
 	hurt_target(false)
 	
 func hurt_target(grab:bool = false) -> void:

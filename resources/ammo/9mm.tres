@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AmmoItemDescriptor" format=3 uid="uid://bhffwbhundwl8"]
+
+[ext_resource type="Script" uid="uid://orlxlnvacg2d" path="res://scripts/inventory/descriptors/ammo_item_descriptor.gd" id="1_40g4n"]
+[ext_resource type="ArrayMesh" uid="uid://d37sf7lhfo3ch" path="res://assets/models/item/9mm.obj" id="1_d614h"]
+[ext_resource type="Texture2D" uid="uid://dowmbfgc4c3er" path="res://assets/sprites/icons/9mm.res" id="1_vycqp"]
+
+[resource]
+script = ExtResource("1_40g4n")
+ammo_type = 1
+item_name = "9mm - Municion"
+icon = ExtResource("1_vycqp")
+weight = 1.0
+item_mesh = ExtResource("1_d614h")
+metadata/_custom_type_script = "uid://orlxlnvacg2d"

@@ -1,0 +1,16 @@
+[gd_resource type="AudioStreamRandomizer" format=3 uid="uid://1l5oje1ucrcv"]
+
+[ext_resource type="AudioStream" uid="uid://da8umec84p4du" path="res://assets/sounds/gun_handle1.ogg" id="1_e6bel"]
+[ext_resource type="AudioStream" uid="uid://cnd3dy1dmuuq6" path="res://assets/sounds/gun_handle2.ogg" id="2_15p7d"]
+[ext_resource type="AudioStream" uid="uid://4giscb6rh3k8" path="res://assets/sounds/gun_handle3.ogg" id="3_w0kst"]
+[ext_resource type="AudioStream" uid="uid://dah70ciwdv5fm" path="res://assets/sounds/gun_handle4.ogg" id="4_nexrt"]
+[ext_resource type="AudioStream" uid="uid://dowaln4jh4vqp" path="res://assets/sounds/gun_handle.ogg" id="5_e5yq4"]
+
+[resource]
+random_pitch = 1.0594631
+streams_count = 5
+stream_0/stream = ExtResource("1_e6bel")
+stream_1/stream = ExtResource("2_15p7d")
+stream_2/stream = ExtResource("3_w0kst")
+stream_3/stream = ExtResource("4_nexrt")
+stream_4/stream = ExtResource("5_e5yq4")

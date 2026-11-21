@@ -1,0 +1,51 @@
+[gd_resource type="Resource" script_class="Weapon" format=3 uid="uid://bsd6g00k3ypoh"]
+
+[ext_resource type="Script" uid="uid://cg2alhn207kxn" path="res://scripts/inventory/descriptors/item_descriptor.gd" id="1_oug2j"]
+[ext_resource type="Script" uid="uid://dbklk7rcbx4yy" path="res://scripts/inventory/descriptors/weapon.gd" id="2_auq64"]
+[ext_resource type="Texture2D" uid="uid://cyfy5xnelonjw" path="res://assets/sprites/icons/remington.res" id="2_jkmi6"]
+[ext_resource type="ArrayMesh" uid="uid://dej0yuuw58lom" path="res://assets/models/SHOTGUN.obj" id="2_v0etb"]
+[ext_resource type="PackedScene" uid="uid://b0w5fsjynlua1" path="res://assets/models/weapons/firearm/viewmodels/shotguns/REMINGTON.glb" id="3_auq64"]
+[ext_resource type="AudioStream" uid="uid://1l5oje1ucrcv" path="res://resources/new_audio_stream_randomizer.tres" id="3_pwmsv"]
+[ext_resource type="Script" uid="uid://kbhf0tx5mneo" path="res://scripts/weapons/shotgun_behaviour.gd" id="4_behav"]
+[ext_resource type="AudioStream" uid="uid://b0w1tbcqpftu0" path="res://assets/sounds/swing.mp3" id="5_py1hn"]
+[ext_resource type="AudioStream" uid="uid://cykmm5j6unweh" path="res://assets/sounds/shotgun_reload.wav" id="6_pwmsv"]
+[ext_resource type="AudioStream" uid="uid://desbtdb3ovats" path="res://resources/run.tres" id="8_oxfqs"]
+[ext_resource type="AudioStream" uid="uid://medasbh2d4wb" path="res://assets/sounds/shotgun_shoot.ogg" id="8_ry131"]
+
+[sub_resource type="Resource" id="Resource_behav"]
+script = ExtResource("4_behav")
+
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_j2b1d"]
+random_pitch = 1.0275202
+streams_count = 1
+stream_0/stream = ExtResource("6_pwmsv")
+
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_xmjb8"]
+random_pitch = 1.035863
+streams_count = 1
+stream_0/stream = ExtResource("8_ry131")
+
+[resource]
+script = ExtResource("2_auq64")
+ammo_type = 1
+weapon_type = 3
+curr_bullets = 8
+max_bullets = 50
+mag_size = 8
+bullet_per_reload = 1
+pellets_per_shot = 8
+recoil_kick = Vector2(9, 0)
+shoot_sound = SubResource("AudioStreamRandomizer_xmjb8")
+reload_sound = SubResource("AudioStreamRandomizer_j2b1d")
+weapon_handle = 1
+viewmodel_model = ExtResource("3_auq64")
+damage = 100.0
+fire_rate = 1.1
+weapon_range = 100.0
+behaviour = SubResource("Resource_behav")
+item_name = "Remington 870"
+icon = ExtResource("2_jkmi6")
+weight = 7.0
+dimensions = Vector2i(3, 1)
+item_mesh = ExtResource("2_v0etb")
+metadata/_custom_type_script = "uid://dbklk7rcbx4yy"
