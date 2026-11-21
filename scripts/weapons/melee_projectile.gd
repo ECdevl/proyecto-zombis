@@ -35,6 +35,8 @@ func setup(melee: Melee, swing: SwingData, by: Node3D) -> void:
 	set_projectile(melee.damage, melee.weapon_range)
 	audio_swing = AudioStreamPlayer.new()
 	audio_hit = AudioStreamPlayer.new()
+	add_child(audio_swing)
+	add_child(audio_hit)
 	audio_swing.stream = melee.melee_swing
 	audio_swing.play()
 	audio_hit.stream = melee.melee_hit

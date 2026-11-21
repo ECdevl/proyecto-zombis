@@ -340,6 +340,10 @@
 
 ## Hecho
 
+- [x] **Melee: sonidos de swing/hit reproducidos tras el rework con behaviours** (2026-11-21,
+      E-050): `melee_projectile.gd` añade los `AudioStreamPlayer` al árbol antes de `play()`;
+      `probe_melee` + `probe_melee_ataque` → *TODO OK*.
+
 - [x] **T-009 Tunneling de los pickables al soltarlos** (2026-11-02, E-012, D-010):
       `continuous_cd = true` en la raíz de `pickable_object.tscn`, transformación
       de `Malla` horneada en los puntos del casco (sin escala en `Colision`) y
