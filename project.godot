@@ -56,7 +56,7 @@ window/stretch/aspect="expand"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/ragdoll_wizard/plugin.cfg")
+enabled=PackedStringArray("res://addons/ragdoll_wizard/plugin.cfg", "res://addons/at-icons/plugin.cfg")
 
 [file_customization]
 
